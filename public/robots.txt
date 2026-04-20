@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Block known low-value paths
+Disallow: /api/
+Disallow: /*?utm_
+Disallow: /*?ref=
+
+# Crawl-budget hint for common bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://thisisnotahotel.com/sitemap.xml
+Host: https://thisisnotahotel.com

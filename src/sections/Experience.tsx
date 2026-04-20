@@ -1,0 +1,78 @@
+import { CircleCTA } from '../components/CircleCTA';
+import { useSectionProgress } from '../hooks/use-section-progress';
+
+export function Experience() {
+  const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
+
+  return (
+    <section
+      ref={ref}
+      id="experience"
+      className="relative w-screen h-screen-safe overflow-hidden"
+      style={{ zIndex: 40 }}
+      aria-label="Hotelerlebnis"
+    >
+      {/* Background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          transform: `scale(${1.1 - entrance * 0.1 + exit * 0.05})`,
+          opacity: 0.6 + entrance * 0.4 - exit * 0.65,
+        }}
+      >
+        <img
+          src="/images/experience-lounge.jpg"
+          alt="Ruhige Lounge — This Is Not A Hotel"
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#0B0B0C]/60 via-[#0B0B0C]/30 to-[#0B0B0C]/40" />
+      </div>
+
+      {/* Left Circle CTA */}
+      <div
+        className="absolute left-[10vw] top-[56vh] -translate-y-1/2 z-20"
+        style={{
+          transform: `translateY(-50%) translateX(${(1 - entrance) * -22}vw) translateX(${-exit * 18}vw) scale(${0.78 + entrance * 0.22 - exit * 0.15})`,
+          opacity: entrance - exit * 0.8,
+        }}
+      >
+        <CircleCTA
+          text="EXPLORE"
+          onClick={() => {
+            const element = document.querySelector('#details');
+            if (element) element.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
+      </div>
+
+      {/* Right content — slides in from right, earlier */}
+      <div className="absolute right-[7vw] top-1/2 -translate-y-1/2 z-20">
+        <div
+          style={{
+            transform: `translateX(${(1 - entrance) * 20}vw) translateX(${exit * 14}vw)`,
+            opacity: entrance - exit * 0.75,
+          }}
+        >
+          <h2 className="font-heading text-[clamp(32px,4.5vw,64px)] text-white leading-[0.95] tracking-[-0.02em] max-w-[540px]">
+            An experience,<br />not a booking.
+          </h2>
+        </div>
+
+        <div
+          className="mt-8"
+          style={{
+            transform: `translateY(${(1 - entrance) * 6}vh) translateY(${exit * 6}vh)`,
+            opacity: entrance - exit * 0.75,
+          }}
+        >
+          <p className="text-[#B7B7B7] text-base max-w-[440px]">
+            We've removed the friction: no front-desk queues, no surprise fees—just a calm arrival and a quiet stay.
+          </p>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0B0C] to-transparent pointer-events-none" />
+    </section>
+  );
+}

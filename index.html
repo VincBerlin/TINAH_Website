@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- ============================
+         Primary SEO
+         ============================ -->
+    <title>This Is Not A Hotel™ — A Quiet Retreat on the Coast</title>
+    <meta
+      name="description"
+      content="A small, quiet retreat on the coast — designed for stillness. No queues, no noise, just space. Request your dates and we'll confirm within hours."
+    />
+    <meta
+      name="keywords"
+      content="this is not a hotel, coastal retreat, quiet hotel, small hotel, design hotel, calm bay, minimalist hotel, hotel request, coastal stay"
+    />
+    <meta name="author" content="This Is Not A Hotel" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="theme-color" content="#0B0B0C" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Ambient sound — Preload-Hint, damit der Browser die Datei parallel
+         zum HTML zieht. Die MP3 ist auf ~935 KB komprimiert und in
+         Millisekunden geladen, sodass das Meeresrauschen vollständig
+         gepuffert ist, bevor der User mit der Seite interagiert. -->
+    <link
+      rel="preload"
+      as="audio"
+      href="/sounds/ambient.mp3"
+      type="audio/mpeg"
+    />
+
+    <!-- Canonical + language alternates (ready for future i18n) -->
+    <link rel="canonical" href="https://thisisnotahotel.com/" />
+    <link rel="alternate" href="https://thisisnotahotel.com/" hreflang="x-default" />
+    <link rel="alternate" href="https://thisisnotahotel.com/" hreflang="en" />
+    <link rel="alternate" href="https://thisisnotahotel.com/de/" hreflang="de" />
+
+    <!-- ============================
+         Open Graph (Facebook, LinkedIn, WhatsApp, …)
+         ============================ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="This Is Not A Hotel™" />
+    <meta property="og:title" content="This Is Not A Hotel™ — A Quiet Retreat on the Coast" />
+    <meta
+      property="og:description"
+      content="A small, quiet retreat on the coast — designed for stillness. Request your dates and we'll confirm within hours."
+    />
+    <meta property="og:url" content="https://thisisnotahotel.com/" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="de_DE" />
+    <meta property="og:image" content="https://thisisnotahotel.com/images/hero-pool.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Coastal hotel pool at dusk — This Is Not A Hotel" />
+
+    <!-- ============================
+         Twitter / X
+         ============================ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="This Is Not A Hotel™ — A Quiet Retreat on the Coast" />
+    <meta
+      name="twitter:description"
+      content="A small, quiet retreat on the coast — designed for stillness."
+    />
+    <meta name="twitter:image" content="https://thisisnotahotel.com/images/hero-pool.jpg" />
+
+    <!-- ============================
+         Performance — font preconnect & DNS
+         ============================ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Hero-Poster ist das allererste sichtbare Bild oberhalb des Folds:
+         mit fetchpriority="high" zieht der Browser es parallel zum HTML,
+         damit der erste Frame sofort da ist, bevor das 59 MB-Video-
+         Streaming überhaupt anrollt. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/hero-motion-poster.jpg"
+      fetchpriority="high"
+    />
+
+    <!-- Brand-Headline-Font (Allerta Stencil) als Woff2 vorladen — spart
+         den zweiten Render-Tick, weil die Stencil-Glyphen direkt zur
+         Verfügung stehen, wenn der Wortmarken-<h1> gemountet wird.
+         Google Fonts CSS bindet display=swap ein, aber das Preload stellt
+         sicher, dass kein FOIT-Flash entsteht. -->
+    <link
+      rel="preload"
+      as="font"
+      href="https://fonts.gstatic.com/s/allertastencil/v28/HTx0L209KT-LmIE9N7OR6eiycOe1-g.woff2"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!-- ============================
+         Icons + PWA manifest
+         ============================ -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M12 2c1 0 9.5 5.1 9.5 11.7 0 4.1-4.4 7.3-9.5 7.3S2.5 17.8 2.5 13.7C2.5 7.1 11 2 12 2z'/%3E%3C/svg%3E" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- ============================
+         Structured data — Hotel / LodgingBusiness
+         https://schema.org/Hotel
+         ============================ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Hotel",
+        "@id": "https://thisisnotahotel.com/#hotel",
+        "name": "This Is Not A Hotel",
+        "alternateName": "This Is Not A Hotel\u2122",
+        "description": "A small, quiet retreat on the coast — designed for stillness.",
+        "url": "https://thisisnotahotel.com/",
+        "logo": "https://thisisnotahotel.com/logo.png",
+        "image": [
+          "https://thisisnotahotel.com/images/hero-pool.jpg",
+          "https://thisisnotahotel.com/images/room-interior.jpg",
+          "https://thisisnotahotel.com/images/experience-lounge.jpg"
+        ],
+        "priceRange": "$$$",
+        "starRating": { "@type": "Rating", "ratingValue": "4" },
+        "telephone": "+1-555-014-2198",
+        "email": "hello@thisisnotahotel.com",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "12 Coast Road",
+          "addressLocality": "Calm Bay",
+          "addressCountry": "US"
+        },
+        "amenityFeature": [
+          { "@type": "LocationFeatureSpecification", "name": "Breakfast delivered", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Quiet zone", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Contactless check-in", "value": true }
+        ],
+        "potentialAction": {
+          "@type": "ReserveAction",
+          "target": "https://thisisnotahotel.com/#contact",
+          "name": "Request a stay"
+        }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://thisisnotahotel.com/#website",
+        "url": "https://thisisnotahotel.com/",
+        "name": "This Is Not A Hotel",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://thisisnotahotel.com/#hotel" }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://thisisnotahotel.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Location", "item": "https://thisisnotahotel.com/#location" },
+          { "@type": "ListItem", "position": 3, "name": "Rooms", "item": "https://thisisnotahotel.com/#rooms" },
+          { "@type": "ListItem", "position": 4, "name": "Experience", "item": "https://thisisnotahotel.com/#experience" },
+          { "@type": "ListItem", "position": 5, "name": "Dining", "item": "https://thisisnotahotel.com/#dining" },
+          { "@type": "ListItem", "position": 6, "name": "Request a stay", "item": "https://thisisnotahotel.com/#contact" }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <div style="padding:24px;font-family:sans-serif;background:#0B0B0C;color:#F6F6F6;">
+        <h1>This Is Not A Hotel</h1>
+        <p>This site requires JavaScript. Please contact us at <a href="mailto:hello@thisisnotahotel.com" style="color:#fff;">hello@thisisnotahotel.com</a> to request a stay.</p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
