@@ -5,10 +5,26 @@ import { Location } from './sections/Location';
 import { Rooms } from './sections/Rooms';
 import { Experience } from './sections/Experience';
 import { Details } from './sections/Details';
-import { Dining } from './sections/Dining';
 import { Testimonial } from './sections/Testimonial';
 import { Contact } from './sections/Contact';
 import { Preloader } from './components/Preloader';
+
+/**
+ * App-Root.
+ *
+ * Routing-Strategie: KEIN Routing mehr.
+ * Früher existierte eine separate Unterseite `/pause` für die
+ * Buchungsanfrage. Auf explizite Userwahl hin ist die Buchungsanfrage
+ * jetzt der letzte ABSCHNITT auf derselben Startseite (Contact-Section
+ * mit `id="book"`). Das PAUSE-NOW-CTA im Hero scrollt dort hin.
+ *
+ * Vorteile:
+ *   - Ton/Preloader/TopBar müssen nie zurückgesetzt werden
+ *   - Eine URL, eine Seite → einfachere SEO-Geschichte (ein kanonisches
+ *     Dokument statt zwei halb-überlappende)
+ *   - Kein popstate-Hopping, keine doppelte Title-Logik, kein doppelter
+ *     Preloader-State
+ */
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -18,21 +34,15 @@ function App() {
     setIsLoading(false);
   }, []);
 
-  // Handle scroll for top bar variant (dark/light based on section)
+  // Scroll-getriggerter Wechsel der TopBar-Variante.
+  // Die Book-Section am Ende hat einen dunklen Hintergrund (wie die
+  // anderen Sections), deshalb bleibt die TopBar auf „dark" — kein
+  // Switch auf „light" mehr nötig.
   useEffect(() => {
     const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      
-      // Change variant based on section (contact section is light)
-      const contactSection = document.getElementById('contact');
-      if (contactSection) {
-        const contactRect = contactSection.getBoundingClientRect();
-        if (contactRect.top < windowHeight * 0.5) {
-          setTopBarVariant('light');
-        } else {
-          setTopBarVariant('dark');
-        }
-      }
+      // Reserviert für zukünftige Sections mit hellem Hintergrund.
+      // Aktuell bleibt die Bar durchgehend „dark".
+      setTopBarVariant('dark');
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -58,17 +68,17 @@ function App() {
       */}
       <TopBar variant={topBarVariant} />
 
-      {/* Sichtbarkeit der TopBar-Inhalte könnte noch per isLoading gegated
-          werden — aktuell nicht nötig, da der Preloader ohnehin darüber liegt. */}
-
-      <div className={`min-h-screen bg-[#0B0B0C] ${isLoading ? 'overflow-hidden max-h-screen' : ''}`}>
+      <div
+        className={`min-h-screen bg-[#0B0B0C] ${
+          isLoading ? 'overflow-hidden max-h-screen' : ''
+        }`}
+      >
         <main>
           <Hero isReady={!isLoading} />
           <Location />
           <Rooms />
           <Experience />
           <Details />
-          <Dining />
           <Testimonial />
           <Contact />
         </main>

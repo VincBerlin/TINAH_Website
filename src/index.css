@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&family=Allerta+Stencil&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&family=Allerta+Stencil&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -129,6 +129,23 @@
        verklebt (besonders I/N/T-Paare). */
     letter-spacing: 0.14em;
   }
+
+  /* Display italic — used alongside the Stencil headline on the
+     "An Introduction" section. High-contrast serif italic with a
+     classic swashy feel, pairs well with Allerta Stencil's cut-out
+     glyphs. */
+  .font-serif-display {
+    font-family: 'DM Serif Display', 'EB Garamond', Georgia, serif;
+    letter-spacing: 0;
+  }
+
+  /* Body serif — classic book serif for long-form paragraph copy on
+     the cream-background "An Introduction" section. Readable at
+     smaller sizes, warm, unobtrusive. */
+  .font-serif-body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    letter-spacing: 0;
+  }
 }
 
 @layer components {
@@ -235,6 +252,15 @@
     height: 100svh;
     height: 100dvh;
     min-height: -webkit-fill-available;
+  }
+
+  /* Min-height-Variante: für Sections, deren Inhalt bei schmalen
+     Viewports länger als ein Viewport werden darf (z.B. editoriale
+     Zwei-Spalten-Layouts, die auf Mobile stapeln). */
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
   }
 
   /* Hover-States sollen auf Touch-Geräten nicht „kleben" bleiben.

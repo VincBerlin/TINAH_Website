@@ -17,8 +17,10 @@ import { Volume2, Volume1, VolumeX } from 'lucide-react';
  *   3) Ab da cyclt der Button: Laut → Leise → Aus → Laut.
  *
  * Audio-Datei:
- *   `/sounds/ambient.mp3` — ~935 KB MP3 (Mixkit CC, Wellenrauschen),
- *   lädt in Millisekunden, damit der Wechsel wirklich instantan ist.
+ *   `/sounds/meditation.mp3` — ruhige Meditations-/Ambient-Spur, der
+ *   neue offizielle Sound der Seite. Ersetzt die frühere
+ *   Wellenrauschen-Variante (mixkit-small-waves) — auf Wunsch des
+ *   Inhabers, damit der Klang enger zur „PAUSE NOW"-Idee passt.
  */
 
 type SoundLevel = 'off' | 'soft' | 'full';
@@ -59,7 +61,7 @@ const FADE_DURATION_MS = 420;
 
 export function AmbientSound({
   variant = 'dark',
-  src = '/sounds/ambient.mp3',
+  src = '/sounds/meditation.mp3',
   subtle = false,
 }: AmbientSoundProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -121,11 +123,12 @@ export function AmbientSound({
     audio.muted = false;
     audio.volume = TARGET_VOLUME[level];
 
-    if (!audio.paused) {
-      hasStartedRef.current = true;
-      return true;
-    }
-
+    // WICHTIG: Safari (macOS & iOS) entmutet ein bereits-spielendes
+    // muted-Element NICHT, wenn wir nur `muted = false` setzen — wir
+    // müssen in derselben Event-Loop wie die User-Geste erneut `play()`
+    // aufrufen, sonst bleibt der Track lautlos. Chrome/Firefox sind
+    // toleranter, aber der doppelte play()-Aufruf ist harmlos für alle
+    // anderen Browser und kostet nichts.
     const p = audio.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -288,8 +291,8 @@ export function AmbientSound({
           }
           title={
             hasInteracted
-              ? `Meeresrauschen — ${LABEL[level]}`
-              : 'Meeresrauschen & Vogelgezwitscher einschalten'
+              ? LABEL[level]
+              : 'Sound einschalten'
           }
           // min-w/h 44px: WCAG 2.5.5 / Apple HIG-Mindest-Tapfläche.
           // Das sichtbare Icon bleibt klein & dezent, die Klickfläche ist
@@ -342,8 +345,8 @@ export function AmbientSound({
           }
           title={
             hasInteracted
-              ? `Meeresrauschen — ${LABEL[level]}`
-              : 'Meeresrauschen & Vogelgezwitscher einschalten'
+              ? LABEL[level]
+              : 'Sound einschalten'
           }
           className={`
             group relative inline-flex items-center gap-2 px-4 py-2

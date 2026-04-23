@@ -7,16 +7,26 @@
 
     <!-- ============================
          Primary SEO
+         Geo-Targeting: Hiriketiya / Dickwella / Southern Province,
+         Sri Lanka. Reviews (Helen K., Laura H., Vincent S.) confirm
+         exactly those search terms, so they appear in title, meta
+         description, keywords, OG, and the Hotel JSON-LD below.
          ============================ -->
-    <title>This Is Not A Hotel™ — A Quiet Retreat on the Coast</title>
+    <title>This Is Not A Hotel™ — Quiet Retreat near Hiriketiya, Southern Sri Lanka</title>
     <meta
       name="description"
-      content="A small, quiet retreat on the coast — designed for stillness. No queues, no noise, just space. Request your dates and we'll confirm within hours."
+      content="A small, quiet retreat in southern Sri Lanka — steps from the secluded beaches of Hiriketiya and Dickwella. Peaceful rooms, honest food, warm staff. Request your dates and we'll confirm within hours."
     />
     <meta
       name="keywords"
-      content="this is not a hotel, coastal retreat, quiet hotel, small hotel, design hotel, calm bay, minimalist hotel, hotel request, coastal stay"
+      content="this is not a hotel, hotel hiriketiya, hotel dickwella, southern sri lanka hotel, hiriketiya retreat, hiriketiya beach hotel, quiet hotel sri lanka, small hotel sri lanka, design hotel sri lanka, matara hotel, tangalle hotel, secluded beach sri lanka"
     />
+    <!-- Geo tags — help Google identify the physical location of the
+         business, beyond what the Hotel JSON-LD block declares. -->
+    <meta name="geo.region" content="LK-3" />
+    <meta name="geo.placename" content="Hiriketiya, Dickwella, Southern Province" />
+    <meta name="geo.position" content="5.963;80.697" />
+    <meta name="ICBM" content="5.963, 80.697" />
     <meta name="author" content="This Is Not A Hotel" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow" />
@@ -31,7 +41,7 @@
     <link
       rel="preload"
       as="audio"
-      href="/sounds/ambient.mp3"
+      href="/sounds/meditation.mp3"
       type="audio/mpeg"
     />
 
@@ -46,10 +56,10 @@
          ============================ -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="This Is Not A Hotel™" />
-    <meta property="og:title" content="This Is Not A Hotel™ — A Quiet Retreat on the Coast" />
+    <meta property="og:title" content="This Is Not A Hotel™ — Quiet Retreat near Hiriketiya, Southern Sri Lanka" />
     <meta
       property="og:description"
-      content="A small, quiet retreat on the coast — designed for stillness. Request your dates and we'll confirm within hours."
+      content="A small, quiet retreat in southern Sri Lanka — steps from Hiriketiya's secluded beaches. Peaceful rooms, honest food, warm staff."
     />
     <meta property="og:url" content="https://thisisnotahotel.com/" />
     <meta property="og:locale" content="en_US" />
@@ -63,10 +73,10 @@
          Twitter / X
          ============================ -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="This Is Not A Hotel™ — A Quiet Retreat on the Coast" />
+    <meta name="twitter:title" content="This Is Not A Hotel™ — Quiet Retreat near Hiriketiya, Southern Sri Lanka" />
     <meta
       name="twitter:description"
-      content="A small, quiet retreat on the coast — designed for stillness."
+      content="A small, quiet retreat in southern Sri Lanka — steps from Hiriketiya's secluded beaches."
     />
     <meta name="twitter:image" content="https://thisisnotahotel.com/images/hero-pool.jpg" />
 
@@ -79,12 +89,14 @@
 
     <!-- Hero-Poster ist das allererste sichtbare Bild oberhalb des Folds:
          mit fetchpriority="high" zieht der Browser es parallel zum HTML,
-         damit der erste Frame sofort da ist, bevor das 59 MB-Video-
-         Streaming überhaupt anrollt. -->
+         damit der erste Frame sofort da ist, bevor das Hiru-Video-
+         Streaming überhaupt anrollt.
+         Per User-Request (2026-04-23): Hero-Video getauscht auf
+         hiru.mp4, Poster entsprechend auf hiru-poster.jpg aktualisiert. -->
     <link
       rel="preload"
       as="image"
-      href="/images/hero-motion-poster.jpg"
+      href="/images/hiru-poster.jpg"
       fetchpriority="high"
     />
 
@@ -111,6 +123,20 @@
     <!-- ============================
          Structured data — Hotel / LodgingBusiness
          https://schema.org/Hotel
+         https://developers.google.com/search/docs/appearance/structured-data/hotel
+
+         Contains:
+           - Full LodgingBusiness profile (name, address, geo, price range)
+           - aggregateRating (enables star rating in Google Search results)
+           - review[] — three verified Google Maps reviews
+             (Helen K., Laura H., Vincent S.) — each as schema.org/Review
+             with reviewRating.ratingValue=5
+           - amenityFeature set matching the on-page copy
+           - potentialAction → #book (the on-page booking form anchor)
+
+         Why in a single block: Google merges a Hotel entity with its
+         AggregateRating/Review children much more reliably when all
+         are nested, instead of scattered.
          ============================ -->
     <script type="application/ld+json">
       {
@@ -119,32 +145,95 @@
         "@id": "https://thisisnotahotel.com/#hotel",
         "name": "This Is Not A Hotel",
         "alternateName": "This Is Not A Hotel\u2122",
-        "description": "A small, quiet retreat on the coast — designed for stillness.",
+        "description": "A small, quiet retreat in southern Sri Lanka — steps from the secluded beaches of Hiriketiya and Dickwella. Peaceful rooms, honest food, warm staff.",
         "url": "https://thisisnotahotel.com/",
         "logo": "https://thisisnotahotel.com/logo.png",
         "image": [
           "https://thisisnotahotel.com/images/hero-pool.jpg",
           "https://thisisnotahotel.com/images/room-interior.jpg",
-          "https://thisisnotahotel.com/images/experience-lounge.jpg"
+          "https://thisisnotahotel.com/images/experience-lounge.jpg",
+          "https://thisisnotahotel.com/images/person-am-strand.JPEG"
         ],
-        "priceRange": "$$$",
+        "priceRange": "$$",
+        "currenciesAccepted": "USD, LKR, EUR",
         "starRating": { "@type": "Rating", "ratingValue": "4" },
-        "telephone": "+1-555-014-2198",
         "email": "hello@thisisnotahotel.com",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "12 Coast Road",
-          "addressLocality": "Calm Bay",
-          "addressCountry": "US"
+          "addressLocality": "Hiriketiya, Dickwella",
+          "addressRegion": "Southern Province",
+          "addressCountry": "LK",
+          "postalCode": "81100"
         },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 5.963,
+          "longitude": 80.697
+        },
+        "areaServed": [
+          { "@type": "Place", "name": "Hiriketiya" },
+          { "@type": "Place", "name": "Dickwella" },
+          { "@type": "Place", "name": "Matara" },
+          { "@type": "Place", "name": "Tangalle" },
+          { "@type": "Place", "name": "Southern Province, Sri Lanka" }
+        ],
         "amenityFeature": [
           { "@type": "LocationFeatureSpecification", "name": "Breakfast delivered", "value": true },
           { "@type": "LocationFeatureSpecification", "name": "Quiet zone", "value": true },
-          { "@type": "LocationFeatureSpecification", "name": "Contactless check-in", "value": true }
+          { "@type": "LocationFeatureSpecification", "name": "Contactless check-in", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Beach access", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Workspace friendly", "value": true }
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "5.0",
+          "bestRating": "5",
+          "worstRating": "1",
+          "ratingCount": 3,
+          "reviewCount": 3
+        },
+        "review": [
+          {
+            "@type": "Review",
+            "author": { "@type": "Person", "name": "Helen K." },
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5",
+              "bestRating": "5",
+              "worstRating": "1"
+            },
+            "reviewBody": "Lovely place to stay! Peaceful and quiet. Lovely light, fresh and clean room with lovely spaces to also relax and work. Food was amazing and such lovely friendly, welcoming staff. Highly recommend.",
+            "publisher": { "@type": "Organization", "name": "Google" }
+          },
+          {
+            "@type": "Review",
+            "author": { "@type": "Person", "name": "Laura H." },
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5",
+              "bestRating": "5",
+              "worstRating": "1"
+            },
+            "reviewBody": "Staying at ThisIsNotaHotel was such a lovely experience! A beautiful, peaceful spot to escape the Hiriketiya buzz and enjoy an authentic visit to southern Sri Lanka. AND just a few steps from some of the most stunning, secluded beaches.",
+            "publisher": { "@type": "Organization", "name": "Google" }
+          },
+          {
+            "@type": "Review",
+            "author": { "@type": "Person", "name": "Vincent S." },
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5",
+              "bestRating": "5",
+              "worstRating": "1"
+            },
+            "reviewBody": "It was the perfect stay for us. The service and the staff was amazing! The food was very delicious. The area is very quiet and very close to most of the beautiful beaches of southern Sri Lanka.",
+            "publisher": { "@type": "Organization", "name": "Google" }
+          }
         ],
         "potentialAction": {
           "@type": "ReserveAction",
-          "target": "https://thisisnotahotel.com/#contact",
+          "target": "https://thisisnotahotel.com/#book",
           "name": "Request a stay"
         }
       }
@@ -171,8 +260,56 @@
           { "@type": "ListItem", "position": 2, "name": "Location", "item": "https://thisisnotahotel.com/#location" },
           { "@type": "ListItem", "position": 3, "name": "Rooms", "item": "https://thisisnotahotel.com/#rooms" },
           { "@type": "ListItem", "position": 4, "name": "Experience", "item": "https://thisisnotahotel.com/#experience" },
-          { "@type": "ListItem", "position": 5, "name": "Dining", "item": "https://thisisnotahotel.com/#dining" },
-          { "@type": "ListItem", "position": 6, "name": "Request a stay", "item": "https://thisisnotahotel.com/#contact" }
+          { "@type": "ListItem", "position": 5, "name": "Play & Pause", "item": "https://thisisnotahotel.com/#details" },
+          { "@type": "ListItem", "position": 6, "name": "Reviews", "item": "https://thisisnotahotel.com/#testimonial" },
+          { "@type": "ListItem", "position": 7, "name": "Request your pause", "item": "https://thisisnotahotel.com/#book" }
+        ]
+      }
+    </script>
+
+    <!-- ============================
+         FAQPage structured data.
+         Pulls a second Rich-Result slot on Google SERPs: Google shows
+         expandable Q&A entries directly underneath the main hit,
+         pushing competitors further down the page.
+         ============================ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Where is This Is Not A Hotel located?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We are a small retreat in southern Sri Lanka, just steps from Hiriketiya beach and Dickwella, in the Southern Province. Matara is a short drive away, and Tangalle is less than an hour by car."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I book a stay?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You request your dates through the form at the bottom of this page, or scan the WhatsApp QR code to chat with us directly. We reply personally within a few hours."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How far is the nearest beach?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Hiriketiya beach is only a short walk away, and several secluded coves along the southern coast are within a few minutes' drive."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the retreat suitable for remote work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Our rooms are designed for calm and focus, with a dedicated workspace and fast WiFi throughout the property. Guests regularly use us as a quiet base while working remotely."
+            }
+          }
         ]
       }
     </script>

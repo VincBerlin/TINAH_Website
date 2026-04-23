@@ -1,24 +1,35 @@
 import { useState, useEffect, useRef } from 'react';
+import { Home } from 'lucide-react';
 import { AmbientSound } from './AmbientSound';
 
 interface TopBarProps {
   variant?: 'dark' | 'light';
-  rightLabel?: string;
 }
 
 /**
  * Sticky top navigation.
  *
- * Behavior:
- * - Fades in after initial load.
- * - HIDES while the user scrolls DOWN (so long-form content is never covered).
- * - SHOWS when the user scrolls UP.
- * - Always visible at the very top of the page (scrollY < 80).
- * - Applies a translucent backdrop once the page has been scrolled past the hero band.
+ * Behavior (per user request 2026-04-21):
+ *   • Full TopBar is visible ONLY when the user is at the very top of
+ *     the page (scrollY ≤ 80). This is the Hero view.
+ *   • As soon as the user scrolls away from the top, the full bar is
+ *     GONE — it does NOT re-appear on scroll-up.
+ *   • Instead, a small, unobtrusive Home button appears at the top
+ *     when the user is scrolling UP past the hero. Clicking it jumps
+ *     back to the very first page (scroll to top, smooth).
+ *   • When the user scrolls DOWN, even the Home button hides, so
+ *     content is never covered.
+ *
+ * Rationale:
+ *   The full TopBar is a "landing" element — it sets the tone in the
+ *   Hero. Once the visitor is exploring deeper sections, we don't want
+ *   to reintroduce a heavy nav strip every time they scroll up. A
+ *   single tiny Home affordance is enough to return to the entry.
  */
-export function TopBar({ variant = 'dark', rightLabel = 'SCROLL TO EXPLORE' }: TopBarProps) {
+export function TopBar({ variant = 'dark' }: TopBarProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [showHomeButton, setShowHomeButton] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
 
   const lastScrollY = useRef(0);
@@ -47,13 +58,18 @@ export function TopBar({ variant = 'dark', rightLabel = 'SCROLL TO EXPLORE' }: T
         setHasScrolled(currentY > BACKDROP_AFTER_PX);
 
         if (currentY <= SHOW_AT_TOP_PX) {
-          setIsHidden(false);
-        } else if (delta > DIRECTION_DELTA) {
-          // scrolling DOWN → hide
-          setIsHidden(true);
-        } else if (delta < -DIRECTION_DELTA) {
-          // scrolling UP → show
-          setIsHidden(false);
+          // At the very top → full bar shown, Home button hidden
+          setIsAtTop(true);
+          setShowHomeButton(false);
+        } else {
+          setIsAtTop(false);
+          if (delta > DIRECTION_DELTA) {
+            // scrolling DOWN → hide Home button
+            setShowHomeButton(false);
+          } else if (delta < -DIRECTION_DELTA) {
+            // scrolling UP → show the small Home button (not the full bar)
+            setShowHomeButton(true);
+          }
         }
 
         lastScrollY.current = currentY;
@@ -65,12 +81,11 @@ export function TopBar({ variant = 'dark', rightLabel = 'SCROLL TO EXPLORE' }: T
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const textColor = variant === 'dark' ? 'text-[#B7B7B7]' : 'text-[#3F3F3F]';
-  const borderColor = variant === 'dark' ? 'border-white/20' : 'border-black/15';
-  const hoverColor =
-    variant === 'dark'
-      ? 'hover:text-white hover:border-white'
-      : 'hover:text-[#0B0B0C] hover:border-[#0B0B0C]';
 
   // Kein schwarzer Balken im gescrollten Zustand — Navigation bleibt
   // durchgehend transparent, damit sie sich in das Hero/Content-Bild einfügt.
@@ -79,14 +94,18 @@ export function TopBar({ variant = 'dark', rightLabel = 'SCROLL TO EXPLORE' }: T
   // Anpassungen (z. B. Text-Kontrast-Verstärkung) weiter getrackt.
   void hasScrolled;
 
-  // Combine: hidden on scroll-down, mount fade-in, visible otherwise
+  // The full TopBar is now only visible at the very top of the page.
+  // Once the user scrolls past the hero, the bar fades up and out and
+  // never returns — a compact Home button (rendered further below)
+  // takes over.
   const visibilityClasses = !isMounted
     ? 'opacity-0 -translate-y-3'
-    : isHidden
-      ? 'opacity-0 -translate-y-full pointer-events-none'
-      : 'opacity-100 translate-y-0';
+    : isAtTop
+      ? 'opacity-100 translate-y-0'
+      : 'opacity-0 -translate-y-full pointer-events-none';
 
   return (
+    <>
     <header
       role="banner"
       aria-label="Hauptnavigation"
@@ -101,67 +120,168 @@ export function TopBar({ variant = 'dark', rightLabel = 'SCROLL TO EXPLORE' }: T
         paddingRight: 'env(safe-area-inset-right)',
       }}
     >
-      {/* Micro Labels Row */}
-      <div className="px-[4vw] pt-[3vh] flex justify-between items-center">
-        <span
-          className={`font-stencil text-[12px] uppercase tracking-[0.22em] ${textColor}`}
-          aria-label="This Is Not A Hotel"
-        >
-          THIS IS NOT A HOTEL<sup className="text-[0.85em] align-top ml-[0.2em] tracking-normal">™</sup>
-        </span>
-        {/* Rechts: „SCROLL TO EXPLORE"-Mikro-Zeile + dezenter Sound-Toggle
-            direkt daneben. Der Sound-Button ist klein, randlos und in
-            derselben Farbfamilie wie das Label — so fügt er sich ein,
-            ohne optisch zu konkurrieren. Meeresrauschen & sanftes
-            Vogelgezwitscher passen zur Brand-Idee: Ruhe, Balance, Natur
-            am Meer. */}
-        <div className="flex items-center gap-3">
-          <span className={`font-stencil text-[11px] uppercase tracking-[0.22em] ${textColor}`}>
-            {rightLabel}
+      {/*
+        Single Micro-Bar Row (per User-Request 2026-04-23 — refactor
+        nach Inspirations-Layout):
+
+          [LINKS]                [MITTE]              [RECHTS]
+          EST. MMXXV    ·         TINAH · MAWELLA      ROOMS  RITUALS  BOOK
+          MAWELLA 06°04'N
+
+        Drei-Spalten-Grid statt der alten Zwei-Zeilen-Konstruktion:
+          - Linke Spalte: zwei Mikro-Labels nebeneinander
+            (Gründungsjahr römisch + GPS-Koordinaten) — sie zitieren
+            klassisches Hotel-Branding ("Est. 2025") und verankern den
+            Ort gleichzeitig per Koordinate für SEO.
+          - Mittlere Spalte: Wortmarke "TINAH · MAWELLA". Mittiger
+            Brand-Anker, ersetzt das alte rechts-bündige
+            "SCROLL TO EXPLORE"-Label und das links-bündige "THIS IS
+            NOT A HOTEL™".
+          - Rechte Spalte: drei Nav-Items als reine Stencil-Texte
+            (keine Pills mehr) — ROOMS, RITUALS, BOOK. Klick scrollt
+            zur jeweiligen Sektion. PLAY, PAUSE und LOCATION sind
+            entfernt (User-Request 2026-04-23).
+
+        Die zweite Pills-Zeile darunter ist komplett gestrichen.
+      */}
+      {/*
+        Layout-Refactor 2026-04-23:
+          - "TINAH · MAWELLA" Mittel-Spalte entfernt (User-Request).
+          - "EST. MMXXV" durch den Hotel-Namen ersetzt (Hotel-Name
+            soll im Vordergrund stehen, nicht das Gründungsjahr).
+          - Rechtes Nav-Item "BOOK" → "PAUSE".
+          Das verbleibende Mawella-GPS-Label bleibt — es trägt SEO
+          und bewahrt das Hotel-Brand-Manifest-Detail.
+      */}
+      <div className="px-[4vw] pt-[3vh] pb-4 grid grid-cols-3 items-center">
+        {/* Linke Spalte — Hotel-Name + Koordinaten. */}
+        <div className="justify-self-start flex items-center gap-[2vw]">
+          <span
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] ${textColor}`}
+            aria-label="This Is Not A Hotel"
+          >
+            THIS&nbsp;IS&nbsp;NOT&nbsp;A&nbsp;HOTEL<sup className="text-[0.75em] align-top ml-[0.15em] tracking-normal">™</sup>
           </span>
           <span
-            aria-hidden
-            className={`h-3 w-px ${variant === 'dark' ? 'bg-white/20' : 'bg-black/15'}`}
-          />
-          <AmbientSound variant={variant} subtle />
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] ${textColor}`}
+            aria-label="Mawella, latitude 06 degrees 04 minutes north"
+          >
+            MAWELLA 06°04&apos;N
+          </span>
         </div>
-      </div>
 
-      {/* Navigation Pills Row */}
-      <nav aria-label="Primär" className="px-[4vw] pt-4 pb-4">
-        {/* Drei-Spalten-Grid statt flex-justify-between:
-            garantiert, dass der mittlere PAUSE-Button EXAKT auf der
-            horizontalen Mittelachse liegt — unabhängig von den
-            unterschiedlichen Textbreiten von PLAY (4) und LOCATION (8). */}
-        <div className="grid grid-cols-3 items-center h-11">
+        {/* Mittlere Spalte — bewusst leer. */}
+        <span aria-hidden className="justify-self-center" />
+
+        {/* Rechte Spalte — Navigation. */}
+        <nav
+          aria-label="Primär"
+          className="justify-self-end flex items-center gap-[2.4vw]"
+        >
           <button
             type="button"
-            className={`justify-self-start px-5 py-2 text-xs font-stencil uppercase tracking-[0.22em] transition-all duration-300 rounded-full border ${borderColor} ${textColor} ${hoverColor}`}
-          >
-            PLAY
-          </button>
-
-          <button
-            type="button"
-            className={`justify-self-center px-5 py-2 text-xs font-stencil uppercase tracking-[0.22em] transition-all duration-300 rounded-full border ${borderColor} ${textColor} ${hoverColor}`}
-          >
-            PAUSE
-          </button>
-
-          <button
-            type="button"
-            className={`justify-self-end px-5 py-2 text-xs font-stencil uppercase tracking-[0.22em] transition-all duration-300 rounded-full border ${borderColor} ${textColor} ${hoverColor}`}
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
+              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
+            }`}
             onClick={() => {
-              const el = document.getElementById('location');
+              const el = document.getElementById('rooms');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
           >
-            LOCATION
+            ROOMS
           </button>
-        </div>
-
-        {/* Trennlinie entfernt — Leiste soll visuell „nicht da" sein. */}
-      </nav>
+          <button
+            type="button"
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
+              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
+            }`}
+            onClick={() => {
+              // "Rituals" entspricht inhaltlich der Experience-Sektion
+              // (Yoga, Meditation, Aktivitäten). Wir scrollen daher zu
+              // #experience — einzig möglicher passender Anker.
+              const el = document.getElementById('experience');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            RITUALS
+          </button>
+          <button
+            type="button"
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
+              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
+            }`}
+            onClick={() => {
+              const el = document.getElementById('book');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            PAUSE
+          </button>
+        </nav>
+      </div>
     </header>
+
+    {/*
+      Compact Home button — replaces the full TopBar everywhere
+      except the very top of the page.
+      - Hidden at the top of the page (the full bar is there instead).
+      - Hidden while scrolling DOWN (no visual noise over content).
+      - Appears as soon as the user scrolls UP past the hero.
+      - Click → smooth scroll to the very top (Hero).
+
+      Visually: tiny circular pill, dark glass, center-top, safe-area
+      aware. Deliberately low-contrast so it stays out of the way.
+    */}
+    <button
+      type="button"
+      onClick={handleHomeClick}
+      aria-label="Zurück zur Startseite"
+      className={`
+        fixed z-[100] left-1/2 -translate-x-1/2
+        h-9 w-9 rounded-full
+        flex items-center justify-center
+        border border-white/20 bg-[#0B0B0C]/55 backdrop-blur-md
+        text-[#D9D9D9] hover:text-white hover:border-white/70
+        transition-all duration-500 ease-out will-change-transform
+        ${
+          isMounted && showHomeButton
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-3 pointer-events-none'
+        }
+      `}
+      style={{
+        top: 'calc(env(safe-area-inset-top) + 14px)',
+      }}
+    >
+      <Home className="w-4 h-4" aria-hidden />
+    </button>
+
+    {/*
+      Floating Ambient-Sound-Toggle — IMMER sichtbar.
+      Anders als die TopBar oder der Home-Button: dieser Button
+      bleibt beim Scrollen permanent oben rechts verankert, damit der
+      User jederzeit zwischen Laut / Leise / Aus umschalten kann.
+
+      Positionierung:
+      - fixed top-right, Safe-Area-aware (Notch, Landscape).
+      - Dezent dunkles Glas mit Border, damit das Icon auf jedem
+        Hintergrund (Meerbild, Palmenbild, Testimonial, Footer)
+        einen eigenen optischen Halt hat.
+      - z-[100] gleich wie TopBar, damit er niemals überdeckt wird.
+    */}
+    <div
+      className={`fixed z-[100] right-4 transition-opacity duration-500 ease-out ${
+        isMounted ? 'opacity-100' : 'opacity-0'
+      }`}
+      style={{
+        top: 'calc(env(safe-area-inset-top) + 10px)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
+    >
+      <div className="flex items-center justify-center rounded-full border border-white/20 bg-[#0B0B0C]/55 backdrop-blur-md h-9 w-9 text-[#D9D9D9] hover:text-white hover:border-white/70 transition-colors">
+        <AmbientSound variant={variant} subtle />
+      </div>
+    </div>
+    </>
   );
 }

@@ -1,128 +1,648 @@
-import { useEffect, useRef, useState } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
-import { BookingFlow } from '../components/BookingFlow';
+import { useMemo, useState, type FormEvent } from 'react';
+import { MessageCircle } from 'lucide-react';
+import { pauseConfig } from '../lib/pause-config';
+import { useSectionProgress } from '../hooks/use-section-progress';
+
+/**
+ * Book section (at the very bottom of the home page).
+ *
+ * Design direction (per user request 2026-04-21):
+ *   "Original photo + the box views the same as before, neutral color,
+ *    transparent."
+ *
+ *   → The `Book-your-pause.jpg` photo dominates the entire background.
+ *   → Cards sit on top as neutral, transparent glass (bg-white/6,
+ *     backdrop-blur, white/15 border) — no cream, no dark slab, just
+ *     frosted glass. This reads calm and airy, and the palm leaves
+ *     behind the QR are clearly visible.
+ *   → Typography stays white — the photo has enough dark tones in the
+ *     upper-left corner (where the form sits) and the glass cards
+ *     provide enough separation for legibility.
+ *
+ * Layout (desktop):
+ *   ┌─────────────────────────┐  ┌──┐  ┌──────────────┐
+ *   │ Stay request form       │  │OR│  │ WhatsApp QR   │
+ *   │ Name · Email · Dates    │  │  │  │ Scan & chat   │
+ *   │ Rate (USD + LKR)        │  │  │  │               │
+ *   └─────────────────────────┘  └──┘  └──────────────┘
+ *
+ * On mobile this stacks vertically: Form → OR → QR.
+ *
+ * Why id="book"?
+ *   The PAUSE-NOW circle in the Hero scrolls here via
+ *   `document.getElementById('book').scrollIntoView(...)`.
+ */
+
+type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
+
+interface FormData {
+  name: string;
+  email: string;
+  checkIn: string;
+  checkOut: string;
+  guests: string;
+}
+
+const INITIAL_DATA: FormData = {
+  name: '',
+  email: '',
+  checkIn: '',
+  checkOut: '',
+  guests: '2',
+};
+
+// Guest-count options shown in the dropdown. Kept intentionally small:
+// the house fits small groups, so numbers beyond 4 get a "5+" bucket
+// that the concierge can clarify on reply.
+const GUEST_OPTIONS = ['1', '2', '3', '4', '5+'] as const;
 
 export function Contact() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [data, setData] = useState<FormData>(INITIAL_DATA);
+  const [state, setState] = useState<SubmitState>('idle');
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
+  // Scroll-getriebene Entrance-Animation. Formular-Karte kommt von
+  // links, WhatsApp-Karte von rechts, Überschrift ebenfalls von links
+  // — alle drei landen gleichzeitig bei entrance = 1.
+  const { ref, entrance } = useSectionProgress<HTMLElement>();
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
+  // Es gibt keinen Room-Picker mehr — der Preis bezieht sich auf den
+  // ersten Tier aus pauseConfig (Standard-Tagessatz). Tier-Auswahl
+  // haben wir bewusst entfernt, die Konzierge klärt Details auf Reply.
+  const selectedTier = pauseConfig.pricing[0];
 
-    observer.observe(section);
-    return () => observer.disconnect();
+  const update = <K extends keyof FormData>(key: K, value: FormData[K]) => {
+    setData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // WhatsApp deeplink with URL-encoded greeting. useMemo so the URLs
+  // are not rebuilt on every render.
+  //
+  // QR: dark modules on white tile keeps scan reliability across all
+  // phone cameras — we place the QR on a small opaque white square
+  // inside the otherwise transparent glass card.
+  const { chatUrl, qrUrl } = useMemo(() => {
+    const message = encodeURIComponent(pauseConfig.whatsappPrefill);
+    const chatUrl = `https://wa.me/${pauseConfig.whatsappNumber}?text=${message}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+      chatUrl,
+    )}&size=260x260&margin=8&ecc=M&color=0B0B0C&bgcolor=FFFFFF`;
+    return { chatUrl, qrUrl };
   }, []);
 
-  return (
-    <section
-      ref={sectionRef}
-      id="contact"
-      className="relative w-full min-h-screen bg-[#F3F0EA]"
-      style={{ zIndex: 90 }}
-      aria-label="Kontakt und Buchungsanfrage"
-    >
-      <div className="flex flex-col lg:flex-row min-h-screen">
-        {/* Left column — Booking flow + contact info */}
-        <div
-          className={`flex-1 py-16 px-[6vw] lg:px-[4vw] flex flex-col justify-center transition-all duration-700 ${
-            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
-          }`}
-        >
-          <BookingFlow />
+  const [imgFailed, setImgFailed] = useState(false);
 
-          {/* Contact details */}
-          <div className="mt-12 pt-8 border-t border-[#0B0B0C]/10 max-w-[520px]">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="flex items-start gap-3">
-                <Mail className="w-4 h-4 text-[#3F3F3F] mt-0.5" aria-hidden />
-                <div>
-                  <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[#3F3F3F] mb-1">
-                    E-Mail
-                  </span>
-                  <a
-                    href="mailto:hello@thisisnotahotel.com"
-                    className="text-sm text-[#0B0B0C] hover:underline"
-                  >
-                    hello@thisisnotahotel.com
-                  </a>
+  const submitViaEndpoint = async (endpoint: string): Promise<void> => {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        check_in: data.checkIn,
+        check_out: data.checkOut,
+        guests: data.guests,
+        price_usd: selectedTier?.nightlyUsd,
+        price_lkr: selectedTier?.nightlyLkr,
+        _subject: `New request from ${data.name} (${data.checkIn} to ${data.checkOut}, ${data.guests} guests)`,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`Request failed with status ${res.status}`);
+    }
+  };
+
+  const submitViaMailto = (): void => {
+    const subject = encodeURIComponent(
+      `Request from ${data.name} (${data.checkIn} to ${data.checkOut})`,
+    );
+    const body = encodeURIComponent(
+      [
+        `Name: ${data.name}`,
+        `Email: ${data.email}`,
+        `Check in: ${data.checkIn}`,
+        `Check out: ${data.checkOut}`,
+        `Guests: ${data.guests}`,
+        selectedTier
+          ? `Rate: USD ${selectedTier.nightlyUsd} / LKR ${selectedTier.nightlyLkr.toLocaleString(
+              'en-US',
+            )} per night`
+          : '',
+        '',
+        'Sent from thisisnotahotel.com',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    );
+    window.location.href = `mailto:${pauseConfig.fallbackEmail}?subject=${subject}&body=${body}`;
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setState('submitting');
+    setErrorMsg('');
+
+    try {
+      if (pauseConfig.formEndpoint) {
+        await submitViaEndpoint(pauseConfig.formEndpoint);
+      } else {
+        submitViaMailto();
+      }
+      setState('success');
+    } catch (error) {
+      setErrorMsg(
+        error instanceof Error
+          ? error.message
+          : 'Unknown error while sending your request.',
+      );
+      setState('error');
+    }
+  };
+
+  const isSubmitting = state === 'submitting';
+
+  return (
+    <>
+      <section
+        ref={ref}
+        id="book"
+        className="relative w-screen h-screen-safe overflow-hidden bg-[#0B0B0C] text-white scroll-mt-0"
+        style={{ zIndex: 80 }}
+        aria-label="Request your pause"
+      >
+        {/* Background — Sri-lankisches Handwebmuster (User-Request
+            2026-04-24): KEIN Foto mehr. Stattdessen vertikale Streifen
+            in genau zwei Farben aus dem Inspirations-Stoff:
+              • Dunkel:  #0B0B0C  (gleiche Tiefe wie Hero & Footer →
+                                    nahtloser Übergang oben/unten)
+              • Sand:    #D8CEB7  (warm-cremiger Beige-Ton aus dem
+                                    Webstoff)
+
+            Aufbau in Layern:
+              1) Ein einziges `repeating-linear-gradient` zeichnet die
+                 vertikalen Streifen. Die Tile-Breite ist absichtlich
+                 ungleichmäßig (zwei dunkle + zwei helle Bänder pro
+                 Wiederholung), damit das Muster wie Handweberei
+                 atmet und nicht wie Strichcode wirkt.
+              2) Sanftes Top-Fade von #0B0B0C → transparent (h-40),
+                 damit die Streifen am oberen Rand in die dunkle
+                 Sektion darüber „verschwinden". Identisches
+                 Bottom-Fade in den Footer.
+              3) Ein leichter Mittel-Veil (radial, ~25% Schwarz),
+                 zentriert auf das Formular, hebt die Frosted-Glass-
+                 Karten leicht ab, ohne den Streifenrhythmus zu
+                 verschlucken. */}
+        <div aria-hidden className="absolute inset-0 pointer-events-none">
+          {/* Vertikale Streifen — Webstoff-Look.
+              Update 2026-04-24 (User-Request):
+                • Abstände grösser → Tile von 70 px auf 132 px
+                  (48 / 18 / 48 / 18) verdoppelt. Streifen liegen
+                  jetzt luftiger, das Muster atmet merklich ruhiger.
+                • Dunkle Bahn von pechschwarz #0B0B0C auf #1F1D1A
+                  angehoben — bleibt warm-anthrazit, nimmt aber dem
+                  Hintergrund die Härte. Der Cremeton #D8CEB7
+                  bleibt unverändert. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundColor: '#1F1D1A',
+              backgroundImage: `repeating-linear-gradient(
+                to right,
+                #1F1D1A 0px,
+                #1F1D1A 48px,
+                #D8CEB7 48px,
+                #D8CEB7 66px,
+                #1F1D1A 66px,
+                #1F1D1A 114px,
+                #D8CEB7 114px,
+                #D8CEB7 132px
+              )`,
+            }}
+          />
+          {/* Mittel-Veil — radial dunkler Hauch hinter den Karten,
+              damit Form & QR genug Halt bekommen, ohne die Streifen
+              flächig zu verdecken. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, rgba(11,11,12,0.55) 0%, rgba(11,11,12,0.25) 45%, rgba(11,11,12,0) 80%)',
+            }}
+          />
+          {/* Top fade — Streifen lösen sich nach oben in die dunkle
+              Sektion über uns auf. */}
+          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0B0B0C] to-transparent" />
+          {/* Bottom fade — sauberer Übergang in den dunklen Footer. */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0B0C] to-transparent" />
+        </div>
+
+        {/* Content — absolutely filling the section and vertically
+            centered via `justify-center`, so when the user scrolls to
+            #book the form lands in the MIDDLE of the viewport, exactly
+            like the other home sections (Experience, Details). No
+            previous-section text bleeds in because the section itself
+            is one viewport tall (h-screen-safe) and overflow-hidden.
+
+            Top/bottom padding reserves clearance for the fixed TopBar
+            above (~96px) and breathing room above the footer strip
+            below; the remaining space is split equally top/bottom by
+            `justify-center`. */}
+        <div className="absolute inset-0 z-10 flex flex-col justify-center px-[6vw] pt-24 md:pt-28 pb-12 md:pb-16">
+          {/* Eyebrow + H2. Slides in from the LEFT on scroll entry to
+              match the form card underneath — eyebrow and heading
+              share one motion axis so the whole top block reads as a
+              single gesture. */}
+          <div
+            className="max-w-[960px]"
+            style={{
+              transform: `translateX(${(1 - entrance) * -14}vw)`,
+              opacity: entrance,
+              willChange: 'transform, opacity',
+            }}
+          >
+            <span className="block font-mono text-[11px] uppercase tracking-[0.22em] text-[#D9D9D9]">
+              Request
+            </span>
+            <h2 className="mt-1.5 font-stencil uppercase text-white text-[clamp(24px,3.2vw,40px)] leading-[1.02] tracking-[0.06em]">
+              Request your pause.
+            </h2>
+          </div>
+
+          {/* Symmetric 1fr / auto / 1fr grid. Reason: the user wants the
+              „OR" divider to sit exactly in the horizontal centre of the
+              viewport, on the same vertical axis as the Home button in
+              the TopBar. With equal-width side columns and equal gaps,
+              the centre of the `auto` middle column lands at 50vw. */}
+          <div className="mt-4 md:mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-5 lg:gap-8 items-stretch">
+            {/* LEFT — Form. No duplicate "Request" eyebrow here, the
+                section heading already names it.
+                Slides in from the LEFT as the section enters the
+                viewport; lands at its resting position when
+                entrance = 1. */}
+            <div
+              style={{
+                transform: `translateX(${(1 - entrance) * -30}vw)`,
+                opacity: entrance,
+                willChange: 'transform, opacity',
+              }}
+            >
+              {state === 'success' ? (
+                <SuccessPanel email={data.email} />
+              ) : (
+                <form
+                  onSubmit={handleSubmit}
+                  noValidate
+                  className="rounded-2xl border border-white/15 bg-white/[0.06] backdrop-blur-md p-4 md:p-5 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.45)]"
+                  aria-label="Stay request form"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Field
+                      label="Name"
+                      id="bk-name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      value={data.name}
+                      onChange={(v) => update('name', v)}
+                    />
+                    <Field
+                      label="Email"
+                      id="bk-email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={data.email}
+                      onChange={(v) => update('email', v)}
+                    />
+                    <Field
+                      label="Check in"
+                      id="bk-checkin"
+                      type="date"
+                      required
+                      value={data.checkIn}
+                      onChange={(v) => update('checkIn', v)}
+                    />
+                    <Field
+                      label="Check out"
+                      id="bk-checkout"
+                      type="date"
+                      required
+                      value={data.checkOut}
+                      onChange={(v) => update('checkOut', v)}
+                    />
+                  </div>
+
+                  {/* Guest-count picker + live rate inline on one row.
+                      Saves ~100px of vertical space versus stacking
+                      the price into its own card underneath. */}
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end">
+                    <div>
+                      <label
+                        htmlFor="bk-guests"
+                        className="block text-[10px] font-stencil uppercase tracking-[0.22em] text-[#D9D9D9] mb-1.5"
+                      >
+                        Guests
+                      </label>
+                      <select
+                        id="bk-guests"
+                        value={data.guests}
+                        onChange={(e) => update('guests', e.target.value)}
+                        className="w-full min-h-[44px] rounded-xl border border-white/15 bg-white/[0.04] px-4 py-2.5 text-[15px] text-white focus:border-white/50 focus:outline-none focus:ring-0 transition-colors"
+                      >
+                        {GUEST_OPTIONS.map((count) => (
+                          <option
+                            key={count}
+                            value={count}
+                            className="bg-[#0B0B0C] text-white"
+                          >
+                            {count === '1' ? '1 guest' : `${count} guests`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {selectedTier && <PriceInline tier={selectedTier} />}
+                  </div>
+
+                  {state === 'error' && (
+                    <p
+                      role="alert"
+                      className="mt-4 text-sm text-[#FF9A9A] bg-[#FF5A5A]/10 border border-[#FF5A5A]/30 rounded-lg px-3 py-2"
+                    >
+                      We could not send your request. Please try again or email{' '}
+                      <a
+                        href={`mailto:${pauseConfig.fallbackEmail}`}
+                        className="underline underline-offset-2 text-white"
+                      >
+                        {pauseConfig.fallbackEmail}
+                      </a>
+                      .
+                      {errorMsg && (
+                        <span className="block opacity-70 mt-1">
+                          ({errorMsg})
+                        </span>
+                      )}
+                    </p>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className={`
+                        min-h-[44px] px-7 py-2.5
+                        rounded-full font-stencil text-xs uppercase tracking-[0.22em]
+                        border border-white bg-white text-[#0B0B0C]
+                        transition-all duration-300
+                        ${
+                          isSubmitting
+                            ? 'opacity-60 cursor-wait'
+                            : 'hover:bg-transparent hover:text-white'
+                        }
+                      `}
+                    >
+                      {isSubmitting ? 'Sending …' : 'Send request'}
+                    </button>
+                    <p className="text-[11px] text-[#D9D9D9]/90 leading-snug">
+                      We only store your details to reply.
+                    </p>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            {/* MIDDLE — OR divider; horizontal on mobile, vertical on desktop. */}
+            <div
+              aria-hidden
+              className="flex lg:flex-col items-center justify-center gap-3 lg:gap-4"
+            >
+              <span className="block h-px w-full lg:h-full lg:w-px bg-white/20" />
+              <span className="shrink-0 font-stencil uppercase text-[11px] tracking-[0.28em] text-[#D9D9D9]">
+                OR
+              </span>
+              <span className="block h-px w-full lg:h-full lg:w-px bg-white/20" />
+            </div>
+
+            {/* RIGHT — QR code to WhatsApp Business. No outer eyebrow,
+                the inner "WhatsApp Business" caption inside the card
+                provides enough context and saves vertical space.
+                Slides in from the RIGHT as the section enters the
+                viewport, mirroring the form card's entrance. */}
+            <div
+              className="flex flex-col"
+              style={{
+                transform: `translateX(${(1 - entrance) * 30}vw)`,
+                opacity: entrance,
+                willChange: 'transform, opacity',
+              }}
+            >
+              <div className="flex-1 rounded-2xl border border-white/15 bg-white/[0.06] backdrop-blur-md p-4 md:p-5 flex flex-col items-center text-center shadow-[0_20px_60px_-30px_rgba(0,0,0,0.45)]">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#D9D9D9]">
+                  WhatsApp · Scan &amp; chat
+                </span>
+
+                <div className="mt-3 relative">
+                  {!imgFailed ? (
+                    // QR on its own white tile — needed for reliable
+                    // camera scans; the surrounding glass card stays
+                    // transparent so the palm leaves remain visible.
+                    <div className="rounded-xl bg-white p-2.5">
+                      <img
+                        src={qrUrl}
+                        alt="QR code to start a WhatsApp chat with This Is Not A Hotel"
+                        width={140}
+                        height={140}
+                        className="block w-[130px] h-[130px] md:w-[150px] md:h-[150px]"
+                        loading="lazy"
+                        decoding="async"
+                        onError={() => setImgFailed(true)}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      role="img"
+                      aria-label="QR code unavailable. Please use the button below."
+                      className="w-[130px] h-[130px] md:w-[150px] md:h-[150px] rounded-xl border border-dashed border-white/25 bg-white/5 flex items-center justify-center text-xs text-[#D9D9D9] px-4"
+                    >
+                      QR not available. Tap the button below.
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Phone className="w-4 h-4 text-[#3F3F3F] mt-0.5" aria-hidden />
-                <div>
-                  <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[#3F3F3F] mb-1">
-                    Telefon
-                  </span>
-                  <a href="tel:+15550142198" className="text-sm text-[#0B0B0C] hover:underline">
-                    +1 (555) 014-2198
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-[#3F3F3F] mt-0.5" aria-hidden />
-                <div>
-                  <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-[#3F3F3F] mb-1">
-                    Adresse
-                  </span>
-                  <address className="not-italic text-sm text-[#0B0B0C]">
-                    12 Coast Road, Calm Bay
-                  </address>
-                </div>
+
+                <p className="mt-3 text-[13px] text-[#D9D9D9] leading-snug max-w-[26ch]">
+                  Scan with your phone camera. The chat opens with a friendly
+                  message ready to send.
+                </p>
+
+                <a
+                  href={chatUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 min-h-[40px] px-5 py-2 rounded-full border border-white bg-transparent text-white font-stencil text-[11px] uppercase tracking-[0.22em] hover:bg-white hover:text-[#0B0B0C] transition-colors duration-300"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" aria-hidden />
+                  <span>Open WhatsApp</span>
+                </a>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Right column — Image */}
-        <div
-          className={`hidden lg:block lg:w-[45%] relative transition-all duration-700 delay-200 ${
-            isVisible ? 'opacity-100 scale-100' : 'opacity-80 scale-[1.03]'
-          }`}
-        >
-          <img
-            src="/images/contact-portrait.jpg"
-            alt="Ruhiger Moment — This Is Not A Hotel"
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F3F0EA]/20 to-transparent" />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-[#0B0B0C] py-8 px-[6vw]">
+      {/* Footer — dark strip below the Book section. */}
+      <footer
+        id="contact"
+        className="relative z-10 bg-[#0B0B0C] py-8 px-[6vw]"
+        aria-label="Site footer"
+      >
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <span
             className="font-stencil text-[13px] uppercase tracking-[0.22em] text-white"
             aria-label="This Is Not A Hotel"
           >
-            THIS IS NOT A HOTEL<sup className="text-[0.8em] align-top ml-[0.2em] tracking-normal">™</sup>
+            THIS IS NOT A HOTEL
+            <sup className="text-[0.8em] align-top ml-[0.2em] tracking-normal">
+              ™
+            </sup>
           </span>
-          <span className="text-[#B7B7B7] text-xs">© 2026 All rights reserved.</span>
-          <nav aria-label="Rechtliches" className="flex gap-6">
-            <a href="/privacy" className="text-[#B7B7B7] text-xs hover:text-white transition-colors">
-              Datenschutz
+          <span className="text-[#D9D9D9] text-xs">
+            © 2026 All rights reserved.
+          </span>
+          <nav aria-label="Legal" className="flex gap-6">
+            <a
+              href="/privacy"
+              className="text-[#D9D9D9] text-xs hover:text-white transition-colors"
+            >
+              Privacy
             </a>
-            <a href="/terms" className="text-[#B7B7B7] text-xs hover:text-white transition-colors">
-              AGB
+            <a
+              href="/terms"
+              className="text-[#D9D9D9] text-xs hover:text-white transition-colors"
+            >
+              Terms
             </a>
-            <a href="/imprint" className="text-[#B7B7B7] text-xs hover:text-white transition-colors">
-              Impressum
+            <a
+              href="/imprint"
+              className="text-[#D9D9D9] text-xs hover:text-white transition-colors"
+            >
+              Imprint
             </a>
           </nav>
         </div>
       </footer>
-    </section>
+    </>
+  );
+}
+
+/* --------- Small local building blocks --------- */
+
+interface FieldProps {
+  label: string;
+  id: string;
+  type: 'text' | 'email' | 'date';
+  required?: boolean;
+  autoComplete?: string;
+  value: string;
+  onChange: (v: string) => void;
+}
+
+function Field({
+  label,
+  id,
+  type,
+  required,
+  autoComplete,
+  value,
+  onChange,
+}: FieldProps) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-[10px] font-stencil uppercase tracking-[0.22em] text-[#D9D9D9] mb-2"
+      >
+        {label}
+        {required && <span className="text-white/60 ml-0.5">*</span>}
+      </label>
+      <input
+        id={id}
+        type={type}
+        required={required}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="
+          w-full min-h-[44px] rounded-xl border border-white/15 bg-white/[0.04]
+          px-4 py-2.5 text-[15px] text-white
+          placeholder:text-[#D9D9D9]/55
+          focus:border-white/50 focus:outline-none focus:ring-0
+          transition-colors
+        "
+      />
+    </div>
+  );
+}
+
+/**
+ * Compact price chip — sits inline next to the Room selector.
+ * Shows only the essentials (USD rate + LKR companion) so the form
+ * can keep the price visible without spending an entire row on it.
+ * The full tier description was moved out of this chip: it was
+ * eating vertical space and duplicating info that the room name
+ * already implies (e.g. "Ocean View Suite").
+ */
+function PriceInline({
+  tier,
+}: {
+  tier: {
+    name: string;
+    nightlyUsd: number;
+    nightlyLkr: number;
+  };
+}) {
+  return (
+    <div className="sm:self-stretch flex items-end">
+      <div className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 min-h-[44px] flex flex-col justify-center">
+        <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-[#D9D9D9]">
+          Rate · night
+        </span>
+        <div className="mt-0.5 flex items-baseline gap-x-2">
+          <span className="font-stencil uppercase text-[17px] leading-none tracking-[0.06em] text-white">
+            ${tier.nightlyUsd.toLocaleString('en-US')}
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#D9D9D9]">
+            USD
+          </span>
+          <span aria-hidden className="h-3 w-px bg-white/20" />
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#D9D9D9]">
+            LKR {tier.nightlyLkr.toLocaleString('en-US')}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SuccessPanel({ email }: { email: string }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-4 rounded-2xl border border-white/15 bg-white/[0.06] backdrop-blur-md p-6 md:p-8 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.45)]"
+    >
+      <h3 className="font-stencil uppercase text-lg tracking-[0.14em] text-white">
+        Request received
+      </h3>
+      <p className="mt-3 text-[#D9D9D9] text-base leading-relaxed">
+        Thank you, we got your request. We will reply personally to{' '}
+        <strong className="text-white">{email || 'your email'}</strong> within
+        a few hours.
+      </p>
+      <p className="mt-3 text-[#D9D9D9]/90 text-sm">
+        If you'd rather talk now, scan the QR on the right to open WhatsApp.
+      </p>
+    </div>
   );
 }
