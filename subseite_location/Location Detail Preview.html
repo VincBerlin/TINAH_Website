@@ -1,0 +1,361 @@
+<!DOCTYPE html><html lang="en"><head>
+
+
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Area — TINAH · Mawella</title>
+<meta name="description" content="Mawella, southern Sri Lanka — between Hiriketiya and Tangalle. A quiet kilometre of beach, the inland green and full of wildlife, the perfect stop on the south-coast route.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Allerta+Stencil&amp;family=DM+Serif+Display:ital@0;1&amp;family=EB+Garamond:ital@0;1&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#0B0B0C; --cream:#F2EDE4; --cream-2:#F1E9D7;
+    --ink:#1C1B17; --ink-soft:#5A5448; --ochre:#B84A1F;
+    --gray:#B7B7B7; --gray-2:#D9D9D9; --rule:rgba(28,27,23,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip;}
+  a{color:inherit;text-decoration:none;}
+
+  /* Top bar — minimal, matching main site palette but on cream */
+  header{position:fixed;top:0;left:0;right:0;z-index:100;padding:3vh 4vw 1.6vh;display:grid;grid-template-columns:1fr auto;align-items:center;background:linear-gradient(to bottom, rgba(242,237,228,.92), rgba(242,237,228,0));backdrop-filter:blur(8px);}
+  header .l{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);}
+  header .l sup{font-size:.75em;vertical-align:top;margin-left:.15em;letter-spacing:0;}
+  header .r a{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);transition:color .3s;}
+  header .r a:hover{color:var(--ink);}
+  header .r .back::before{content:'\2190';margin-right:.6em;display:inline-block;}
+
+  /* Page intro */
+  .intro{padding:24vh 6vw 8vh;max-width:1100px;margin:0 auto;text-align:center;}
+  .eyebrow{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:14px;margin-bottom:5vh;}
+  .eyebrow::before,.eyebrow::after{content:'';display:inline-block;width:32px;height:1px;background:var(--ink);}
+  h1.title{font-family:'Allerta Stencil',sans-serif;font-size:clamp(34px,6vw,84px);line-height:1.04;letter-spacing:.02em;color:var(--ink);}
+  h1.title .ochre{color:var(--ochre);}
+  .lede{margin:5vh auto 0;max-width:560px;font-size:clamp(13px,1vw,16px);line-height:1.6;color:var(--ink-soft);}
+
+  /* Map block */
+  .map-wrap{position:relative;width:100%;max-width:1300px;margin:6vh auto 0;padding:0 6vw;}
+  .map-frame{position:relative;width:100%;aspect-ratio:1200/800;}
+  .map-frame svg{width:100%;height:100%;display:block;overflow:visible;}
+
+  /* SVG line/text styling — set here for editorial control */
+  .coast{fill:none;stroke:var(--ink);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;}
+  .coast-glow{fill:none;stroke:var(--ink);stroke-width:5;opacity:.06;stroke-linecap:round;stroke-linejoin:round;}
+  .topo{fill:none;stroke:var(--ink);stroke-width:.6;opacity:.18;stroke-dasharray:2 4;}
+  .route{fill:none;stroke:var(--ochre);stroke-width:1;stroke-dasharray:3 5;opacity:.5;}
+  .stop circle{fill:var(--cream);stroke:var(--ink);stroke-width:1.2;}
+  .stop text{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;fill:var(--ink-soft);}
+  .stop.inland circle{fill:var(--cream);stroke:var(--ink-soft);stroke-dasharray:2 2;}
+  .mawella .ring-outer{fill:none;stroke:var(--ochre);stroke-width:1;opacity:.35;}
+  .mawella .ring-mid{fill:none;stroke:var(--ochre);stroke-width:1;opacity:.6;}
+  .mawella .dot{fill:var(--ochre);}
+  .mawella .pin{fill:none;stroke:var(--ochre);stroke-width:1;}
+  .mawella .label-top{font-family:'Allerta Stencil',sans-serif;font-size:13px;letter-spacing:.22em;text-transform:uppercase;fill:var(--ochre);}
+  .mawella .label-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;fill:var(--ink-soft);}
+  .compass{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;fill:var(--ink-soft);}
+  .scale-bar{stroke:var(--ink);stroke-width:1;}
+  .scale-tick{stroke:var(--ink);stroke-width:1;}
+
+  /* Body */
+  .body-section{padding:14vh 6vw 6vh;max-width:780px;margin:0 auto;}
+  .body-section .section-marker{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:14px;margin-bottom:4vh;}
+  .body-section .section-marker::before{content:'';display:inline-block;width:32px;height:1px;background:var(--ink);}
+  .body-section h2{font-family:'Allerta Stencil',sans-serif;font-size:clamp(26px,3.6vw,52px);line-height:1.1;letter-spacing:.02em;color:var(--ink);max-width:14ch;}
+  .body-section h2 .ochre{color:var(--ochre);}
+  .body-section .copy{margin-top:5vh;font-family:'EB Garamond',serif;font-size:clamp(16px,1.25vw,21px);line-height:1.65;color:var(--ink);max-width:62ch;}
+  .body-section .copy p + p{margin-top:1.4em;}
+  .body-section .copy em{font-family:'EB Garamond',serif;font-style:italic;color:var(--ink-soft);}
+
+  /* Routes — two columns */
+  .routes{padding:8vh 6vw 14vh;max-width:1100px;margin:0 auto;}
+  .routes-head{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);display:inline-flex;align-items:center;gap:14px;margin-bottom:5vh;}
+  .routes-head::before{content:'';display:inline-block;width:32px;height:1px;background:var(--ink);}
+  .routes-grid{display:grid;grid-template-columns:1fr 1fr;gap:5vw;}
+  .route-card{padding:5vh 4vw;border-top:1px solid var(--rule);}
+  .route-card .num{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--ochre);}
+  .route-card h3{margin-top:1.2em;font-family:'Allerta Stencil',sans-serif;font-size:clamp(20px,2.2vw,30px);letter-spacing:.02em;color:var(--ink);}
+  .route-card .stops{margin-top:2.4em;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);line-height:1.9;}
+  .route-card .stops .here{color:var(--ochre);font-weight:500;}
+  .route-card .stops .here::before{content:'\2192  ';color:var(--ochre);}
+  .route-card .note{margin-top:3em;font-family:'EB Garamond',serif;font-style:italic;font-size:clamp(14px,1.05vw,17px);line-height:1.55;color:var(--ink-soft);max-width:38ch;}
+
+  /* Footer pause CTA */
+  .footer-pause{padding:14vh 6vw 12vh;text-align:center;background:var(--cream-2);}
+  .footer-pause .marker{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4vh;}
+  .footer-pause h2{font-family:'Allerta Stencil',sans-serif;font-size:clamp(28px,4vw,56px);line-height:1.1;letter-spacing:.02em;color:var(--ink);max-width:14ch;margin:0 auto;}
+  .footer-pause h2 .ochre{color:var(--ochre);}
+  .footer-pause .actions{margin-top:6vh;display:flex;gap:24px;justify-content:center;align-items:center;flex-wrap:wrap;}
+  .disc-light{width:clamp(150px,16vw,210px);height:clamp(150px,16vw,210px);border-radius:50%;border:1px solid rgba(28,27,23,.4);background:rgba(255,255,255,.4);display:grid;place-items:center;color:var(--ink);font-family:'Allerta Stencil',sans-serif;font-size:12px;letter-spacing:.24em;text-transform:uppercase;transition:transform .2s, background .2s;}
+  .disc-light:hover{transform:scale(1.04);background:rgba(255,255,255,.7);}
+  .ghost{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:4px;transition:color .3s, border-color .3s;}
+  .ghost:hover{color:var(--ink);border-color:var(--ink);}
+
+  footer.tinah{background:var(--dark);color:var(--gray-2);padding:32px 6vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  footer.tinah .mark{font-family:'Allerta Stencil',sans-serif;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:#fff;}
+  footer.tinah .copy{font-size:12px;}
+
+  @media (max-width:900px){
+    .routes-grid{grid-template-columns:1fr;gap:0;}
+    .route-card{padding:5vh 0;}
+    .map-wrap{padding:0 4vw;}
+  }
+  @media (max-width:600px){
+    .stop text{font-size:9px;}
+    .mawella .label-top{font-size:11px;}
+    .mawella .label-sub{font-size:8px;}
+  }
+</style>
+<link id="gfont-Inter" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"></head>
+<body data-cc-id="cc-1" style="cursor: crosshair;">
+
+<header>
+  <div class="l">THIS&nbsp;IS&nbsp;NOT&nbsp;A&nbsp;HOTEL<sup>™</sup></div>
+  <div class="r"><a href="TINAH%20Full%20Site%20Preview.html" target="_top" class="back">Back</a></div>
+</header>
+
+<!-- INTRO -->
+<section class="intro" data-cc-id="cc-23">
+  <div class="eyebrow" data-cc-id="cc-22" style=""></div>
+  <h1 class="title">A long, quiet beach<br>between <span class="ochre">Hiriketiya</span><br>and <span class="ochre">Tangalle</span>.</h1>
+  <p class="lede" data-cc-id="cc-21" style="">
+    Mawella is the part of Sri Lanka's south coast nobody seems to write about , and that is the point. A kilometre of soft sand, a green inland full of wildlife, far enough from Hiriketiya and Mirissa to feel like you have actually arrived somewhere.
+  </p>
+</section>
+
+<!-- MAP -->
+<section class="map-wrap" aria-label="Map of southern Sri Lanka with travel stops">
+  <div class="map-frame">
+    <svg viewBox="0 0 1200 800" role="img" aria-labelledby="mapTitle mapDesc" xmlns="http://www.w3.org/2000/svg" data-cc-id="cc-20">
+      <title id="mapTitle">Southern Sri Lanka — coast and stops</title>
+      <desc id="mapDesc">An outline of the southern coast of Sri Lanka showing Colombo, Ahangama, Weligama, Hiriketiya, Mawella, Tangalle, and the inland town of Ella, with This Is Not A Hotel marked at Mawella.</desc>
+
+      <!-- Radial fade mask: focus on Mawella, fade outward -->
+      <defs>
+        <radialGradient id="fade" cx="70%" cy="92%" r="78%">
+          <stop offset="0%" stop-color="#fff" stop-opacity="1"></stop>
+          <stop offset="55%" stop-color="#fff" stop-opacity=".95"></stop>
+          <stop offset="85%" stop-color="#fff" stop-opacity=".25"></stop>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0"></stop>
+        </radialGradient>
+        <mask id="fadeMask">
+          <rect x="-100" y="-100" width="1400" height="1000" fill="url(#fade)"></rect>
+        </mask>
+      </defs>
+
+      <g mask="url(#fadeMask)">
+        <!-- Topo / contour suggestion lines, just for editorial texture -->
+        <g class="topo" aria-hidden="true">
+          <path d="M 200 220 C 350 280, 600 320, 850 280 S 1100 350, 1180 320"></path>
+          <path d="M 180 320 C 320 380, 560 420, 800 380 S 1080 460, 1180 430"></path>
+          <path d="M 220 480 C 360 540, 600 580, 860 540 S 1100 580, 1180 560"></path>
+          <path d="M 280 640 C 420 680, 600 700, 880 680 S 1100 700, 1180 690"></path>
+        </g>
+
+        <!-- Coastline glow (very faint, gives the line a subtle weight) -->
+        <path class="coast-glow" d="
+          M 80 200
+          C 100 260, 115 330, 140 380
+          C 160 420, 185 470, 220 540
+          C 245 600, 290 660, 360 695
+          C 410 715, 470 728, 528 742
+          C 580 748, 640 748, 700 745
+          C 760 742, 815 738, 870 720
+          C 930 705, 985 705, 1040 700
+          C 1080 695, 1115 685, 1145 660
+          C 1170 630, 1180 600, 1175 560
+        "></path>
+
+        <!-- Coastline -->
+        <path class="coast" d="
+          M 80 200
+          C 100 260, 115 330, 140 380
+          C 160 420, 185 470, 220 540
+          C 245 600, 290 660, 360 695
+          C 410 715, 470 728, 528 742
+          C 580 748, 640 748, 700 745
+          C 760 742, 815 738, 870 720
+          C 930 705, 985 705, 1040 700
+          C 1080 695, 1115 685, 1145 660
+          C 1170 630, 1180 600, 1175 560
+        "></path>
+
+        <!-- Inland border hint (faint) — top edge fades into nothing -->
+        <path class="topo" d="M 100 200 C 250 180, 500 170, 800 180 S 1100 220, 1175 260"></path>
+
+        <!-- Route 1: Colombo → south coast → Mawella -->
+        <path class="route" d="
+          M 120 276
+          C 200 380, 280 540, 416 713
+          C 470 728, 528 742, 608 742
+          C 700 745, 780 745, 840 730
+        "></path>
+        <!-- Route 2: Colombo → Kandy/Ella → Hiriketiya → Mawella  -->
+        <path class="route" d="
+          M 120 276
+          C 400 180, 800 200, 1080 305
+          C 1020 480, 950 600, 840 730
+        "></path>
+
+        <!-- ============ STOPS ============ -->
+
+        <!-- Colombo -->
+        <g class="stop" transform="translate(120 276)">
+          <circle r="4"></circle>
+          <text x="-12" y="-12" text-anchor="end">Colombo</text>
+        </g>
+
+        <!-- Galle (light, optional) -->
+        <g class="stop" transform="translate(416 713)" opacity=".55">
+          <circle r="3"></circle>
+          <text x="-10" y="18">Galle</text>
+        </g>
+
+        <!-- Ahangama -->
+        <g class="stop" transform="translate(528 742)">
+          <circle r="3.5"></circle>
+          <text x="-10" y="22" text-anchor="end">Ahangama</text>
+        </g>
+
+        <!-- Weligama -->
+        <g class="stop" transform="translate(594 745)">
+          <circle r="3.5"></circle>
+          <text x="0" y="32" text-anchor="middle">Weligama</text>
+        </g>
+
+        <!-- Hiriketiya -->
+        <g class="stop" transform="translate(770 745)">
+          <circle r="3.5"></circle>
+          <text x="-10" y="22" text-anchor="end" data-cc-id="cc-19">Hiriketiya</text>
+        </g>
+
+        <!-- Tangalle -->
+        <g class="stop" transform="translate(900 715)">
+          <circle r="3.5"></circle>
+          <text x="14" y="6" data-cc-id="cc-18">Tangalle</text>
+        </g>
+
+        <!-- Ella (inland) -->
+        <g class="stop inland" transform="translate(1080 305)">
+          <circle r="3.5"></circle>
+          <text x="14" y="-6">Ella</text>
+          <text x="14" y="12" style="font-size:9px;letter-spacing:.22em;">— inland</text>
+        </g>
+
+        <!-- ============ MAWELLA HIGHLIGHT ============ -->
+        <g class="mawella" transform="translate(840 730)">
+          <!-- soft outer rings -->
+          <circle class="ring-outer" r="42"></circle>
+          <circle class="ring-mid" r="22"></circle>
+          <!-- pin line up to label -->
+          <line x1="0" y1="0" x2="0" y2="-90" class="pin"></line>
+          <circle class="dot" r="6"></circle>
+          <!-- label -->
+          <text class="label-top" x="0" y="-100" text-anchor="middle">This Is Not A Hotel</text>
+          <text class="label-sub" x="0" y="-118" text-anchor="middle">06°00'N · 80°45'E</text>
+          <text class="label-sub" x="0" y="22" text-anchor="middle" style="fill:var(--ochre);">Mawella</text>
+        </g>
+
+      </g>
+
+      <!-- Compass + scale, outside the fade mask so they stay crisp -->
+      <g class="compass" transform="translate(80 720)">
+        <line x1="0" y1="0" x2="0" y2="-32" stroke="var(--ink)" stroke-width="1"></line>
+        <polygon points="0,-38 -4,-30 4,-30" fill="var(--ink)"></polygon>
+        <text x="0" y="-44" text-anchor="middle">N</text>
+      </g>
+      <g transform="translate(80 760)">
+        <line x1="0" y1="0" x2="160" y2="0" class="scale-bar"></line>
+        <line x1="0" y1="-3" x2="0" y2="3" class="scale-tick"></line>
+        <line x1="80" y1="-3" x2="80" y2="3" class="scale-tick"></line>
+        <line x1="160" y1="-3" x2="160" y2="3" class="scale-tick"></line>
+        <text class="compass" x="0" y="16">0</text>
+        <text class="compass" x="80" y="16" text-anchor="middle">25</text>
+        <text class="compass" x="160" y="16" text-anchor="end">50 km</text>
+      </g>
+
+    </svg>
+  </div>
+</section>
+
+<!-- BODY -->
+<section class="body-section" data-cc-id="cc-6">
+  <div class="section-marker" data-cc-id="cc-7" style=""></div>
+  <h2>The kind of place built for the <span class="ochre">second week</span> of a trip.</h2>
+  <div class="copy">
+    <p data-cc-id="cc-10" style="font-family: Inter;">
+      The Mawella beach runs for more than a kilometre. Soft, slow, mostly empty, a few fishermen at one end pulling in their nets at first light, peacocks crossing the gardens at the other. The road&nbsp; thins down to a sand track before it reaches the gate, which is part of why no one comes here by accident.
+    </p>
+    <p data-cc-id="cc-9" style="font-family: Inter;">
+      The inland behind the dunes is dense and green. Monkeys cross the lane in the morning, peacocks step out of the brush at dusk, and the air carries the sound of temple bells from two villages over. Ten minutes from Hiriketiya and ten&nbsp; from Tangalle, far enough from anywhere to actually feel quiet.
+    </p>
+    <p data-cc-id="cc-4" style="font-family: Inter;">
+      It is the kind of place built for the second week of a trip. After the surf and party´s in <em style="font-family: Inter;">Hiriketiya</em>, the tea fields above <em style="font-family: Inter;">Ella</em>, the markets in <em style="font-family: Inter;">Galle,&nbsp;</em>&nbsp;what most people need next is not another itinerary. They need a long table, a slow breakfast, a kilometre of sand to walk and nothing in particular to do.
+    </p>
+    <p data-cc-id="cc-5" style=""><br></p>
+  </div>
+</section>
+
+<!-- ROUTES -->
+<section class="routes" data-cc-id="cc-3">
+  <div class="routes-head" data-cc-id="cc-8" style=""></div>
+  <div class="routes-grid">
+    <article class="route-card" data-cc-id="cc-14">
+      <div class="num">Route 01</div>
+      <h3>Colombo, down the south coast.</h3>
+      <div class="stops" data-cc-id="cc-17" style="font-family: Inter;">
+        Colombo<br>
+        Bentota<br>
+        Hikkaduwa<br>
+        Galle<br>
+        Ahangama<br>
+        Weligama<br>
+        Hiriketiya<br>
+        <span class="here" style="font-family: Inter;">Mawella</span><br>
+        Tangalle
+      </div>
+      <p class="note" data-cc-id="cc-15" style="font-family: Inter; font-size: 12px;">
+        The classic south-coast run. Roughly three to four hours from Colombo Airport, depending on stops. Most people break it in Galle for lunch and arrive in Mawella before sunset.
+      </p>
+    </article>
+
+    <article class="route-card" data-cc-id="cc-13">
+      <div class="num">Route 02</div>
+      <h3>Through the hills, then down to the sea.</h3>
+      <div class="stops" data-cc-id="cc-2" style="font-family: Inter;">
+        Colombo<div data-cc-id="cc-11" style="font-family: Inter;">Sigiriya<br>
+        Kandy<br>
+        Ella<br>
+        Tissamaharama<br>
+        Tangalle<br>
+        <span class="here" style="font-family: Inter;">Mawella</span><br>
+        Hiriketiya
+      </div></div>
+      <p class="note" data-cc-id="cc-12" style="font-family: Inter; font-size: 12px;">
+        The inland route. Tea country, cooler air, the long descent out of the hills. Mawella is where the air slows and the road meets the ocean again, the right place to land after a week of altitude.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- FOOTER PAUSE -->
+<section class="footer-pause">
+  <div class="marker" data-cc-id="cc-16" style=""><br></div>
+  <h2>The stop in Mawella is, <span class="ochre">on balance,</span> non-negotiable.</h2>
+  <div class="actions">
+    <a href="#" class="disc-light">Pause Now</a>
+    <a href="TINAH%20Full%20Site%20Preview.html" target="_top" class="ghost">Back to TINAH</a>
+  </div>
+</section>
+
+<footer class="tinah" data-cc-id="cc-2">
+  <div class="mark" data-cc-id="cc-1" style="">THIS IS NOT A HOTEL · Mawella</div>
+  <div class="copy">© 2026 This Is Not A Hotel<sup>™</sup>. Mawella, Sri Lanka.</div>
+</footer>
+
+
+
+</body></html>

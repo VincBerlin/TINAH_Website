@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TINAH — House Outline Studies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Allerta+Stencil&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#F2EDE4;
+    --ink:#1C1B17;
+    --ink-soft:#5A5448;
+    --terracotta:#A84A2C;
+    --ochre:#B84A1F;
+    --paper:#F1E9D7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;}
+  body{padding:6vh 6vw;min-height:100vh;}
+  h1{font-family:'Allerta Stencil',sans-serif;font-size:14px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px;}
+  h1 .it{font-family:'DM Serif Display',serif;font-style:italic;text-transform:none;letter-spacing:.01em;color:var(--terracotta);font-size:18px;}
+  .lede{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6vh;max-width:62ch;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:6vh 4vw;}
+  .study{background:var(--cream);}
+  .study .frame{
+    background:var(--cream);
+    border:1px solid rgba(28,27,23,.18);
+    aspect-ratio:4/3;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .study .frame.paper{background:var(--paper);}
+  .study .frame svg{width:84%;height:auto;display:block;}
+  .study .frame .corner{
+    position:absolute;top:10px;left:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);opacity:.7;
+  }
+  .study .frame .corner-r{
+    position:absolute;top:10px;right:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);opacity:.7;
+  }
+  .meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;}
+  .meta .name{font-family:'Allerta Stencil',sans-serif;font-size:13px;letter-spacing:.16em;text-transform:uppercase;}
+  .meta .num{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ink-soft);}
+  .desc{font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.6;color:var(--ink-soft);margin-top:6px;letter-spacing:.04em;max-width:42ch;}
+  .desc em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--terracotta);font-size:12px;}
+
+  /* Hover micro-interaction — pencil line darkens slightly */
+  .study .frame svg [stroke]{transition:stroke .35s ease, stroke-width .35s ease;}
+  .study:hover .frame svg [stroke]{stroke:#000;}
+
+  footer{margin-top:10vh;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<h1>House Studies — <span class="it">outlines, only.</span></h1>
+<p class="lede">04 minimalist line drawings of the Mawella house. Pick one — or combine — for the Location section. All files SVG, monochrome, ~30kb.</p>
+
+<div class="grid">
+
+  <!-- =============== STUDY 01 — pure architectural elevation =============== -->
+  <div class="study">
+    <div class="frame">
+      <span class="corner">01 / 04</span>
+      <span class="corner-r">elevation</span>
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Tinah house, line elevation">
+        <g stroke="#1C1B17" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter" fill="none">
+          <!-- ground line -->
+          <line x1="20" y1="252" x2="380" y2="252" />
+          <!-- main lower volume -->
+          <path d="M 80 252 V 200 H 280 V 252" />
+          <!-- main lower roof — gentle pitch -->
+          <path d="M 60 200 L 175 165 L 175 200 Z M 175 200 L 175 165 L 300 200 Z" />
+          <!-- middle volume -->
+          <path d="M 130 200 V 150 H 240 V 200" />
+          <path d="M 110 150 L 185 120 L 185 150 Z M 185 150 L 185 120 L 260 150 Z" />
+          <!-- tower (left) -->
+          <path d="M 100 200 V 110 H 160 V 200" />
+          <path d="M 92 110 L 130 80 L 130 110 Z M 130 110 L 130 80 L 168 110 Z" />
+          <!-- door -->
+          <rect x="170" y="218" width="22" height="34" />
+          <line x1="181" y1="218" x2="181" y2="252" />
+          <!-- ground floor windows -->
+          <rect x="100" y="220" width="14" height="16" />
+          <line x1="100" y1="228" x2="114" y2="228" />
+          <line x1="107" y1="220" x2="107" y2="236" />
+          <rect x="220" y="220" width="14" height="16" />
+          <line x1="220" y1="228" x2="234" y2="228" />
+          <line x1="227" y1="220" x2="227" y2="236" />
+          <rect x="246" y="220" width="14" height="16" />
+          <line x1="246" y1="228" x2="260" y2="228" />
+          <line x1="253" y1="220" x2="253" y2="236" />
+          <!-- middle window -->
+          <rect x="178" y="170" width="14" height="20" />
+          <line x1="185" y1="170" x2="185" y2="190" />
+          <!-- tower window -->
+          <rect x="118" y="135" width="22" height="22" />
+          <line x1="129" y1="135" x2="129" y2="157" />
+          <line x1="118" y1="146" x2="140" y2="146" />
+          <!-- terracotta roof accent — single thin line under each ridge -->
+          <line x1="60" y1="201" x2="300" y2="201" stroke="#A84A2C" stroke-width="0.8" />
+          <line x1="110" y1="151" x2="260" y2="151" stroke="#A84A2C" stroke-width="0.8" />
+          <line x1="92" y1="111" x2="168" y2="111" stroke="#A84A2C" stroke-width="0.8" />
+        </g>
+      </svg>
+    </div>
+    <div class="meta">
+      <span class="name">Elevation, square.</span>
+      <span class="num">N° 01</span>
+    </div>
+    <p class="desc">Strict architectural <em>parti</em>. Three stacked volumes, terracotta hairline marks each roof edge — only colour in the drawing.</p>
+  </div>
+
+  <!-- =============== STUDY 02 — single continuous contour =============== -->
+  <div class="study">
+    <div class="frame paper">
+      <span class="corner">02 / 04</span>
+      <span class="corner-r">contour</span>
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Tinah house, single-line contour">
+        <g stroke="#1C1B17" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <!-- single continuous outline of the entire silhouette -->
+          <path d="
+            M 40 252
+            L 80 252
+            L 80 200
+            L 60 200
+            L 100 178
+            L 100 110
+            L 92 110
+            L 130 80
+            L 168 110
+            L 160 110
+            L 160 150
+            L 185 132
+            L 185 120
+            L 200 130
+            L 240 150
+            L 240 200
+            L 280 200
+            L 300 200
+            L 280 188
+            L 280 200
+            L 280 252
+            L 360 252
+          " />
+        </g>
+      </svg>
+    </div>
+    <div class="meta">
+      <span class="name">One line.</span>
+      <span class="num">N° 02</span>
+    </div>
+    <p class="desc">The whole house drawn without lifting the pen — a single continuous <em>contour</em>. Less information, more rhythm.</p>
+  </div>
+
+  <!-- =============== STUDY 03 — geometric / blueprint =============== -->
+  <div class="study">
+    <div class="frame">
+      <span class="corner">03 / 04</span>
+      <span class="corner-r">blueprint</span>
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Tinah house, blueprint study">
+        <g stroke="#1C1B17" stroke-width="0.9" stroke-linecap="square" stroke-linejoin="miter" fill="none">
+          <!-- faint construction grid -->
+          <g stroke="rgba(28,27,23,.08)" stroke-width="0.5">
+            <line x1="0" y1="50" x2="400" y2="50" />
+            <line x1="0" y1="100" x2="400" y2="100" />
+            <line x1="0" y1="150" x2="400" y2="150" />
+            <line x1="0" y1="200" x2="400" y2="200" />
+            <line x1="0" y1="250" x2="400" y2="250" />
+            <line x1="50" y1="0" x2="50" y2="300" />
+            <line x1="100" y1="0" x2="100" y2="300" />
+            <line x1="150" y1="0" x2="150" y2="300" />
+            <line x1="200" y1="0" x2="200" y2="300" />
+            <line x1="250" y1="0" x2="250" y2="300" />
+            <line x1="300" y1="0" x2="300" y2="300" />
+            <line x1="350" y1="0" x2="350" y2="300" />
+          </g>
+          <!-- ground -->
+          <line x1="20" y1="252" x2="380" y2="252" stroke-width="1.4" />
+          <!-- house outline only -->
+          <path d="M 80 252 L 80 200 L 100 200 L 100 110 L 92 110 L 130 80 L 168 110 L 160 110 L 160 150 L 130 150 L 130 200 L 240 200 L 240 150 L 260 150 L 185 120 L 110 150 L 130 150 M 240 200 L 280 200 L 280 252" />
+          <line x1="60" y1="200" x2="300" y2="200" />
+          <!-- roof lines -->
+          <line x1="60" y1="200" x2="175" y2="165" />
+          <line x1="175" y1="165" x2="175" y2="200" />
+          <line x1="175" y1="165" x2="300" y2="200" />
+          <!-- tick marks / dimension hints -->
+          <g stroke="#A84A2C" stroke-width="0.8">
+            <line x1="80" y1="265" x2="80" y2="270" />
+            <line x1="280" y1="265" x2="280" y2="270" />
+            <line x1="80" y1="268" x2="280" y2="268" />
+          </g>
+          <text x="180" y="282" font-family="IBM Plex Mono, monospace" font-size="8" letter-spacing="2" fill="#A84A2C" stroke="none" text-anchor="middle">22 M</text>
+          <!-- coords corner -->
+          <text x="20" y="292" font-family="IBM Plex Mono, monospace" font-size="7" letter-spacing="1" fill="#5A5448" stroke="none">06°02&apos;N · 80°45&apos;E</text>
+        </g>
+      </svg>
+    </div>
+    <div class="meta">
+      <span class="name">Blueprint, light.</span>
+      <span class="num">N° 03</span>
+    </div>
+    <p class="desc">Construction grid + ortho lines + the actual co-ordinates. Reads as <em>document</em> — pairs well with the § II Location marker.</p>
+  </div>
+
+  <!-- =============== STUDY 04 — sketchy / hand =============== -->
+  <div class="study">
+    <div class="frame paper">
+      <span class="corner">04 / 04</span>
+      <span class="corner-r">hand</span>
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Tinah house, hand-drawn outline">
+        <g stroke="#1C1B17" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none" style="filter:url(#wobble)">
+          <!-- ground -->
+          <path d="M 24 253 q 60 -2 90 -1 t 90 1 t 95 -1 t 80 0" />
+          <!-- main lower volume -->
+          <path d="M 78 252 q -1 -25 0 -52 q 102 -1 200 0 q 0 26 1 52" />
+          <!-- main lower roof -->
+          <path d="M 60 200 q 60 -22 116 -36 q 64 14 124 36" />
+          <line x1="176" y1="164" x2="176" y2="200" />
+          <!-- middle volume -->
+          <path d="M 130 200 q 0 -25 0 -50 q 56 0 110 0 q 0 25 0 50" />
+          <path d="M 110 150 q 38 -16 76 -30 q 38 14 74 30" />
+          <line x1="186" y1="120" x2="186" y2="150" />
+          <!-- tower -->
+          <path d="M 100 200 q -1 -45 0 -90 q 30 0 60 0 q 0 45 0 90" />
+          <path d="M 92 110 q 20 -15 38 -30 q 20 15 38 30" />
+          <line x1="130" y1="80" x2="130" y2="110" />
+          <!-- door -->
+          <path d="M 170 252 q 0 -17 0 -34 q 12 0 22 0 q 0 17 0 34" />
+          <!-- windows -->
+          <rect x="100" y="220" width="14" height="16" rx="0.6" />
+          <rect x="220" y="220" width="14" height="16" rx="0.6" />
+          <rect x="246" y="220" width="14" height="16" rx="0.6" />
+          <rect x="178" y="170" width="14" height="18" rx="0.6" />
+          <rect x="118" y="135" width="22" height="22" rx="0.6" />
+          <line x1="129" y1="135" x2="129" y2="157" />
+          <line x1="118" y1="146" x2="140" y2="146" />
+          <!-- terracotta roof tick — sketchy stripe -->
+          <path d="M 65 202 q 60 1 116 0 t 116 0" stroke="#A84A2C" stroke-width="0.9" />
+          <path d="M 114 152 q 36 1 72 0 t 70 0" stroke="#A84A2C" stroke-width="0.9" />
+          <path d="M 96 112 q 18 1 36 0 t 36 0" stroke="#A84A2C" stroke-width="0.9" />
+        </g>
+        <defs>
+          <filter id="wobble">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="3"/>
+            <feDisplacementMap in="SourceGraphic" scale="2.2"/>
+          </filter>
+        </defs>
+      </svg>
+    </div>
+    <div class="meta">
+      <span class="name">Hand, wobbled.</span>
+      <span class="num">N° 04</span>
+    </div>
+    <p class="desc">Same outline as N°01, run through a tiny <em>turbulence</em> filter — looks pen-on-paper, lives well next to italic serif copy.</p>
+  </div>
+
+</div>
+
+<footer>EST. MMXXV · TINAH · MAWELLA — house outline studies, 2026·04·25</footer>
+
+</body>
+</html>

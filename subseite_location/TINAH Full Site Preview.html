@@ -1,0 +1,509 @@
+<!DOCTYPE html><html data-src-ver="99ff4a77" lang="en"><head>
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TINAH — Full Site Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Allerta+Stencil&amp;family=DM+Serif+Display:ital@0;1&amp;family=EB+Garamond:ital,wght@0,400;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#0B0B0C; --cream:#F2EDE4; --cream-2:#F1E9D7;
+    --ink:#1C1B17; --ink-soft:#5A5448; --ochre:#B84A1F;
+    --gray:#B7B7B7; --gray-2:#D9D9D9; --rule:rgba(28,27,23,.18);
+    --weave-dark:#1F1D1A; --weave-cream:#D8CEB7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--dark);color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:clip;}
+  .stencil{font-family:'Allerta Stencil',sans-serif;letter-spacing:.14em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .serif-it{font-family:'DM Serif Display',serif;font-style:italic;letter-spacing:0;}
+
+  /* TopBar */
+  header{position:fixed;top:0;left:0;right:0;z-index:100;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:3vh 4vw 16px;}
+  header .l{justify-self:start;display:flex;gap:2vw;}
+  header .r{justify-self:end;display:flex;gap:2.4vw;}
+  header span,header a{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray);text-decoration:none;}
+  header a:hover{color:#fff;}
+  .sound{position:fixed;top:14px;right:14px;z-index:100;height:36px;width:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(11,11,12,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:var(--gray-2);font-size:14px;}
+
+  /* Hero */
+  section.hero{position:relative;width:100vw;height:100vh;overflow:hidden;background:#0B0B0C;}
+  .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0E1518 0%,#1C2A2E 50%,#0B0B0C 100%);}
+  .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(11,11,12,.5),rgba(11,11,12,.3) 40%,rgba(11,11,12,.7));}
+  .hero-bg .placeholder{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.08);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;}
+  .hero h1{position:absolute;left:50%;top:24vh;transform:translate(-50%,-50%);z-index:20;text-align:center;}
+  .hero h1 .word{font-family:'Allerta Stencil',sans-serif;color:#fff;font-size:clamp(18px,5.4vw,64px);line-height:1.1;letter-spacing:.16em;white-space:nowrap;text-transform:uppercase;}
+  .hero h1 sup{font-size:.42em;vertical-align:top;margin-left:.12em;letter-spacing:0;}
+  .hero h1 .tagline{margin-top:1.2vh;color:var(--gray);font-size:clamp(11px,.85vw,13px);line-height:1.4;max-width:640px;margin-left:auto;margin-right:auto;font-weight:400;}
+  .circle{position:absolute;left:50%;top:54vh;transform:translate(-50%,-50%);z-index:20;}
+  .circle .disc{width:clamp(170px,20vw,260px);height:clamp(170px,20vw,260px);border-radius:50%;border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.06);display:grid;place-items:center;cursor:pointer;color:#fff;font-family:'Allerta Stencil',sans-serif;font-size:13px;letter-spacing:.22em;position:relative;transition:all .4s;}
+  .circle .disc::before{content:'';position:absolute;top:25%;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:#fff;}
+  .circle .disc:hover{transform:scale(1.05);background:rgba(255,255,255,.1);}
+  .hero-foot{position:absolute;left:0;right:0;bottom:6vh;z-index:20;padding:0 6vw;}
+  .hero-foot .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4vw;max-width:1100px;margin:0 auto;}
+  .hero-foot .col-mid{text-align:center;}
+  .hero-foot .col-r{text-align:right;}
+  .hero-foot .head{font-family:'Allerta Stencil',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gray-2);margin-bottom:1vh;}
+  .hero-foot p{color:var(--gray);font-size:clamp(11px,.85vw,13px);line-height:1.4;max-width:280px;}
+  .hero-foot .col-mid p{margin:0 auto;}
+  .hero-foot .col-r p{margin-left:auto;}
+  .hero-foot .it{font-style:italic;}
+
+  /* Section base */
+  section.cream{position:relative;width:100vw;min-height:100vh;background:var(--cream);overflow:hidden;}
+  .three-col{position:relative;z-index:10;max-width:1300px;margin:0 auto;padding:10vh 6vw;display:grid;grid-template-columns:repeat(12,1fr);gap:5vh 5vw;align-items:center;}
+  .three-col .l-col{grid-column:span 4;}
+  .three-col .m-col{grid-column:span 4;display:flex;justify-content:center;align-items:center;}
+  .three-col .r-col{grid-column:span 4;}
+  .marker{display:flex;align-items:center;gap:12px;margin-bottom:4vh;}
+  .marker .rule{display:inline-block;height:1px;width:24px;background:var(--ink);}
+  .marker span{font-family:'Allerta Stencil',sans-serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink);}
+  .display{color:var(--ink);font-size:clamp(22px,3.4vw,48px);line-height:1.1;letter-spacing:.02em;}
+  .display .a{font-family:'Allerta Stencil',sans-serif;letter-spacing:.02em;display:block;margin-bottom:.55em;}
+  .display .a:last-child{margin-bottom:0;}
+  /* Akzent: "It's a house." in Brand-Ochre, gleiche Farbe wie auf der
+     Startseite (--ochre, #B84A1F). Setzt den Einstieg in die Headline
+     visuell ab, ohne eine zusätzliche Schriftart einzuführen. */
+  .display .it-orange{color:var(--ochre);}
+  /* Location-Section: zentrierter vertikaler Stack (User-Request 2026-04-26).
+     Löst die alte 3-Spalten-Choreografie für #location ab — Marker, Headline,
+     Button und Body sitzen jetzt mittig untereinander. */
+  .intro-stack{position:relative;z-index:10;max-width:820px;margin:0 auto;padding:14vh 6vw;display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .intro-stack .marker{justify-content:center;margin-bottom:5vh;}
+  .intro-stack .display{text-align:center;}
+  .intro-stack .intro-cta{margin-top:clamp(48px,7vh,96px);}
+  .intro-stack .intro-body{margin:clamp(40px,6vh,80px) auto 0;max-width:520px;font-size:clamp(12px,.95vw,14px);line-height:1.55;text-align:center;}
+  /* House-Principles letter-grid (2026-04-26 redesign).
+     Each row is a 20-cell grid; filled cells get a 1px hairline border, a
+     small lowercase Mono letter top-left, and a big Stencil letter centred.
+     Empty cells (word-spaces or trailing slots) take grid space but render
+     nothing. */
+  .type-grid{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:0;font-size:clamp(13px,1.85vw,28px);line-height:1;width:100%;}
+  .type-grid .cell{position:relative;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;}
+  .type-grid .cell.filled{border:1px solid rgba(28,27,23,.18);}
+  .type-grid .cell .lo{position:absolute;top:8%;left:12%;font-family:'IBM Plex Mono',monospace;font-size:.34em;color:var(--ink);opacity:.55;line-height:1;text-transform:lowercase;}
+  .type-grid .cell .hi{font-family:'Allerta Stencil',sans-serif;font-size:1em;color:var(--ink);line-height:1;text-transform:uppercase;letter-spacing:0;}
+  /* Override 4/4/4 split → 8/-/4 for the House-Principles section so the
+     letter grid actually has room to breathe. The middle column is hidden
+     and its EXPLORE button is folded into the right column above the
+     body copy. */
+  #experience .three-col .l-col{grid-column:span 8;}
+  #experience .three-col .m-col{display:none;}
+  #experience .three-col .r-col{grid-column:span 4;display:flex;flex-direction:column;align-items:flex-start;gap:5vh;}
+  .body-text{color:var(--ink);font-family:'Inter',sans-serif;font-size:clamp(11px,.85vw,13px);line-height:1.5;max-width:360px;}
+  .body-text + .body-text, .body-text p + p{margin-top:1.8em;}
+
+  .disc-light{width:clamp(170px,20vw,260px);height:clamp(170px,20vw,260px);border-radius:50%;border:1px solid rgba(28,27,23,.4);background:rgba(255,255,255,.4);display:grid;place-items:center;cursor:pointer;color:var(--ink);font-family:'Allerta Stencil',sans-serif;font-size:13px;letter-spacing:.22em;position:relative;flex-shrink:0;backdrop-filter:blur(4px);}
+  .disc-light::before{content:'';position:absolute;top:25%;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:var(--ink);}
+
+  /* Rooms (dark + bg) */
+  section.rooms{position:relative;width:100vw;height:100vh;overflow:hidden;background:#1A1916;}
+  .rooms-bg{position:absolute;inset:0;background:linear-gradient(120deg,#2A2622 0%,#3D3530 50%,#1A1916 100%);}
+  .rooms-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(11,11,12,.6),rgba(11,11,12,.3) 50%,rgba(11,11,12,.5));}
+  .rooms-bg .ph{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.08);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;}
+  .rooms-content{position:absolute;left:7vw;top:50%;transform:translateY(-50%);z-index:20;}
+  .rooms-content h2{font-family:'Allerta Stencil',sans-serif;font-size:clamp(32px,4.5vw,64px);line-height:.95;color:#fff;letter-spacing:-.02em;max-width:460px;}
+  .rooms-content h2 .it{font-family:'DM Serif Display',serif;font-style:italic;}
+  .rooms-content p{margin-top:2rem;color:var(--gray);max-width:400px;}
+  .rooms-circle{position:absolute;right:8vw;top:56vh;transform:translateY(-50%);z-index:20;}
+
+  /* Experience overrides — H3 italic in ochre, etc handled by display */
+
+  /* RITUALS */
+  section.rituals{background:var(--cream);padding:14vh 6vw;}
+  section.rituals .inner{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);column-gap:3vw;row-gap:6vh;}
+  .r-left{grid-column:1 / span 4;position:sticky;top:14vh;align-self:start;}
+  .r-list{grid-column:6 / span 7;display:flex;flex-direction:column;}
+  .r-display{color:var(--ink);font-size:clamp(30px,4.6vw,68px);line-height:1.0;max-width:10ch;}
+  .r-display .a{font-family:'Allerta Stencil',sans-serif;letter-spacing:.02em;}
+  .r-display em{font-family:'DM Serif Display',serif;font-style:italic;}
+  .r-intro{margin-top:3vh;color:var(--ink-soft);font-family:'EB Garamond',serif;font-size:clamp(13px,1vw,16px);line-height:1.5;max-width:32ch;}
+  article.ritual{display:grid;grid-template-columns:52px 1fr auto;column-gap:24px;align-items:baseline;padding:4.5vh 0;min-height:18vh;border-top:1px solid var(--rule);}
+  article.ritual:last-child{border-bottom:1px solid var(--rule);}
+  article.ritual .n{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;color:var(--ochre);}
+  article.ritual h3{font-family:'Allerta Stencil',sans-serif;font-weight:400;font-size:clamp(20px,2.2vw,30px);letter-spacing:.02em;line-height:1.15;color:var(--ink);}
+  article.ritual p{font-family:'EB Garamond',serif;font-style:italic;color:var(--ink-soft);margin-top:6px;font-size:clamp(13px,1vw,16px);line-height:1.5;max-width:44ch;}
+  article.ritual .time{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--ink-soft);justify-self:end;}
+
+  /* Details — Play / Pause (typographic split) */
+  section.details{position:relative;width:100vw;min-height:100vh;background:var(--cream-2);overflow:hidden;}
+  .pp-eyebrow{position:absolute;top:8vh;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);z-index:5;}
+  .pp-split{position:relative;display:grid;grid-template-columns:1fr 1px 1fr;min-height:100vh;align-items:center;}
+  .pp-line{background:var(--ink);opacity:.18;width:1px;height:62vh;align-self:center;justify-self:center;position:relative;}
+  .pp-dot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--ink);cursor:pointer;animation:breathe 3.6s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1;}50%{transform:translate(-50%,-50%) scale(1.6);opacity:.55;}}
+  .pp-side{padding:0 clamp(40px,7vw,120px);transition:opacity .6s ease;}
+  .pp-side.dim{opacity:.28;}
+  .pp-side.l{text-align:right;}
+  .pp-side.r{text-align:left;}
+  .pp-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ochre);margin-bottom:24px;}
+  .pp-side.r .pp-label{color:var(--ink-soft);}
+  .pp-word{font-family:'Allerta Stencil',sans-serif;font-size:clamp(64px,10vw,160px);line-height:.9;letter-spacing:.02em;color:var(--ink);text-transform:uppercase;}
+  .pp-side.r .pp-word{/* same as left: Allerta Stencil, uppercase, no italic */}
+  .pp-list{margin-top:5vh;display:flex;flex-direction:column;gap:14px;}
+  .pp-side.l .pp-list{align-items:flex-end;}
+  .pp-row{display:inline-flex;align-items:baseline;gap:18px;cursor:default;transition:transform .35s cubic-bezier(.22,1,.36,1);}
+  .pp-row:hover{transform:translateX(-6px);}
+  .pp-side.r .pp-row:hover{transform:translateX(6px);}
+  .pp-time{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--ink-soft);min-width:56px;}
+  .pp-act{font-family:'Allerta Stencil',sans-serif;font-size:clamp(18px,1.7vw,24px);letter-spacing:.18em;color:var(--ink);text-transform:uppercase;}
+  .pp-side.r .pp-act{font-family:'EB Garamond',serif;font-style:italic;font-size:clamp(20px,2vw,28px);letter-spacing:0;text-transform:lowercase;}
+  .pp-side.r .pp-row{flex-direction:row-reverse;}
+  .pp-side.r .pp-time{color:var(--ink-soft);font-style:normal;letter-spacing:.18em;text-transform:none;font-size:11px;}
+  .pp-foot{position:absolute;bottom:6vh;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);opacity:.6;}
+  @media (max-width:760px){
+    .pp-split{grid-template-columns:1fr;grid-template-rows:1fr 1px 1fr;}
+    .pp-line{width:62vw;height:1px;}
+    .pp-side.l,.pp-side.r{text-align:center;padding:6vh 8vw;}
+    .pp-side.l .pp-list{align-items:center;}
+    .pp-side.r .pp-row{flex-direction:row;}
+  }
+
+  /* Testimonial */
+  section.testi{position:relative;width:100vw;height:100vh;overflow:hidden;background:#0B0B0C;color:#fff;}
+  .testi-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1A2026 0%,#2D3540 50%,#0B0B0C 100%);}
+  .testi-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(11,11,12,.85),rgba(11,11,12,.2) 50%,rgba(11,11,12,.8));}
+  .testi-bg .ph{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.08);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;}
+  .testi-head{position:absolute;left:50%;top:18vh;transform:translateX(-50%);z-index:20;text-align:center;width:100%;padding:0 6vw;}
+  .testi-head .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gray-2);}
+  .testi-head h2{margin-top:8px;font-family:'Allerta Stencil',sans-serif;font-size:clamp(20px,2.4vw,30px);letter-spacing:.08em;text-transform:uppercase;}
+  .testi-cards{position:absolute;left:50%;top:58vh;transform:translate(-50%,-50%);z-index:20;width:100%;padding:0 6vw;}
+  .testi-cards ul{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1200px;margin:0 auto;list-style:none;align-items:stretch;}
+  .card{border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);backdrop-filter:blur(12px);padding:18px;display:flex;flex-direction:column;}
+  .stars{display:flex;gap:2px;color:#FBBC04;font-size:14px;}
+  .card .quote{margin-top:12px;font-size:14px;line-height:1.6;color:rgba(255,255,255,.9);}
+  .card .author{margin-top:auto;padding-top:16px;font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.22em;color:var(--gray-2);text-transform:uppercase;}
+
+  /* Book / Contact */
+  section.book{position:relative;width:100vw;min-height:100vh;background:#1F1D1A;color:#fff;overflow:hidden;}
+  .book-bg{position:absolute;inset:0;background-color:#1F1D1A;background-image:repeating-linear-gradient(to right,#1F1D1A 0,#1F1D1A 48px,#D8CEB7 48px,#D8CEB7 66px,#1F1D1A 66px,#1F1D1A 114px,#D8CEB7 114px,#D8CEB7 132px);}
+  .book-veil{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(11,11,12,.55) 0%,rgba(11,11,12,.25) 45%,rgba(11,11,12,0) 80%);}
+  .book-fade-t{position:absolute;top:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,#0B0B0C,transparent);}
+  .book-fade-b{position:absolute;bottom:0;left:0;right:0;height:128px;background:linear-gradient(to top,#0B0B0C,transparent);}
+  .book-content{position:relative;z-index:10;padding:14vh 6vw 12vh;max-width:1300px;margin:0 auto;}
+  .book-eye{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-2);}
+  .book-content h2{margin-top:6px;font-family:'Allerta Stencil',sans-serif;font-size:clamp(24px,3.2vw,40px);letter-spacing:.06em;text-transform:uppercase;}
+  .book-grid{margin-top:24px;display:grid;grid-template-columns:1fr auto 1fr;gap:32px;align-items:stretch;}
+  .glass{border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);backdrop-filter:blur(12px);padding:20px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field label{display:block;font-family:'Allerta Stencil',sans-serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-2);margin-bottom:6px;}
+  .field input,.field select{width:100%;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);padding:10px 16px;color:#fff;font-size:15px;}
+  .row-bot{margin-top:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;}
+  .price{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:12px;padding:8px 14px;min-height:44px;display:flex;flex-direction:column;justify-content:center;}
+  .price .lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-2);}
+  .price .val{margin-top:2px;font-family:'Allerta Stencil',sans-serif;font-size:17px;letter-spacing:.06em;}
+  .submit{margin-top:16px;min-height:44px;padding:10px 28px;border-radius:999px;background:#fff;color:#0B0B0C;border:1px solid #fff;font-family:'Allerta Stencil',sans-serif;font-size:12px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;}
+  .or{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+  .or .line{display:block;width:1px;height:100%;background:rgba(255,255,255,.2);}
+  .or .lbl{font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.28em;color:var(--gray-2);}
+  .qr-card{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .qr-card .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-2);}
+  .qr-tile{margin-top:12px;width:150px;height:150px;background:#fff;border-radius:12px;display:grid;place-items:center;color:#0B0B0C;font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:center;padding:8px;line-height:1.3;}
+  .qr-card p{margin-top:12px;font-size:13px;color:var(--gray-2);max-width:26ch;line-height:1.4;}
+  .wa{margin-top:12px;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:8px 20px;border-radius:999px;border:1px solid #fff;background:transparent;color:#fff;font-family:'Allerta Stencil',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;}
+
+  footer{background:#0B0B0C;padding:32px 6vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  footer .mark{font-family:'Allerta Stencil',sans-serif;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:#fff;}
+  footer .copy{color:var(--gray-2);font-size:12px;}
+  footer nav{display:flex;gap:24px;}
+  footer nav a{color:var(--gray-2);font-size:12px;text-decoration:none;}
+  footer nav a:hover{color:#fff;}
+
+  /* Section index gutter (visual aid) */
+  .gutter{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;gap:14px;}
+  .gutter a{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .3s;display:block;}
+  .gutter a:hover{background:#fff;transform:scale(1.4);}
+
+  @media (max-width:900px){
+    .three-col{grid-template-columns:1fr;}
+    .three-col .l-col,.three-col .m-col,.three-col .r-col{grid-column:1 / -1;}
+    section.rituals .inner{grid-template-columns:1fr;}
+    .r-left,.r-list{grid-column:1 / -1;position:static;}
+    article.ritual{grid-template-columns:40px 1fr;}
+    article.ritual .time{grid-column:2;justify-self:start;color:var(--ochre);margin-top:4px;}
+    .testi-cards ul{grid-template-columns:1fr;gap:12px;}
+    .book-grid{grid-template-columns:1fr;}
+    .or{flex-direction:row;}
+    .or .line{height:1px;width:100%;}
+    .hero-foot .grid{grid-template-columns:1fr;}
+    .hero-foot .col-mid,.hero-foot .col-r{text-align:left;}
+    header{grid-template-columns:1fr 1fr;}
+    header .r{display:none;}
+    .gutter{display:none;}
+  }
+</style>
+</head>
+<body data-cc-id="cc-1" style="cursor: crosshair;">
+
+<header>
+  <div class="l">
+    <span>THIS IS NOT A HOTEL<sup style="font-size:.75em;vertical-align:top;">™</sup></span>
+    <span>MAWELLA 06°00'N · 80°45'E</span>
+  </div>
+  <span></span>
+  <nav class="r">
+    <a href="#rooms">ROOMS</a>
+    <a href="#rituals">RITUALS</a>
+    <a href="#book">PAUSE</a>
+  </nav>
+</header>
+
+<div class="sound">♪</div>
+
+<nav class="gutter" aria-label="Section index">
+  <a href="#hero" title="Hero"></a>
+  <a href="#location" title="Location"></a>
+  <a href="#rooms" title="Rooms"></a>
+  <a href="#experience" title="Experience"></a>
+  <a href="#rituals" title="Rituals"></a>
+  <a href="#details" title="Play / Pause"></a>
+  <a href="#testimonial" title="Reviews"></a>
+  <a href="#book" title="Book"></a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg"><div class="placeholder">[ Hero Video — Hiru.mp4 · Mawella Beach ]</div></div>
+  <h1>
+    <span class="word">THIS&nbsp;IS&nbsp;NOT&nbsp;A&nbsp;HOTEL<sup>™</sup></span>
+    <p class="tagline">Pause Your Stay at Our Hotel on Mawella Beach Between Tangalle and Hiriketiya Sri Lanka.</p>
+  </h1>
+  <div class="circle"><a class="disc" href="#book">PAUSE NOW</a></div>
+  <div class="hero-foot">
+    <div class="grid">
+      <div class="col-l"><div class="head">01 / Location</div><p>A five-room house on Mawella Beach, southern Sri Lanka. Salt water and air, peacocks, palm trees, nothing more.</p></div>
+      <div class="col-mid"><div class="head">02 / Disposition</div><p class="it">Less a hotel, more an argument against them.</p></div>
+      <div class="col-r"><div class="head">03 / Play&nbsp;|&nbsp;Pause</div><p>Co-work, Yoga, Surf, Run, Leave an angel print on the beach.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<!-- LOCATION -->
+<section class="cream" id="location">
+  <div class="intro-stack">
+    <p class="display" style="text-align: center">
+      <span class="a it-orange">It's a house.</span>
+      <span class="a">A long table.</span>
+      <span class="a">A kilometre of empty beach.</span>
+    </p>
+    <a href="Location%20Detail%20Preview.html" target="_top" class="disc-light intro-cta">LOCATION</a>
+    <div class="body-text intro-body">
+      <p>Past the gate in Mawella, the lane is unpaved. A kilometre of soft sand runs under the palms,  peacocks at first light, monkeys in the trees, the ocean three steps from the door. Time enough to slow down, switch off, find your way back to yourself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section class="rooms" id="rooms">
+  <div class="rooms-bg"><div class="ph">[ Room Interior — Photo ]</div></div>
+  <div class="rooms-content">
+    <h2 style="font-family: Inter">Rooms designed<br>for <span class="it">stillness</span>.</h2>
+    <p>Minimal, warm, and quiet, so you can actually rest.</p>
+  </div>
+  <div class="rooms-circle"><a href="#experience" class="disc">VIEW ROOMS</a></div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="cream" id="experience" data-cc-id="cc-9">
+  <div class="three-col" data-cc-id="cc-3">
+    <div class="l-col" data-cc-id="cc-10">
+      <div class="marker"><span class="rule"></span><span data-cc-id="cc-11" style="">§ III — House Principles</span></div>
+      <p class="sr-only" style="position:absolute;left:-9999px;">No television. No lobby. No little chocolates.</p>
+      <div class="type-grid" role="presentation" aria-hidden="true">
+        <!-- Row 1 — NO TELEVISION (13 filled, 7 empty trailing) -->
+        <div class="cell filled"><span class="lo">n</span><span class="hi">N</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell"></div>
+        <div class="cell filled"><span class="lo">t</span><span class="hi">T</span></div>
+        <div class="cell filled"><span class="lo">e</span><span class="hi">E</span></div>
+        <div class="cell filled"><span class="lo">l</span><span class="hi">L</span></div>
+        <div class="cell filled"><span class="lo">e</span><span class="hi">E</span></div>
+        <div class="cell filled"><span class="lo">v</span><span class="hi">V</span></div>
+        <div class="cell filled"><span class="lo">i</span><span class="hi">I</span></div>
+        <div class="cell filled"><span class="lo">s</span><span class="hi">S</span></div>
+        <div class="cell filled"><span class="lo">i</span><span class="hi">I</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell filled"><span class="lo">n</span><span class="hi">N</span></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 2 — NO LOBBY (8 filled, 12 empty trailing) -->
+        <div class="cell filled"><span class="lo">n</span><span class="hi">N</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell"></div>
+        <div class="cell filled"><span class="lo">l</span><span class="hi">L</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell filled"><span class="lo">b</span><span class="hi">B</span></div>
+        <div class="cell filled"><span class="lo">b</span><span class="hi">B</span></div>
+        <div class="cell filled"><span class="lo">y</span><span class="hi">Y</span></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 3 — NO LITTLE CHOCOLATES (full 20 cells) -->
+        <div class="cell filled"><span class="lo">n</span><span class="hi">N</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell"></div>
+        <div class="cell filled"><span class="lo">l</span><span class="hi">L</span></div>
+        <div class="cell filled"><span class="lo">i</span><span class="hi">I</span></div>
+        <div class="cell filled"><span class="lo">t</span><span class="hi">T</span></div>
+        <div class="cell filled"><span class="lo">t</span><span class="hi">T</span></div>
+        <div class="cell filled"><span class="lo">l</span><span class="hi">L</span></div>
+        <div class="cell filled"><span class="lo">e</span><span class="hi">E</span></div>
+        <div class="cell"></div>
+        <div class="cell filled"><span class="lo">c</span><span class="hi">C</span></div>
+        <div class="cell filled"><span class="lo">h</span><span class="hi">H</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell filled"><span class="lo">c</span><span class="hi">C</span></div>
+        <div class="cell filled"><span class="lo">o</span><span class="hi">O</span></div>
+        <div class="cell filled"><span class="lo">l</span><span class="hi">L</span></div>
+        <div class="cell filled"><span class="lo">a</span><span class="hi">A</span></div>
+        <div class="cell filled"><span class="lo">t</span><span class="hi">T</span></div>
+        <div class="cell filled"><span class="lo">e</span><span class="hi">E</span></div>
+        <div class="cell filled"><span class="lo">s</span><span class="hi">S</span></div>
+      </div>
+    </div>
+    <div class="m-col"></div>
+    <div class="r-col">
+      <a href="#rituals" class="disc-light">EXPLORE</a>
+      <div class="body-text">
+        <p style="font-family: &quot;Allerta Stencil&quot;, sans-serif; font-size: 30px; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.2; color: rgb(23, 22, 22);" data-cc-id="cc-5">An experience,<br>not a booking.</p>
+        <p style="margin-top:2em;">We've removed the friction: no front-desk queues, no surprise fees, just a calm arrival and a quiet stay.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RITUALS -->
+<section class="rituals" id="rituals">
+  <div class="inner">
+    <aside class="r-left">
+      <div class="marker"><span class="rule"></span><span>§ IV — The Day, Roughly</span></div>
+      <p class="r-display"><span class="a">A DAY,</span> <em style="font-family: Inter">loosely shaped.</em></p>
+      <p class="r-intro">Nothing is scheduled. Everything just tends to happen. Join in, or don't — the house runs on its own time.</p>
+    </aside>
+    <div class="r-list">
+      <article class="ritual"><span class="n">01</span><div><h3>Sunrise on the sand.</h3><p>The dogs wake you before the sun does. Good coffee appears without being asked for.</p></div><span class="time">06:12</span></article>
+      <article class="ritual"><span class="n">02</span><div><h3>Breakfast, long.</h3><p>Curd and kithul honey, egg hoppers, papaya, pol roti, whatever the garden gave up that morning.</p></div><span class="time">08:30</span></article>
+      <article class="ritual"><span class="n">03</span><div><h3>Swim, nap, repeat.</h3><p>The sea is calm until two. After that the current takes over. Read the flag on the post.</p></div><span class="time">11:00</span></article>
+      <article class="ritual"><span class="n">04</span><div><h3>Curry, at the long table.</h3><p>Five curries and a rice. Served late, eaten slower. Seconds expected, thirds tolerated.</p></div><span class="time">13:30</span></article>
+      <article class="ritual"><span class="n">05</span><div><h3>A walk to the headland.</h3><p>Forty minutes out, forty minutes back. There is a temple. There is a goat. That is all.</p></div><span class="time">17:00</span></article>
+      <article class="ritual"><span class="n">06</span><div><h3>Arrack sour on the verandah.</h3><p>Made badly, on purpose. The recipe is on a chalkboard in the kitchen if you'd like to help.</p></div><span class="time">19:00</span></article>
+      <article class="ritual"><span class="n">07</span><div><h3>Dinner, candles, arguments.</h3><p>Seafood if the boats came in. Jackfruit if they didn't. Always both, if you ask Sunil nicely.</p></div><span class="time">20:45</span></article>
+    </div>
+  </div>
+</section>
+
+<!-- DETAILS — PLAY | PAUSE -->
+<section class="details" id="details">
+  <div class="pp-eyebrow">§ V — Play / Pause</div>
+  <div class="pp-split">
+    <div class="pp-side l" data-side="l">
+      <div class="pp-label">Move · 01</div>
+      <div class="pp-word">Play</div>
+      <div class="pp-list">
+        <div class="pp-row"><span class="pp-time">06:30</span><span class="pp-act">Surf</span></div>
+        <div class="pp-row"><span class="pp-time">08:00</span><span class="pp-act">Run</span></div>
+        <div class="pp-row"><span class="pp-time">11:00</span><span class="pp-act">Swim</span></div>
+        <div class="pp-row"><span class="pp-time">14:00</span><span class="pp-act">Co-Work</span></div>
+      </div>
+    </div>
+    <div class="pp-line"><span class="pp-dot" id="ppDot" title="Toggle"></span></div>
+    <div class="pp-side r" data-side="r">
+      <div class="pp-label">Rest · 02</div>
+      <div class="pp-word">Pause</div>
+      <div class="pp-list">
+        <div class="pp-row"><span class="pp-time">sunrise</span><span class="pp-act">yoga</span></div>
+        <div class="pp-row"><span class="pp-time">anytime</span><span class="pp-act">meditation</span></div>
+        <div class="pp-row"><span class="pp-time">all day</span><span class="pp-act">on the sand</span></div>
+        <div class="pp-row"><span class="pp-time">always</span><span class="pp-act">nothing at all</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="pp-foot">Tap the dot · choose your side</div>
+</section>
+
+<script>
+  (function(){
+    const dot = document.getElementById('ppDot');
+    const sides = document.querySelectorAll('.pp-side');
+    let mode = 'both'; // 'both' | 'l' | 'r'
+    function apply(){
+      sides.forEach(s => {
+        const side = s.dataset.side;
+        if(mode === 'both') s.classList.remove('dim');
+        else if(mode === side) s.classList.remove('dim');
+        else s.classList.add('dim');
+      });
+    }
+    dot.addEventListener('click', () => {
+      mode = mode === 'both' ? 'l' : mode === 'l' ? 'r' : 'both';
+      apply();
+    });
+    sides.forEach(s => s.addEventListener('click', e => {
+      if(e.target.closest('.pp-row, .pp-act')) return;
+      const side = s.dataset.side;
+      mode = (mode === side) ? 'both' : side;
+      apply();
+    }));
+  })();
+</script>
+
+<!-- TESTIMONIAL -->
+<section class="testi" id="testimonial">
+  <div class="testi-bg"><div class="ph">[ Person am Strand — Photo ]</div></div>
+  <div class="testi-head">
+    <div class="eyebrow">Google · Reviews</div>
+    <h2>Words from our guests.</h2>
+  </div>
+  <div class="testi-cards">
+    <ul>
+      <li class="card"><div class="stars">★★★★★</div><p class="quote">Lovely place to stay! Peaceful and quiet. Lovely light, fresh and clean room with lovely spaces to also relax and work. Food was amazing and such lovely friendly, welcoming staff. Highly recommend.</p><p class="author">— Helen K.</p></li>
+      <li class="card"><div class="stars">★★★★★</div><p class="quote">Staying at ThisIsNotaHotel was such a lovely experience! A beautiful, peaceful spot to escape the Hiriketiya buzz and enjoy an authentic visit to southern Sri Lanka. AND just a few steps from some of the most stunning, secluded beaches.</p><p class="author">— Laura H.</p></li>
+      <li class="card"><div class="stars">★★★★★</div><p class="quote">It was the perfect stay for us. The service and the staff was amazing! The food was very delicious. The area is very quiet and very close to most of the beautiful beaches of southern Sri Lanka.</p><p class="author">— Vincent S.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- BOOK -->
+<section class="book" id="book">
+  <div class="book-bg"></div>
+  <div class="book-veil"></div>
+  <div class="book-fade-t"></div>
+  <div class="book-fade-b"></div>
+  <div class="book-content">
+    <div class="book-eye">Request</div>
+    <h2>Request your pause.</h2>
+    <div class="book-grid">
+      <form class="glass" onsubmit="event.preventDefault();this.querySelector('.submit').textContent='Sent ✓';">
+        <div class="row2">
+          <div class="field"><label>Name</label><input type="text"></div>
+          <div class="field"><label>Email</label><input type="email"></div>
+          <div class="field"><label>Check in</label><input type="date"></div>
+          <div class="field"><label>Check out</label><input type="date"></div>
+        </div>
+        <div class="row-bot">
+          <div class="field"><label>Guests</label><select><option>2 guests</option><option>1 guest</option><option>3 guests</option><option>4 guests</option><option>5+ guests</option></select></div>
+          <div class="price"><span class="lbl">Rate · night</span><span class="val">$240 <span style="font-family:'IBM Plex Mono';font-size:10px;color:var(--gray-2);letter-spacing:.18em;">USD · LKR 72,000</span></span></div>
+        </div>
+        <button type="submit" class="submit">Send request</button>
+      </form>
+      <div class="or"><span class="line"></span><span class="lbl">OR</span><span class="line"></span></div>
+      <div class="glass qr-card">
+        <span class="lbl">WhatsApp · Scan &amp; chat</span>
+        <div class="qr-tile">[ QR Code ]</div>
+        <p>Scan with your phone camera. The chat opens with a friendly message ready to send.</p>
+        <button class="wa">💬 Open WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="mark">THIS IS NOT A HOTEL<sup style="font-size:.8em;">™</sup></span>
+  <span class="copy">© 2026 All rights reserved.</span>
+  <nav><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Imprint</a></nav>
+</footer>
+
+
+
+</body></html>
