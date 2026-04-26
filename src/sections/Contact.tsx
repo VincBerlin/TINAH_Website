@@ -169,71 +169,49 @@ export function Contact() {
       <section
         ref={ref}
         id="book"
-        className="relative w-screen h-screen-safe overflow-hidden bg-[#0B0B0C] text-white scroll-mt-0"
-        style={{ zIndex: 80 }}
-        aria-label="Request your pause"
+        className="relative w-screen h-screen-safe overflow-hidden text-white scroll-mt-0"
+        style={{ zIndex: 80, backgroundColor: '#B84A1F' }}
+        aria-label="It's an experience, not a booking — request your pause"
       >
-        {/* Background — Sri-lankisches Handwebmuster (User-Request
-            2026-04-24): KEIN Foto mehr. Stattdessen vertikale Streifen
-            in genau zwei Farben aus dem Inspirations-Stoff:
-              • Dunkel:  #0B0B0C  (gleiche Tiefe wie Hero & Footer →
-                                    nahtloser Übergang oben/unten)
-              • Sand:    #D8CEB7  (warm-cremiger Beige-Ton aus dem
-                                    Webstoff)
+        {/* Background — Brand-Terracotta (User-Request 2026-04-26).
+            Vorher: Sri-lankisches Handwebmuster (vertikale Streifen
+            in #1F1D1A / #D8CEB7).
+            Jetzt: solide Brand-Orange #B84A1F als selbstbewusste
+            Aussage ganz am Ende der Seite — der gleiche Ton, den
+            wir auch im Hero („Pause"-Schrift) und in der § I —
+            An-Introduction-Headline („It's a house.") nutzen.
+            So wird die Buchungs-Sektion als finale Brand-Geste
+            gelesen und schließt den Farb-Kreis der Page.
 
             Aufbau in Layern:
-              1) Ein einziges `repeating-linear-gradient` zeichnet die
-                 vertikalen Streifen. Die Tile-Breite ist absichtlich
-                 ungleichmäßig (zwei dunkle + zwei helle Bänder pro
-                 Wiederholung), damit das Muster wie Handweberei
-                 atmet und nicht wie Strichcode wirkt.
-              2) Sanftes Top-Fade von #0B0B0C → transparent (h-40),
-                 damit die Streifen am oberen Rand in die dunkle
-                 Sektion darüber „verschwinden". Identisches
-                 Bottom-Fade in den Footer.
-              3) Ein leichter Mittel-Veil (radial, ~25% Schwarz),
-                 zentriert auf das Formular, hebt die Frosted-Glass-
-                 Karten leicht ab, ohne den Streifenrhythmus zu
-                 verschlucken. */}
+              1) Solide Fläche #B84A1F (auf der section selbst gesetzt,
+                 fungiert als Failsafe falls Overlay nicht lädt).
+              2) Sehr dezenter radialer Highlight in einem helleren
+                 Ton (warmes Orange #D26A3C, ~25 % Opazität),
+                 zentriert hinter dem Formular — gibt Tiefe, ohne
+                 die Fläche fleckig zu machen.
+              3) Top-Fade von #0B0B0C → transparent (h-40), damit der
+                 Übergang von der dunklen Testimonial-Section weich
+                 ist und das Auge nicht wie an einer Kante stolpert.
+              4) Bottom-Fade von #0B0B0C → transparent (h-32) für
+                 den nahtlosen Übergang in den dunklen Footer. */}
         <div aria-hidden className="absolute inset-0 pointer-events-none">
-          {/* Vertikale Streifen — Webstoff-Look.
-              Update 2026-04-24 (User-Request):
-                • Abstände grösser → Tile von 70 px auf 132 px
-                  (48 / 18 / 48 / 18) verdoppelt. Streifen liegen
-                  jetzt luftiger, das Muster atmet merklich ruhiger.
-                • Dunkle Bahn von pechschwarz #0B0B0C auf #1F1D1A
-                  angehoben — bleibt warm-anthrazit, nimmt aber dem
-                  Hintergrund die Härte. Der Cremeton #D8CEB7
-                  bleibt unverändert. */}
+          {/* Solide Brand-Orange als Basis-Fläche. */}
           <div
             className="absolute inset-0"
-            style={{
-              backgroundColor: '#1F1D1A',
-              backgroundImage: `repeating-linear-gradient(
-                to right,
-                #1F1D1A 0px,
-                #1F1D1A 48px,
-                #D8CEB7 48px,
-                #D8CEB7 66px,
-                #1F1D1A 66px,
-                #1F1D1A 114px,
-                #D8CEB7 114px,
-                #D8CEB7 132px
-              )`,
-            }}
+            style={{ backgroundColor: '#B84A1F' }}
           />
-          {/* Mittel-Veil — radial dunkler Hauch hinter den Karten,
-              damit Form & QR genug Halt bekommen, ohne die Streifen
-              flächig zu verdecken. */}
+          {/* Warmer Highlight — radial, deutlich heller als das Base-
+              Orange. Sitzt zentriert hinter den Karten, gibt der
+              Fläche subtile Modellierung. */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse at center, rgba(11,11,12,0.55) 0%, rgba(11,11,12,0.25) 45%, rgba(11,11,12,0) 80%)',
+                'radial-gradient(ellipse at center, rgba(232,138,82,0.32) 0%, rgba(232,138,82,0.12) 45%, rgba(232,138,82,0) 80%)',
             }}
           />
-          {/* Top fade — Streifen lösen sich nach oben in die dunkle
-              Sektion über uns auf. */}
+          {/* Top fade — Übergang von der dunklen Testimonial-Section. */}
           <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0B0B0C] to-transparent" />
           {/* Bottom fade — sauberer Übergang in den dunklen Footer. */}
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0B0C] to-transparent" />
@@ -254,7 +232,18 @@ export function Contact() {
           {/* Eyebrow + H2. Slides in from the LEFT on scroll entry to
               match the form card underneath — eyebrow and heading
               share one motion axis so the whole top block reads as a
-              single gesture. */}
+              single gesture.
+
+              Copy-Update 2026-04-26 (User-Request):
+                Vorher H2: „Request your pause."
+                Jetzt H2:  „It's an experience,"
+                            „Not a booking."
+                Zwei zentrierte Stencil-Zeilen untereinander —
+                Brand-Statement statt Funktions-Label. Die zweite
+                Zeile ist bewusst gleich gross: kein Lead/Sub,
+                sondern ein Satz auf zwei Atemzüge. Die erste Zeile
+                trägt das Komma als „warte, da kommt noch was"-
+                Signal, die zweite landet die Pointe. */}
           <div
             className="max-w-[960px]"
             style={{
@@ -263,11 +252,19 @@ export function Contact() {
               willChange: 'transform, opacity',
             }}
           >
-            <span className="block font-mono text-[11px] uppercase tracking-[0.22em] text-[#D9D9D9]">
+            <span className="block font-mono text-[11px] uppercase tracking-[0.22em] text-white/85">
               Request
             </span>
-            <h2 className="mt-1.5 font-stencil uppercase text-white text-[clamp(24px,3.2vw,40px)] leading-[1.02] tracking-[0.06em]">
-              Request your pause.
+            {/* H2 als zwei gestapelte Zeilen.
+                aria-label gibt dem Screenreader die zusammenhängende
+                Aussage als einen Satz, damit die Pause durch das
+                Komma natürlich klingt. */}
+            <h2
+              className="mt-1.5 font-stencil uppercase text-white text-[clamp(28px,3.6vw,52px)] leading-[1.02] tracking-[0.06em]"
+              aria-label="It's an experience, not a booking."
+            >
+              <span className="block">It&apos;s an experience,</span>
+              <span className="block">Not a booking.</span>
             </h2>
           </div>
 

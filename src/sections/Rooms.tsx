@@ -53,6 +53,15 @@ export function Rooms() {
             opacity: entrance - exit * 0.75,
           }}
         >
+          {/*
+            Brand-Voice 2026-04-26 (User-Request): Headline rein in
+            Allerta Stencil. Der frühere Italic-Serif-Akzent auf
+            „stillness" wurde entfernt, weil Allerta Stencil laut
+            Brand-Guideline die einzige Headline-Schrift ist. Der
+            visuelle Akzent kommt jetzt aus der Terracotta-Farbe
+            (#B84A1F) auf demselben Wort — gleicher rhythmischer Effekt,
+            aber innerhalb des Brand-Type-Systems.
+          */}
           <h2
             className="font-stencil text-white leading-[0.95] max-w-[460px]"
             style={{
@@ -61,13 +70,7 @@ export function Rooms() {
             }}
           >
             Rooms designed<br />for{' '}
-            <span
-              className="font-serif-display italic"
-              style={{ fontStyle: 'italic', letterSpacing: '-0.01em' }}
-            >
-              stillness
-            </span>
-            .
+            <span style={{ color: '#B84A1F' }}>stillness</span>.
           </h2>
         </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Home } from 'lucide-react';
 import { AmbientSound } from './AmbientSound';
+import { useRoute } from '../hooks/use-route';
 
 interface TopBarProps {
   variant?: 'dark' | 'light';
@@ -31,6 +32,9 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
   const [isAtTop, setIsAtTop] = useState(true);
   const [showHomeButton, setShowHomeButton] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  // Routing für die LOCATION-Nav: per pushState auf die Subseite
+  // navigieren, statt nur einen Anker auf der Startseite anzuspringen.
+  const [, navigate] = useRoute();
 
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
@@ -173,11 +177,25 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
         {/* Mittlere Spalte — bewusst leer. */}
         <span aria-hidden className="justify-self-center" />
 
-        {/* Rechte Spalte — Navigation. */}
+        {/* Rechte Spalte — Navigation.
+            LOCATION (neu, 2026-04-26): springt auf die dedizierte
+            Subseite `/location` (Mawella-Karte, Anreise-Routen,
+            Editorial-Body). Sitzt VOR ROOMS, weil die geographische
+            Verortung im Sales-Funnel der erste Trust-Anker ist
+            („wo bist du eigentlich?"). */}
         <nav
           aria-label="Primär"
           className="justify-self-end flex items-center gap-[2.4vw]"
         >
+          <button
+            type="button"
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
+              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
+            }`}
+            onClick={() => navigate('/location')}
+          >
+            LOCATION
+          </button>
           <button
             type="button"
             className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${

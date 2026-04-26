@@ -138,25 +138,26 @@ export function Rituals() {
               </span>
             </div>
 
+            {/*
+              Brand-Voice 2026-04-26 (User-Request): Headline komplett
+              in Allerta Stencil. Der Italic-Serif-Akzent auf
+              „loosely shaped." wurde entfernt — Allerta Stencil ist
+              laut Brand-Guideline die einzige Headline-Schrift. Der
+              visuelle Akzent kommt jetzt aus der Ochre/Terracotta-
+              Farbe (#B84A1F) auf der zweiten Zeile.
+            */}
             <p
-              className="m-0 select-text"
+              className="m-0 select-text font-stencil"
               style={{
                 color: INK,
                 fontSize: 'clamp(30px, 4.6vw, 68px)',
                 lineHeight: 1.0,
-                letterSpacing: '-0.005em',
+                letterSpacing: '0.02em',
                 maxWidth: '10ch',
               }}
             >
-              <span className="font-stencil" style={{ letterSpacing: '0.02em' }}>
-                A day,
-              </span>{' '}
-              <span
-                className="font-serif-display italic"
-                style={{ fontStyle: 'italic' }}
-              >
-                loosely shaped.
-              </span>
+              A day,{' '}
+              <span style={{ color: OCHRE }}>loosely shaped.</span>
             </p>
 
             <p

@@ -317,6 +317,12 @@ export function Hero({ isReady }: HeroProps) {
         >
           <CircleCTA
             text="PAUSE NOW"
+            // Größe bleibt "sm" — bewusst nicht weiter verkleinert.
+            // (Revert 2026-04-26: ein vorheriger Pass hatte den Button
+            // auf "xs" geschrumpft, ohne dass das vom User angefordert
+            // war. Wiederhergestellt auf den ursprünglichen Hero-CTA-
+            // Slot, weil der PAUSE-Disc als zentrales Aktions-Anker des
+            // Hero-Splashes gedacht ist.)
             size="sm"
             // Delay=0: CircleCTA startet seine interne Scale-Animation
             // sofort beim Mount. Da wir im unsichtbaren Wrapper sitzen,

@@ -385,6 +385,27 @@
   .dot-pulse::before {
     animation: dot-pulse 2s ease-in-out infinite;
   }
+
+  /* CircleCTA — Idle „Breathing" 2026-04-26.
+     User-Request: „jeder Kreis-Button soll sich auch im Ruhezustand
+     etwas bewegen, damit er als interaktiv wahrgenommen wird."
+     Sehr leichter Scale-Puls (0.992 ↔ 1.008) im 7-Sekunden-Loop —
+     nicht zu auffällig, aber lebendig. Wenn der User mit der Maus
+     drüber fährt, schaltet die TSX-Logik die Breathe-Klasse aus,
+     damit Hover-Transform sauber „springt" und nicht mit dem
+     Keyframe kollidiert. */
+  @keyframes cta-breathe {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.012);
+    }
+  }
+
+  .cta-breathe {
+    animation: cta-breathe 7s ease-in-out infinite;
+  }
 }
 
 @layer utilities {

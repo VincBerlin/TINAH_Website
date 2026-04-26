@@ -1,58 +1,62 @@
 import { CircleCTA } from '../components/CircleCTA';
 import { useSectionProgress } from '../hooks/use-section-progress';
+import { useRoute } from '../hooks/use-route';
 
 /**
  * Location / "An Introduction" section.
  *
- * Layout-Refactor 2026-04-24 (User-Feedback-Pass):
- *   - Kleinschrift (Section-Marker + Body-Absätze) in die gleiche
- *     Typografie wie auf der Startseite überführt:
- *       • Section-Marker nutzt jetzt Allerta Stencil
- *         (font-stencil), identisch zu den "01 / Location"-Labels
- *         im Hero-Drei-Spalten-Block.
- *       • Body-Absätze nutzen jetzt das Standard-Body-Font der Seite
- *         (Inter via body-Default) mit derselben Clamp-Range
- *         (11–13 px) und demselben Grauwert (#1C1B17 für Creme-
- *         Kontrast statt Hero-#B7B7B7 auf Dunkel), damit die
- *         Typografie seitenweit konsistent bleibt.
- *     Die große Editorial-Headline links bleibt im Stencil + Italic-
- *     Serif-Mix aus dem Inspirations-Bild — das ist bewusst
- *     expressive Display-Typografie und nicht "klein".
+ * Layout-Refactor 2026-04-26 (Design-Pass):
+ *   Komplettes Re-Layout vom 3-Spalten-Grid (Headline | Button | Body)
+ *   auf ein zentriertes, vertikal gestapeltes Editorial-Layout. Vorlage
+ *   ist der Design-Screenshot von Claude-Design vom 26.04.
  *
- *   - Richtungsgebundene Einblendung beim Scrollen:
- *       • Linker Headline-Stack schiebt sich aus ~-6 vw von LINKS
- *         NACH RECHTS ins Bild.
- *       • Mittlerer LOCATION-Button steigt von UNTEN NACH OBEN
- *         (translateY ~+6 vh → 0) ins Bild.
- *       • Rechte Body-Spalte schiebt sich aus ~+6 vw von RECHTS
- *         NACH LINKS ins Bild.
- *     Alle drei Bewegungen werden über dasselbe entrance-Progress
- *     (useSectionProgress) gesteuert, d.h. sie laufen synchron mit
- *     dem Scroll-In der Section.
+ *   Aufbau (vertikal, alles zentriert):
+ *     1. Section-Marker „§ I — AN INTRODUCTION"
+ *     2. Headline-Stack:
+ *          • „It's a house."  → Terracotta (#B84A1F), Allerta Stencil,
+ *            grösste Stufe (Brand-Akzent, Eyecatcher).
+ *          • „A long table." → Schwarz, Allerta Stencil, zweitgrösste.
+ *          • „A kilometre of empty beach." → Schwarz, Allerta Stencil.
+ *     3. CircleCTA „LOCATION" mit dezentem schwarzen Decoration-Dot
+ *        auf der 12-Uhr-Position des Disc-Rings.
+ *     4. Body-Absatz (neu, lokal-poetisch): „Past the gate in Mawella
+ *        …".
  *
- *   - Button-Variante zurück auf Default-Grösse (lg), damit er "wie
- *     jeder andere Button" auf der Seite wirkt. Variante bleibt
- *     `glass-on-light`, weil nur diese auf Creme lesbar bleibt —
- *     der Default-Glass-Disc (weiss/weiss) wäre auf #F2EDE4
- *     unsichtbar.
+ *   Typografie:
+ *     - Italic-Serif-Mix wurde entfernt — alle Headlines sind jetzt
+ *       reine Stencil-Schrift (Allerta Stencil), so wie auf der
+ *       Brand-Definition festgelegt.
+ *     - Body bleibt im Inter-Default-Font (Brand-Body), zentriert,
+ *       schmal (max-w 640 px).
+ *
+ *   Animation:
+ *     - Headlines erscheinen mit leichtem Slide von OBEN nach UNTEN
+ *       (translateY -6vh → 0).
+ *     - Button kommt von UNTEN nach OBEN (translateY +6vh → 0).
+ *     - Body folgt mit kurzer Verzögerung über translateY +4vh → 0.
+ *     Alle drei Bewegungen laufen synchron mit dem entrance-Progress
+ *     (useSectionProgress), so dass der Effekt scroll-gebunden bleibt.
  */
 export function Location() {
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
+  // Navigate-Funktion für die LOCATION-CTA — öffnet die fertige
+  // Detail-Subseite `/location` (Mawella-Karte, Anreise-Routen,
+  // Editorial-Body). Vorher scrollte der Button zur Rooms-Section,
+  // was den Klick faktisch unsichtbar machte.
+  const [, navigate] = useRoute();
 
   // Globale Fade-Opazität folgt Scroll-Progress der Section.
   const contentOpacity = entrance - exit * 0.75;
 
-  // entrance geht 0 → 1 beim Einscrollen. Wir invertieren zu
-  // "remaining" (1 → 0) und multiplizieren mit einer Distanz.
-  // So entsteht die Richtungs-Slide-in-Animation synchron zum Scroll.
+  // entrance: 0 → 1 beim Einscrollen. Wir invertieren zu „remaining"
+  // und multiplizieren mit einer Distanz für die Slide-in-Animationen.
   const remaining = 1 - entrance;
-  const leftShiftX = `${-remaining * 6}vw`; // links: aus -6vw nach 0 (L→R)
-  const rightShiftX = `${remaining * 6}vw`; // rechts: aus +6vw nach 0 (R→L)
-  const buttonShiftY = `${remaining * 6}vh`; // mitte: aus +6vh nach 0 (B→T)
+  const headlineShiftY = `${-remaining * 6}vh`; // Headlines: oben → 0
+  const buttonShiftY = `${remaining * 6}vh`;    // Button: unten → 0
+  const bodyShiftY = `${remaining * 4}vh`;      // Body:   unten → 0
 
-  // Leichte Gruppen-Entrance-Opazität — startet bei 0 und füllt sich
-  // über den ersten Drittel des entrance-Fortschritts, damit die
-  // Slide-Richtungen sichtbar bleiben.
+  // Sanfte Gruppen-Opazität — startet bei 0 und füllt sich über den
+  // ersten Drittel des entrance-Fortschritts auf.
   const groupEntranceOpacity = Math.min(1, entrance * 1.4);
 
   return (
@@ -63,195 +67,187 @@ export function Location() {
       style={{ zIndex: 20, backgroundColor: '#F2EDE4' }}
       aria-label="An Introduction — This Is Not A Hotel, Mawella Beach, southern Sri Lanka"
     >
-      {/* Creme-Hintergrund — bewusste visuelle Pause. */}
+      {/* Creme-Hintergrund — bewusste visuelle Pause zwischen den
+          dunklen Sections. */}
       <div
         className="absolute inset-0"
         style={{ backgroundColor: '#F2EDE4' }}
         aria-hidden
       />
 
-      {/* Screen-Reader-Only semantische Headline. */}
+      {/* Screen-Reader-Only semantische Headline (SEO + a11y). */}
       <h2 className="sr-only">
         An introduction — it&apos;s a house, a long table, a kilometre of empty beach.
       </h2>
 
       {/*
-        Editorial-Container.
-        Drei-Spalten-Grid ab md: links Headline (5), mitte Button (2),
-        rechts Body (5). Mobile stapelt: Headline → Button → Body.
+        Editorial-Container — single column, alles zentriert.
+        max-w 1100 px hält die Headlines und den Body in einer ruhigen,
+        lesbaren Spaltenbreite. py orientiert sich am Hero-Pattern.
       */}
       <div
-        className="relative z-10 mx-auto max-w-[1300px] px-[6vw] py-[8vh] md:py-[10vh]"
-        style={{
-          opacity: contentOpacity,
-        }}
+        className="relative z-10 mx-auto flex flex-col items-center text-center max-w-[1100px] px-[6vw] py-[10vh] md:py-[14vh]"
+        style={{ opacity: contentOpacity }}
       >
-        {/*
-          Grid 4 / 4 / 4 (gleich breite Drittel) statt 5 / 2 / 5.
-          Grund (User-Request 2026-04-24):
-            - Der Button soll eine echte runde Form behalten. Mit nur
-              2 von 12 Spalten für den Button und einem flex-child ohne
-              flex-shrink:0 wurde die Disc bei mittleren Viewports
-              horizontal zusammengequetscht und wirkte oval.
-              Breiterer Mittel-Slot (4/12) + flex-shrink-0 am Button-
-              Wrapper garantiert perfekte Kreisform.
-            - Linke und rechte Textspalte sollen "nicht so nah am Button"
-              sein. Mit md:gap-x-[5vw] entstehen spürbare Luftabstände
-              zwischen den drei Blöcken.
-        */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-y-[5vh] md:gap-x-[5vw] items-center">
-          {/* ============================================================
-              Linke Spalte — Section-Marker + Headline-Stack
-              Slide-in von LINKS NACH RECHTS.
-              ============================================================ */}
-          <div
-            className="md:col-span-4"
+        {/* ============================================================
+            Section-Marker „§ I — AN INTRODUCTION"
+            ============================================================
+            Bewusst symmetrisch (Linie ↔ Label ↔ Linie), damit er sich
+            in das zentrale Layout einfügt statt links zu hängen wie
+            zuvor. Schrift: Allerta Stencil (font-stencil), 10 px,
+            tracking 0.28em — identisch zu den „01 / Location"-Labels
+            im Hero. */}
+        <div
+          className="flex items-center gap-3 mb-[6vh] md:mb-[8vh]"
+          style={{
+            opacity: groupEntranceOpacity,
+            transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1)',
+            willChange: 'opacity',
+          }}
+        >
+          <span
+            aria-hidden
+            className="inline-block h-px w-6"
+            style={{ backgroundColor: '#1C1B17' }}
+          />
+          <span
+            className="font-stencil text-[10px] uppercase tracking-[0.28em]"
+            style={{ color: '#1C1B17' }}
+          >
+            § I — An Introduction
+          </span>
+          <span
+            aria-hidden
+            className="inline-block h-px w-6"
+            style={{ backgroundColor: '#1C1B17' }}
+          />
+        </div>
+
+        {/* ============================================================
+            Headline-Stack — vertikal gestapelt, zentriert
+            ============================================================
+            „It's a house." in Terracotta (#B84A1F) als Brand-Akzent
+            und visueller Anker; die nachfolgenden Zeilen schwarz.
+            Alle in Allerta Stencil — kein Italic-Serif-Mix mehr. */}
+        <div
+          className="flex flex-col items-center gap-[2.4vh] md:gap-[3.2vh]"
+          style={{
+            opacity: groupEntranceOpacity,
+            transform: `translateY(${headlineShiftY})`,
+            transition:
+              'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
+            willChange: 'transform, opacity',
+          }}
+        >
+          <p
+            className="font-stencil m-0 leading-none"
             style={{
-              opacity: groupEntranceOpacity,
-              transform: `translateX(${leftShiftX})`,
-              transition:
-                'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform, opacity',
+              color: '#B84A1F',
+              fontSize: 'clamp(40px, 5.6vw, 76px)',
+              letterSpacing: '0.02em',
             }}
           >
-            {/* Section-Marker „§ I — AN INTRODUCTION".
-                Schriftart auf font-stencil umgestellt, damit sie sich
-                1:1 wie die "01 / Location"-Labels auf der Startseite
-                liest. Farbton #1C1B17 für Creme-Kontrast. */}
-            <div className="flex items-center gap-3 mb-[4vh]">
-              <span
-                aria-hidden
-                className="inline-block h-px w-6"
-                style={{ backgroundColor: '#1C1B17' }}
-              />
-              <span
-                className="font-stencil text-[10px] uppercase tracking-[0.28em]"
-                style={{ color: '#1C1B17' }}
-              >
-                § I — An Introduction
-              </span>
-            </div>
+            It&apos;s a house.
+          </p>
+          <p
+            className="font-stencil m-0 leading-none"
+            style={{
+              color: '#1C1B17',
+              fontSize: 'clamp(34px, 4.6vw, 64px)',
+              letterSpacing: '0.02em',
+            }}
+          >
+            A long table.
+          </p>
+          <p
+            className="font-stencil m-0 leading-none"
+            style={{
+              color: '#1C1B17',
+              fontSize: 'clamp(32px, 4.4vw, 60px)',
+              letterSpacing: '0.02em',
+            }}
+          >
+            A kilometre of empty beach.
+          </p>
+        </div>
 
-            {/*
-              Headline-Stack (Stencil + Italic-Serif-Mix).
-              Bleibt bewusst im expressiven Display-Stil — das ist
-              keine "Kleinschrift", sondern das typografische Herz der
-              Section.
-            */}
-            {/*
-              Headline-Stack — etwas verkleinert (User-Request
-              2026-04-24): clamp von (38–88 px) auf (30–68 px). Die
-              Litanei bleibt prominent, drängt den Button-Mittelpunkt
-              aber nicht mehr.
-            */}
-            <p
-              className="m-0 select-text"
-              style={{
-                color: '#1C1B17',
-                fontSize: 'clamp(30px, 4.6vw, 68px)',
-                lineHeight: 1.0,
-                letterSpacing: '-0.005em',
+        {/* ============================================================
+            CircleCTA „LOCATION" mit Decoration-Dot auf 12 Uhr
+            ============================================================
+            Der Dot ist ein dezent-schwarzer Punkt, der genau auf dem
+            oberen Kreis-Rand sitzt (top: 0, translate -50% / -50%).
+            Vorlage aus dem Design-Screenshot vom 26.04. — wirkt wie
+            ein Compass-Marker, der die Section räumlich orientiert. */}
+        <div
+          className="relative mt-[8vh] md:mt-[10vh] flex justify-center items-center"
+          style={{
+            opacity: groupEntranceOpacity,
+            transform: `translateY(${buttonShiftY})`,
+            transition:
+              'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 100ms, transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 100ms',
+            willChange: 'transform, opacity',
+          }}
+        >
+          {/* Decoration-Dot — Compass-Marker auf 12 Uhr.
+              z-index 5 hebt ihn knapp über den Disc-Border, ohne den
+              CircleCTA-Hover-State zu blockieren (pointer-events:none). */}
+          <span
+            aria-hidden
+            className="absolute"
+            style={{
+              top: 0,
+              left: '50%',
+              width: '7px',
+              height: '7px',
+              borderRadius: '9999px',
+              backgroundColor: '#1C1B17',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 5,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* flex-shrink-0 schützt die runde Form gegen horizontale
+              Stauchung in engen Flex-Containern. */}
+          <div className="flex-shrink-0">
+            <CircleCTA
+              text="LOCATION"
+              variant="glass-on-light"
+              onClick={() => {
+                // Öffnet die dedizierte Detail-Subseite `/location`
+                // (Karte, Anreise-Routen, Editorial-Copy). useRoute
+                // setzt den History-State und scrollt den Viewport
+                // automatisch nach oben.
+                navigate('/location');
               }}
-            >
-              <span className="font-stencil block" style={{ letterSpacing: '0.02em' }}>
-                It&apos;s a house.
-              </span>
-              <span className="block whitespace-nowrap">
-                <span className="font-stencil" style={{ letterSpacing: '0.02em' }}>
-                  A
-                </span>{' '}
-                <span className="font-serif-display italic" style={{ fontStyle: 'italic' }}>
-                  long table.
-                </span>
-              </span>
-              <span className="block">
-                <span className="font-stencil" style={{ letterSpacing: '0.02em' }}>
-                  A kilometre
-                </span>
-              </span>
-              <span className="block whitespace-nowrap">
-                <span className="font-stencil" style={{ letterSpacing: '0.02em' }}>
-                  of
-                </span>{' '}
-                <span className="font-serif-display italic" style={{ fontStyle: 'italic' }}>
-                  empty beach.
-                </span>
-              </span>
-            </p>
-          </div>
-
-          {/* ============================================================
-              Mittlere Spalte — LOCATION CircleCTA
-              Slide-in von UNTEN NACH OBEN.
-              ============================================================
-              Default-Grösse (lg) zurückgeholt, damit der Button "wie
-              jeder andere" auf der Seite wirkt. Variante bleibt
-              `glass-on-light` für Creme-Lesbarkeit. */}
-          <div
-            className="md:col-span-4 flex justify-center items-center"
-            style={{
-              opacity: groupEntranceOpacity,
-              transform: `translateY(${buttonShiftY})`,
-              transition:
-                'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform, opacity',
-            }}
-          >
-            {/*
-              flex-shrink-0 zwingt den Button, seine intrinsisch
-              gesetzte Breite (= Höhe) zu behalten. Ohne diesen Schutz
-              würde der Flex-Container den Button bei knappem Platz
-              horizontal komprimieren und aus dem Kreis ein Oval
-              machen — exakt das Symptom, das der User gemeldet hat.
-            */}
-            <div className="flex-shrink-0">
-              <CircleCTA
-                text="LOCATION"
-                variant="glass-on-light"
-                onClick={() => {
-                  const element = document.querySelector('#rooms');
-                  if (element) element.scrollIntoView({ behavior: 'smooth' });
-                }}
-              />
-            </div>
-          </div>
-
-          {/* ============================================================
-              Rechte Spalte — Body-Text
-              Slide-in von RECHTS NACH LINKS.
-              ============================================================
-              Schriftart & Grösse an die Startseiten-Bodytexte
-              angeglichen: Inter als Default-Body-Font (gesetzt über
-              body-CSS), clamp(11px,0.85vw,13px) analog zu den
-              "01 / Location"-Bodys im Hero, leading-snug. Farbe
-              #1C1B17 für Creme-Kontrast statt Hero-Grau-auf-Dunkel. */}
-          <div
-            className="md:col-span-4"
-            style={{
-              opacity: groupEntranceOpacity,
-              transform: `translateX(${rightShiftX})`,
-              transition:
-                'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform, opacity',
-            }}
-          >
-            <div
-              className="max-w-[360px] text-[clamp(11px,0.85vw,13px)] leading-snug"
-              style={{ color: '#1C1B17' }}
-            >
-              <p className="m-0">
-                We do not have a concierge. We do not have a lobby. We will
-                not ask you to upgrade, unless the upgrade is to a hammock.
-              </p>
-              <p className="m-0 mt-[1.8em]">
-                Mawella is a thin strip of sand on the south coast, roughly
-                three hours from Colombo and a world from Mirissa. We have
-                nine rooms, two dogs, one cook named Sunil, and an old piano
-                nobody can play properly.
-              </p>
-            </div>
+            />
           </div>
         </div>
+
+        {/* ============================================================
+            Body-Absatz — neuer Local-Color-Text
+            ============================================================
+            Inhalt aus Design-Screenshot vom 26.04. Zentriert, schmal
+            (max-w 640 px), Inter Default-Body, leading 1.6 für eine
+            ruhige Lesbarkeit. */}
+        <p
+          className="m-0 mt-[8vh] md:mt-[10vh] mx-auto max-w-[640px]"
+          style={{
+            color: '#1C1B17',
+            fontSize: 'clamp(12px, 0.95vw, 14px)',
+            lineHeight: 1.6,
+            opacity: groupEntranceOpacity,
+            transform: `translateY(${bodyShiftY})`,
+            transition:
+              'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 200ms, transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms',
+            willChange: 'transform, opacity',
+          }}
+        >
+          Past the gate in Mawella, the lane is unpaved. A kilometre of
+          soft sand runs under the palms, peacocks at first light,
+          monkeys in the trees, the ocean three steps from the door.
+          Time enough to slow down, switch off, find your way back to
+          yourself.
+        </p>
       </div>
     </section>
   );
