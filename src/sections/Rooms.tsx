@@ -1,6 +1,23 @@
 import { CircleCTA } from '../components/CircleCTA';
 import { useSectionProgress } from '../hooks/use-section-progress';
 
+/**
+ * Rooms section — dark interlude between Location and Experience.
+ *
+ * 2026-04-25 update (user request):
+ *   - Background was a real photograph (`/images/room-interior.jpg`).
+ *     Replaced with a warm brown gradient placeholder so the section
+ *     visually matches the preview "TINAH Full Site Preview.html"
+ *     while we wait for final room photography.
+ *   - Headline typography updated: full `font-stencil` with a
+ *     `font-serif-display italic` accent on "stillness" — same
+ *     Stencil-meets-Italic pairing the rest of the cream sections
+ *     use (Location, Experience).
+ *   - CircleCTA on the right is UNTOUCHED — same component, same
+ *     copy, same target.
+ *   - Structure, motion, scroll-driven entry/exit — UNCHANGED.
+ */
+
 export function Rooms() {
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
 
@@ -9,23 +26,22 @@ export function Rooms() {
       ref={ref}
       id="rooms"
       className="relative w-screen h-screen-safe overflow-hidden"
-      style={{ zIndex: 30 }}
+      style={{ zIndex: 30, backgroundColor: '#1A1916' }}
       aria-label="Zimmer"
     >
-      {/* Background */}
+      {/* Background — warm brown gradient.
+          Was an <img>; now a layered gradient that keeps the same
+          dark/warm character but matches the brand's cream-into-
+          ink palette without needing a hero photo. */}
       <div
         className="absolute inset-0"
         style={{
           transform: `scale(${1.12 - entrance * 0.12 + exit * 0.06})`,
           opacity: 0.7 + entrance * 0.3 - exit * 0.65,
+          background:
+            'linear-gradient(120deg, #2A2622 0%, #3D3530 50%, #1A1916 100%)',
         }}
       >
-        <img
-          src="/images/room-interior.jpg"
-          alt="Minimalistisches Hotelzimmer mit Naturlicht — This Is Not A Hotel"
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0C]/60 via-[#0B0B0C]/30 to-[#0B0B0C]/50" />
       </div>
 
@@ -37,8 +53,21 @@ export function Rooms() {
             opacity: entrance - exit * 0.75,
           }}
         >
-          <h2 className="font-heading text-[clamp(32px,4.5vw,64px)] text-white leading-[0.95] tracking-[-0.02em] max-w-[460px]">
-            Rooms designed<br />for <span className="font-stencil">stillness</span>.
+          <h2
+            className="font-stencil text-white leading-[0.95] max-w-[460px]"
+            style={{
+              fontSize: 'clamp(32px, 4.5vw, 64px)',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Rooms designed<br />for{' '}
+            <span
+              className="font-serif-display italic"
+              style={{ fontStyle: 'italic', letterSpacing: '-0.01em' }}
+            >
+              stillness
+            </span>
+            .
           </h2>
         </div>
 
@@ -55,7 +84,7 @@ export function Rooms() {
         </div>
       </div>
 
-      {/* Right Circle CTA */}
+      {/* Right Circle CTA — UNCHANGED. */}
       <div
         className="absolute right-[8vw] top-[56vh] -translate-y-1/2 z-20"
         style={{

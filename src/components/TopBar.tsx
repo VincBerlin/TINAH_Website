@@ -196,10 +196,9 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
               variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
             }`}
             onClick={() => {
-              // "Rituals" entspricht inhaltlich der Experience-Sektion
-              // (Yoga, Meditation, Aktivitäten). Wir scrollen daher zu
-              // #experience — einzig möglicher passender Anker.
-              const el = document.getElementById('experience');
+              // RITUALS scrollt zur eigenen § IV — The Day, Roughly
+              // Sektion (zwischen Experience und Details).
+              const el = document.getElementById('rituals');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
           >

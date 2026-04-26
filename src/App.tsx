@@ -4,6 +4,7 @@ import { Hero } from './sections/Hero';
 import { Location } from './sections/Location';
 import { Rooms } from './sections/Rooms';
 import { Experience } from './sections/Experience';
+import { Rituals } from './sections/Rituals';
 import { Details } from './sections/Details';
 import { Testimonial } from './sections/Testimonial';
 import { Contact } from './sections/Contact';
@@ -18,12 +19,15 @@ import { Preloader } from './components/Preloader';
  * jetzt der letzte ABSCHNITT auf derselben Startseite (Contact-Section
  * mit `id="book"`). Das PAUSE-NOW-CTA im Hero scrollt dort hin.
  *
- * Vorteile:
- *   - Ton/Preloader/TopBar müssen nie zurückgesetzt werden
- *   - Eine URL, eine Seite → einfachere SEO-Geschichte (ein kanonisches
- *     Dokument statt zwei halb-überlappende)
- *   - Kein popstate-Hopping, keine doppelte Title-Logik, kein doppelter
- *     Preloader-State
+ * Section-Reihenfolge:
+ *   Hero → Location → Rooms → Experience → Rituals → Details (Play/
+ *   Pause) → Testimonial → Contact (Book).
+ *
+ * Rituals (§ IV — The Day, Roughly) sitzt zwischen Experience
+ * (House Principles) und Details (Play | Pause). Beide Nachbarn
+ * sind Cream-Sektionen (#F2EDE4 / #F1E9D7), wodurch die Cream-
+ * Pause der Seite zu einem zusammenhängenden Block wächst, ohne
+ * harte Hell/Dunkel-Wechsel mittendrin.
  */
 
 function App() {
@@ -78,6 +82,7 @@ function App() {
           <Location />
           <Rooms />
           <Experience />
+          <Rituals />
           <Details />
           <Testimonial />
           <Contact />
