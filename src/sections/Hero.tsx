@@ -174,9 +174,12 @@ export function Hero({ isReady }: HeroProps) {
             playsInline
             preload="metadata"
             disableRemotePlayback
-            // @ts-expect-error — non-standard iOS attributes, trotzdem nützlich
+            // Non-standard iOS / WeChat-X5 Attribute — TS-Typen
+            // akzeptieren sie inzwischen über das index-signature in
+            // der React DOM-Typdef, deshalb keine @ts-expect-error
+            // mehr nötig (sonst „Unused directive"-Fehler im
+            // Production-Build via `tsc -b`).
             webkit-playsinline="true"
-            // @ts-expect-error — WeChat / Tencent X5 browser
             x5-playsinline="true"
             aria-label="Hiru — This Is Not A Hotel, Mawella Beach, Sri Lanka"
             className="absolute inset-0 w-full h-full object-cover"
