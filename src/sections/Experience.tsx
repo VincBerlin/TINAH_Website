@@ -232,7 +232,3 @@ export function Experience() {
     </section>
   );
 }
-</content>
-</invoke>
-<invoke name="str_replace_edit">
-<parameter name="path">src/sections/Rituals.tsx
