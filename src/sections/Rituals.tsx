@@ -100,7 +100,7 @@ export function Rituals() {
     <section
       ref={ref}
       id="rituals"
-      className="relative w-screen min-h-screen-safe overflow-hidden"
+      className="relative w-screen min-h-screen-safe overflow-x-clip"
       style={{ zIndex: 45, backgroundColor: '#F2EDE4' }}
       aria-label="Rituals — A day, loosely shaped at This Is Not A Hotel, Mawella"
     >

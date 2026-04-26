@@ -4,31 +4,100 @@ import { useSectionProgress } from '../hooks/use-section-progress';
 /**
  * Experience / "House Principles" section.
  *
- * Layout-Refactor 2026-04-24 (User-Request):
- *   - Hintergrund von Dunkel-Foto auf Creme (#F2EDE4) umgestellt,
- *     um die gleiche editoriale Sprache wie die Location-Section zu
- *     sprechen (vgl. Inspirations-Bild § III — HOUSE PRINCIPLES).
- *   - Drei-Spalten-Grid 4/4/4 analog zu Location:
- *       • Links: Section-Marker „§ III — House Principles" + grosser
- *         Stencil/Italic-Serif-Headline-Stack:
- *             NO TELEVISIONS.
- *             NO LOBBY.
- *             no turn-down service, no       (italic Serif, terracotta)
- *             LITTLE CHOCOLATES.
- *       • Mitte: runder EXPLORE-Button (bleibt wie vom User gewünscht,
- *         jetzt in `glass-on-light` für Creme-Lesbarkeit).
- *       • Rechts: Bodytext „An experience, not a booking." +
- *         Kurz-Absatz, angepasst an Creme-Kontrast.
- *   - Richtungsgebundene Einblendung beim Scrollen (synchron zu
- *     useSectionProgress.entrance):
- *       • Linker Headline-Stack slide-in von links (−6 vw → 0)
- *       • Mittiger Button slide-in von unten (+6 vh → 0)
- *       • Rechte Body-Spalte slide-in von rechts (+6 vw → 0)
- *   - Höhe bleibt `h-screen-safe` → identisch zu anderen Sektionen.
- *   - Italic-Serif-Akzent in warmem Terracotta (#A84A2C) wie im
- *     Inspirations-Bild, um den Mix Stencil × Serif-Italic optisch zu
- *     erden.
+ * Layout-Refactor 2026-04-26:
+ *   - Headline-Stack ersetzt durch typografisches LETTER-GRID (Kästchen).
+ *     Jeder Großbuchstabe sitzt in einem 1×1-Kasten mit Hairline-Border;
+ *     darüber links steht der gleiche Buchstabe in IBM Plex Mono (klein,
+ *     lowercase) — das Wechselspiel aus Stencil + Mono erinnert an alte
+ *     Schreibmaschinenraster und macht "NO TELEVISIONS / NO LOBBY /
+ *     NO LITTLE CHOCOLATES" zu einer eigenständigen visuellen Marke.
+ *   - 20 Spalten breites Grid (immer fix), Reihen mit "filled" und
+ *     leeren Zellen, dadurch entsteht das absichtsvolle "Lückenmuster".
+ *   - Layout-Slots:
+ *       • Links 8/12: Marker + Letter-Grid
+ *       • Mitte  2/12: leer (Atemraum)
+ *       • Rechts 2/12: EXPLORE-Disc-CTA (oben) + Body-Text (darunter)
+ *   - Mobile: Grid-Cells werden kleiner über clamp(), 3-Spalten-Layout
+ *     stackt zu einer Spalte; Disc-CTA rutscht unter das Letter-Grid.
+ *   - Italic-Serif-Akzent ist hier nicht mehr nötig, weil das Grid-
+ *     Statement (NO ... NO ... NO ...) eigene Ästhetik trägt.
  */
+
+interface Cell {
+  ch?: string;
+}
+
+// Letter-Reihe als Array von Cells. Jeder Eintrag mit `ch` ist ein
+// gefüllter Kasten, jeder leere ein Spacer. Insgesamt 20 Cells pro Reihe.
+const CELL = (ch: string): Cell => ({ ch });
+const GAP: Cell = {};
+
+const ROW1: Cell[] = [
+  CELL('N'), CELL('O'), GAP,
+  CELL('T'), CELL('E'), CELL('L'), CELL('E'), CELL('V'), CELL('I'), CELL('S'), CELL('I'), CELL('O'), CELL('N'),
+  GAP, GAP, GAP, GAP, GAP, GAP, GAP,
+];
+const ROW2: Cell[] = [
+  CELL('N'), CELL('O'), GAP,
+  CELL('L'), CELL('O'), CELL('B'), CELL('B'), CELL('Y'),
+  GAP, GAP, GAP, GAP, GAP, GAP, GAP, GAP, GAP, GAP, GAP, GAP,
+];
+const ROW3: Cell[] = [
+  CELL('N'), CELL('O'), GAP,
+  CELL('L'), CELL('I'), CELL('T'), CELL('T'), CELL('L'), CELL('E'), GAP,
+  CELL('C'), CELL('H'), CELL('O'), CELL('C'), CELL('O'), CELL('L'), CELL('A'), CELL('T'), CELL('E'), CELL('S'),
+];
+
+const INK = '#1C1B17';
+const RULE = 'rgba(28, 27, 23, 0.18)';
+
+function LetterCell({ cell }: { cell: Cell }) {
+  if (!cell.ch) {
+    // Spacer.
+    return <div style={{ aspectRatio: '1 / 1' }} />;
+  }
+  const lower = cell.ch.toLowerCase();
+  return (
+    <div
+      style={{
+        position: 'relative',
+        aspectRatio: '1 / 1',
+        border: `1px solid ${RULE}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <span
+        style={{
+          position: 'absolute',
+          top: '8%',
+          left: '12%',
+          fontFamily: '"IBM Plex Mono", monospace',
+          fontSize: '0.34em',
+          color: INK,
+          opacity: 0.55,
+          lineHeight: 1,
+          textTransform: 'lowercase',
+        }}
+      >
+        {lower}
+      </span>
+      <span
+        style={{
+          fontFamily: '"Allerta Stencil", sans-serif',
+          fontSize: '1em',
+          color: INK,
+          lineHeight: 1,
+          textTransform: 'uppercase',
+        }}
+      >
+        {cell.ch}
+      </span>
+    </div>
+  );
+}
+
 export function Experience() {
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
 
@@ -37,7 +106,6 @@ export function Experience() {
   const remaining = 1 - entrance;
   const leftShiftX = `${-remaining * 6}vw`;
   const rightShiftX = `${remaining * 6}vw`;
-  const buttonShiftY = `${remaining * 6}vh`;
 
   const groupEntranceOpacity = Math.min(1, entrance * 1.4);
 
@@ -45,37 +113,32 @@ export function Experience() {
     <section
       ref={ref}
       id="experience"
-      className="relative w-screen min-h-screen-safe overflow-hidden"
+      className="relative w-screen min-h-screen-safe overflow-x-clip"
       style={{ zIndex: 40, backgroundColor: '#F2EDE4' }}
       aria-label="House Principles — Rituals at This Is Not A Hotel, Mawella"
     >
-      {/* Creme-Hintergrund — bewusste visuelle Pause. */}
+      {/* Cream-Hintergrund. */}
       <div
         className="absolute inset-0"
         style={{ backgroundColor: '#F2EDE4' }}
         aria-hidden
       />
 
-      {/* Screen-Reader-Only semantische Headline für SEO/Accessibility. */}
+      {/* SR-only headline für SEO/Accessibility. */}
       <h2 className="sr-only">
-        House Principles — no televisions, no lobby, no turn-down service, no little chocolates.
+        House Principles — no televisions, no lobby, no little chocolates.
       </h2>
 
-      {/*
-        Editorial-Container — gleicher Aufbau wie Location:
-        3 × 4 = 12 Spalten, 5vw horizontaler Gap, vertikal zentriert.
-      */}
       <div
-        className="relative z-10 mx-auto max-w-[1300px] px-[6vw] py-[8vh] md:py-[10vh]"
+        className="relative z-10 mx-auto max-w-[1500px] px-[6vw] py-[8vh] md:py-[10vh]"
         style={{ opacity: contentOpacity }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-y-[5vh] md:gap-x-[5vw] items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-y-[5vh] md:gap-x-[3vw] items-center">
           {/* ============================================================
-              Linke Spalte — Section-Marker + Headline-Stack
-              Slide-in von LINKS NACH RECHTS.
+              LINKS — Marker + Letter-Grid (col-span 8)
               ============================================================ */}
           <div
-            className="md:col-span-4"
+            className="md:col-span-8"
             style={{
               opacity: groupEntranceOpacity,
               transform: `translateX(${leftShiftX})`,
@@ -84,94 +147,46 @@ export function Experience() {
               willChange: 'transform, opacity',
             }}
           >
-            {/* Section-Marker „§ III — HOUSE PRINCIPLES".
-                Identisch typographiert zum § I-Marker auf der
-                Location-Seite — Allerta Stencil, 10 px, 0.28em
-                tracking, Creme-Ink #1C1B17. */}
-            <div className="flex items-center gap-3 mb-[4vh]">
+            <div className="flex items-center gap-3 mb-[5vh]">
               <span
                 aria-hidden
                 className="inline-block h-px w-6"
-                style={{ backgroundColor: '#1C1B17' }}
+                style={{ backgroundColor: INK }}
               />
               <span
                 className="font-stencil text-[10px] uppercase tracking-[0.28em]"
-                style={{ color: '#1C1B17' }}
+                style={{ color: INK }}
               >
                 § III — House Principles
               </span>
             </div>
 
-            {/*
-              Headline-Stack (Stencil + Italic-Serif-Mix).
-              „NO TELEVISIONS. / NO LOBBY." → Stencil
-              „no turn-down service, no" → Italic-Serif, Terracotta
-              „LITTLE CHOCOLATES." → Stencil
-              Clamp-Range identisch zu Location (30–68 px) damit beide
-              Sektionen in identischer Tonalität atmen.
-            */}
-            <p
-              className="m-0 select-text"
+            <p className="sr-only">No television. No lobby. No little chocolates.</p>
+
+            {/* 20-col Letter-Grid. fontSize über clamp steuert Zellgrösse. */}
+            <div
+              role="presentation"
+              aria-hidden="true"
               style={{
-                color: '#1C1B17',
-                fontSize: 'clamp(30px, 4.6vw, 68px)',
-                lineHeight: 1.0,
-                letterSpacing: '-0.005em',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(20, minmax(0, 1fr))',
+                gap: 0,
+                fontSize: 'clamp(13px, 1.85vw, 28px)',
+                lineHeight: 1,
+                width: '100%',
               }}
             >
-              <span className="font-stencil block" style={{ letterSpacing: '0.02em' }}>
-                No televisions.
-              </span>
-              <span className="font-stencil block" style={{ letterSpacing: '0.02em' }}>
-                No lobby.
-              </span>
-              <span className="block">
-                <span
-                  className="font-serif-display italic"
-                  style={{ fontStyle: 'italic', color: '#A84A2C' }}
-                >
-                  no turn-down service, no
-                </span>
-              </span>
-              <span className="font-stencil block" style={{ letterSpacing: '0.02em' }}>
-                Little chocolates.
-              </span>
-            </p>
-          </div>
-
-          {/* ============================================================
-              Mittlere Spalte — EXPLORE CircleCTA
-              Slide-in von UNTEN NACH OBEN.
-              ============================================================ */}
-          <div
-            className="md:col-span-4 flex justify-center items-center"
-            style={{
-              opacity: groupEntranceOpacity,
-              transform: `translateY(${buttonShiftY})`,
-              transition:
-                'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform, opacity',
-            }}
-          >
-            {/* flex-shrink-0 garantiert Kreisform (siehe Location). */}
-            <div className="flex-shrink-0">
-              <CircleCTA
-                text="EXPLORE"
-                variant="glass-on-light"
-                onClick={() => {
-                  const element = document.querySelector('#details');
-                  if (element) element.scrollIntoView({ behavior: 'smooth' });
-                }}
-              />
+              {[...ROW1, ...ROW2, ...ROW3].map((cell, i) => (
+                <LetterCell key={i} cell={cell} />
+              ))}
             </div>
           </div>
 
           {/* ============================================================
-              Rechte Spalte — „An experience, not a booking." + Body
-              Slide-in von RECHTS NACH LINKS.
+              RECHTS — EXPLORE Disc + Body (col-span 4)
               ============================================================ */}
           <div
-            className="md:col-span-4"
+            className="md:col-span-4 flex flex-col items-start md:items-end gap-[4vh]"
             style={{
               opacity: groupEntranceOpacity,
               transform: `translateX(${rightShiftX})`,
@@ -180,7 +195,17 @@ export function Experience() {
               willChange: 'transform, opacity',
             }}
           >
-            <div className="max-w-[360px]" style={{ color: '#1C1B17' }}>
+            <div className="flex-shrink-0">
+              <CircleCTA
+                text="EXPLORE"
+                variant="glass-on-light"
+                onClick={() => {
+                  const element = document.querySelector('#rituals');
+                  if (element) element.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+            </div>
+            <div className="max-w-[320px] md:text-right" style={{ color: INK }}>
               <p
                 className="m-0 font-stencil uppercase"
                 style={{
@@ -195,7 +220,7 @@ export function Experience() {
               </p>
               <p
                 className="m-0 mt-[2em] text-[clamp(11px,0.85vw,13px)] leading-snug"
-                style={{ color: '#1C1B17' }}
+                style={{ color: INK }}
               >
                 We&apos;ve removed the friction: no front-desk queues, no
                 surprise fees — just a calm arrival and a quiet stay.
@@ -207,3 +232,7 @@ export function Experience() {
     </section>
   );
 }
+</content>
+</invoke>
+<invoke name="str_replace_edit">
+<parameter name="path">src/sections/Rituals.tsx
