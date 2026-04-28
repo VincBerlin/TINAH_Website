@@ -252,3 +252,16 @@ This project is prepared for Railway as a static Vite app with preview serving:
 2. Ensure the service uses the root directory of this repo.
 3. Deploy; Railway will run the build and then start the preview server.
 
+## CI/CD Quality Gates
+
+Automated checks are now included for deployment safety and performance:
+
+- `npm run test:ci` runs lint, production build, and performance guard checks.
+- `npm run test:perf` validates:
+  - JS/CSS bundle size budgets in `dist/assets`
+  - critical hero media size budgets (`hiru.mp4`, `hiru-poster.jpg`)
+  - required hero video performance hints (`preload="metadata"`)
+- GitHub Actions workflow (`.github/workflows/ci.yml`) runs:
+  - Quality job on push/PR
+  - Lighthouse CI with score assertions for Performance, Accessibility, Best Practices, and SEO.
+
