@@ -236,3 +236,19 @@ Place the following images in `public/images/`:
 - Icon fields in config use string names (e.g. "Wine", "MapPin") that are resolved via icon lookup maps in each component
 - The contact form and newsletter use Formspree endpoints - replace with your own form IDs
 - Images should be optimized for web (JPG for photos, PNG for transparent images)
+
+## Railway Deployment
+
+This project is prepared for Railway as a static Vite app with preview serving:
+
+- Build command: `npm ci && npm run build`
+- Start command: `npm run start`
+- Runtime port: `PORT` (handled via `vite preview --port ${PORT:-4173}`)
+- Config file: `railway.json`
+
+### Steps
+
+1. Create a new Railway project and connect this repository.
+2. Ensure the service uses the root directory of this repo.
+3. Deploy; Railway will run the build and then start the preview server.
+

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { CalendarCheck, CheckCircle2, Clock, Mail, Send } from 'lucide-react';
 
 /**
@@ -36,20 +36,16 @@ const initialPayload: BookingPayload = {
 };
 
 export function BookingFlow() {
-  const [step, setStep] = useState<Step>('request');
+  const [step, setStep] = useState<Step>(() => {
+    if (typeof window === 'undefined') return 'request';
+    const params = new URLSearchParams(window.location.search);
+    return params.get('booking') === 'confirmed' ? 'confirmed' : 'request';
+  });
   const [payload, setPayload] = useState<BookingPayload>(initialPayload);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Falls die URL `?booking=confirmed` enthält (Link aus Bestätigungs-Mail),
-  // direkt den CONFIRMED-Status anzeigen.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('booking') === 'confirmed') {
-      setStep('confirmed');
-    }
-  }, []);
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

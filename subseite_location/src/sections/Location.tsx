@@ -46,9 +46,6 @@ export function Location() {
   // "remaining" (1 → 0) und multiplizieren mit einer Distanz.
   // So entsteht die Richtungs-Slide-in-Animation synchron zum Scroll.
   const remaining = 1 - entrance;
-  const leftShiftX = `${-remaining * 6}vw`; // links: aus -6vw nach 0 (L→R)
-  const rightShiftX = `${remaining * 6}vw`; // rechts: aus +6vw nach 0 (R→L)
-  const buttonShiftY = `${remaining * 6}vh`; // mitte: aus +6vh nach 0 (B→T)
 
   // Leichte Gruppen-Entrance-Opazität — startet bei 0 und füllt sich
   // über den ersten Drittel des entrance-Fortschritts, damit die

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { lazy, Suspense, useState, useCallback, useEffect } from 'react';
 import { TopBar } from './components/TopBar';
 import { Hero } from './sections/Hero';
 import { Location } from './sections/Location';
@@ -12,9 +12,10 @@ import { Details } from './sections/Details';
 import { Testimonial } from './sections/Testimonial';
 import { Contact } from './sections/Contact';
 import { Preloader } from './components/Preloader';
-import { LocationPage } from './pages/Location';
-import { RoomsPage } from './pages/Rooms';
 import { useRoute } from './hooks/use-route';
+
+const LocationPage = lazy(() => import('./pages/Location').then((m) => ({ default: m.LocationPage })));
+const RoomsPage = lazy(() => import('./pages/Rooms').then((m) => ({ default: m.RoomsPage })));
 
 /**
  * App-Root.
@@ -88,7 +89,7 @@ function App() {
     return (
       <>
         <div className="grain-overlay" />
-        <LocationPage />
+        <Suspense fallback={null}><LocationPage /></Suspense>
       </>
     );
   }
@@ -105,7 +106,7 @@ function App() {
     return (
       <>
         <div className="grain-overlay" />
-        <RoomsPage />
+        <Suspense fallback={null}><RoomsPage /></Suspense>
       </>
     );
   }

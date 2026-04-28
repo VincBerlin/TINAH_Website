@@ -11,7 +11,10 @@ export function Hero({ isReady }: HeroProps) {
   const [phase, setPhase] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [logoVisible, setLogoVisible] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 
   useEffect(() => {
     if (!isReady) return;
@@ -29,7 +32,6 @@ export function Hero({ isReady }: HeroProps) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (prefersReducedMotion.matches) {
       video.pause();
-      setVideoFailed(true);
       return;
     }
     const tryPlay = () => {
