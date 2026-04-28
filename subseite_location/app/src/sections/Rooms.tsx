@@ -41,7 +41,7 @@ export function Rooms() {
       id="rooms"
       className="relative w-screen h-screen-safe overflow-hidden"
       style={{ zIndex: 30, backgroundColor: '#1A1916' }}
-      aria-label="Rooms — quiet five-room boutique on Mawella Beach"
+      aria-label="Rooms — quiet five-room retreat on Mawella Beach"
     >
       <h2 className="sr-only">
         Rooms designed for stillness — minimal, warm, and quiet rooms at

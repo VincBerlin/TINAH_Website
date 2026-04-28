@@ -1,48 +1,77 @@
 import { CircleCTA } from '../components/CircleCTA';
 import { useSectionProgress } from '../hooks/use-section-progress';
+import { useRoute } from '../hooks/use-route';
 
 /**
  * Rooms section — dark interlude between Location and Experience.
  *
- * 2026-04-25 update (user request):
- *   - Background was a real photograph (`/images/room-interior.jpg`).
- *     Replaced with a warm brown gradient placeholder so the section
- *     visually matches the preview "TINAH Full Site Preview.html"
- *     while we wait for final room photography.
- *   - Headline typography updated: full `font-stencil` with a
- *     `font-serif-display italic` accent on "stillness" — same
- *     Stencil-meets-Italic pairing the rest of the cream sections
- *     use (Location, Experience).
- *   - CircleCTA on the right is UNTOUCHED — same component, same
- *     copy, same target.
- *   - Structure, motion, scroll-driven entry/exit — UNCHANGED.
+ * 2026-04-27 update (User-Request):
+ *   - Hintergrund jetzt das echte Bett-Foto aus `/public/images/bett.JPG`.
+ *     Vorher war hier ein warmer brauner Gradient-Placeholder. Das Bild
+ *     wird `cover` über die volle Section gerendert (object-fit Optik),
+ *     mit derselben scroll-getriggerten Scale + Opacity-Animation wie
+ *     vorher der Gradient — entrance pulled scale 1.12 → 1.0, exit
+ *     pulled wieder auf 1.06 zurück.
+ *   - Über dem Foto liegt weiterhin ein dunkler Glas-Overlay
+ *     (linker und rechter Rand stärker, Mitte transparenter), damit
+ *     die weiße Stencil-Headline links und der Glass-CircleCTA rechts
+ *     auf jedem Pixel des Fotos lesbar bleiben.
+ *   - Headline-Typo, CircleCTA und Scroll-Motion-Logik unverändert.
+ *
+ * SEO-Hinweis:
+ *   `<img>`-Element mit konkretem `alt`-Text statt CSS-`background-image`
+ *   gewählt, damit Google das Bild beim Bilderindex erfassen kann
+ *   (CSS-Backgrounds werden bei Image-Search nicht gecrawlt). `loading
+ *   = "lazy"` verhindert dabei einen LCP-Hit, da Rooms erst nach Hero
+ *   und Location in den Viewport scrollt.
  */
+
+const BG_IMAGE = '/images/bett.JPG';
 
 export function Rooms() {
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
+  // Routing für den VIEW-ROOMS-CTA: navigiert auf die dedizierte
+  // /rooms-Subseite (5 Zimmer, jeweils eigene Foto-Story). Ersetzt
+  // den alten ScrollIntoView auf #experience (Section gelöscht).
+  const [, navigate] = useRoute();
 
   return (
     <section
       ref={ref}
       id="rooms"
+      data-nav-theme="dark"
       className="relative w-screen h-screen-safe overflow-hidden"
       style={{ zIndex: 30, backgroundColor: '#1A1916' }}
       aria-label="Zimmer"
     >
-      {/* Background — warm brown gradient.
-          Was an <img>; now a layered gradient that keeps the same
-          dark/warm character but matches the brand's cream-into-
-          ink palette without needing a hero photo. */}
+      {/* Background — Bett-Foto.
+          Statt CSS-`background-image` ein echtes `<img>` mit alt-Text:
+          besserer SEO-Index (Google Images), bessere a11y
+          (Screen-Reader liest „Bett im Zimmer..."), gleicher visueller
+          Effekt durch `object-cover` und absolutes Stretching auf die
+          ganze Section. Scale + Opacity stammen weiter aus
+          useSectionProgress, damit das Bild beim Eintreten leicht
+          „atmet" und beim Austreten ruhig zurückzoomt. */}
       <div
         className="absolute inset-0"
         style={{
           transform: `scale(${1.12 - entrance * 0.12 + exit * 0.06})`,
-          opacity: 0.7 + entrance * 0.3 - exit * 0.65,
-          background:
-            'linear-gradient(120deg, #2A2622 0%, #3D3530 50%, #1A1916 100%)',
+          opacity: 0.85 + entrance * 0.15 - exit * 0.65,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0C]/60 via-[#0B0B0C]/30 to-[#0B0B0C]/50" />
+        <img
+          src={BG_IMAGE}
+          alt="Schlafzimmer im This Is Not A Hotel — minimalistisches Bett, warm und ruhig, fünf Zimmer auf Mawella Beach, Sri Lanka"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover"
+          style={{ objectPosition: 'center' }}
+        />
+        {/* Dunkles Glas-Overlay — links/rechts stärker, Mitte
+            transparenter, damit Stencil-Headline (links) und
+            CircleCTA (rechts) lesbar bleiben, das Foto in der Mitte
+            aber atmen darf. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0C]/65 via-[#0B0B0C]/20 to-[#0B0B0C]/55" />
       </div>
 
       {/* Left content — slides in MUCH earlier */}
@@ -97,10 +126,11 @@ export function Rooms() {
       >
         <CircleCTA
           text="VIEW ROOMS"
-          onClick={() => {
-            const element = document.querySelector('#experience');
-            if (element) element.scrollIntoView({ behavior: 'smooth' });
-          }}
+          // Größe identisch zum Hero-PAUSE-NOW-Button — der Disc dient
+          // hier nur als sekundärer Section-Anker, nicht als Haupt-Eye-
+          // catcher. (User-Request 2026-04-27)
+          size="sm"
+          onClick={() => navigate('/rooms')}
         />
       </div>
 

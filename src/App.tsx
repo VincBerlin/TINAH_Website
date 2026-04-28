@@ -3,13 +3,17 @@ import { TopBar } from './components/TopBar';
 import { Hero } from './sections/Hero';
 import { Location } from './sections/Location';
 import { Rooms } from './sections/Rooms';
-import { Experience } from './sections/Experience';
+// Experience-Section (House-Principles-Letter-Grid + EXPLORE-CTA) wurde
+// am 2026-04-26 auf User-Request komplett aus der Landing-Page entfernt.
+// Die Datei `src/sections/Experience.tsx` ist gelöscht; in der
+// Section-Reihenfolge folgt Rooms direkt auf Rituals.
 import { Rituals } from './sections/Rituals';
 import { Details } from './sections/Details';
 import { Testimonial } from './sections/Testimonial';
 import { Contact } from './sections/Contact';
 import { Preloader } from './components/Preloader';
 import { LocationPage } from './pages/Location';
+import { RoomsPage } from './pages/Rooms';
 import { useRoute } from './hooks/use-route';
 
 /**
@@ -18,11 +22,13 @@ import { useRoute } from './hooks/use-route';
  * Routing-Strategie:
  *   - `/`           → Startseite (Hero → Location → Rooms → … → Contact)
  *   - `/location`   → Subseite „The Area" (Mawella, Karte, Anreise-Routen).
+ *   - `/rooms`      → Subseite „The Rooms" (5 Zimmer-Editorial,
+ *                     room3–room7, alternierende Cream/Cream2-Sections).
  *
- * Die Subseite ist als eigene React-Komponente in
- * `src/pages/Location/index.tsx` implementiert. Sie wird über den
- * minimalen `useRoute`-Hook geroutet — kein react-router, weil die App
- * nur diese eine Subseite und die Startseite hat.
+ * Die Subseiten sind als eigene React-Komponenten in
+ * `src/pages/Location/index.tsx` und `src/pages/Rooms/index.tsx`
+ * implementiert. Geroutet über den minimalen `useRoute`-Hook — kein
+ * react-router, weil die App auf zwei Subseiten + Startseite skaliert.
  *
  * SEO-Hinweis:
  *   Der `/location`-Pfad ist eine eigene URL mit eigenem Document-
@@ -31,15 +37,16 @@ import { useRoute } from './hooks/use-route';
  *   eigenes Long-Tail-Keyword bedient („Mawella beach Hiriketiya
  *   Tangalle"). Sitemap.xml referenziert sie explizit.
  *
- * Section-Reihenfolge der Startseite:
- *   Hero → Location → Rooms → Experience → Rituals → Details (Play/
- *   Pause) → Testimonial → Contact (Book).
+ * Section-Reihenfolge der Startseite (2026-04-26, nach Entfernung
+ * der Experience-Section):
+ *   Hero → Location → Rooms → Rituals → Details (Play/Pause) →
+ *   Testimonial → Contact (Book).
  *
- * Rituals (§ IV — The Day, Roughly) sitzt zwischen Experience
- * (House Principles) und Details (Play | Pause). Beide Nachbarn
- * sind Cream-Sektionen (#F2EDE4 / #F1E9D7), wodurch die Cream-
- * Pause der Seite zu einem zusammenhängenden Block wächst, ohne
- * harte Hell/Dunkel-Wechsel mittendrin.
+ * Rituals (§ IV — The Day, Roughly) sitzt jetzt direkt zwischen
+ * Rooms und Details (Play | Pause). Beide Cream-Nachbarn der
+ * Cream-Pause sind weiterhin im selben Farb-Cluster (#F2EDE4 /
+ * #F1E9D7), die Pause-Mitte der Seite bleibt ein zusammenhängender
+ * Hell-Block ohne harten Wechsel.
  */
 
 function App() {
@@ -86,6 +93,23 @@ function App() {
     );
   }
 
+  // ============================================================
+  // Subseite /rooms — eigener Render-Pfad
+  // ------------------------------------------------------------
+  // Identische Routing-Strategie wie /location: kein Preloader,
+  // keine globale TopBar, eigene Header-Bar mit „← Back"-Link in
+  // der RoomsPage. Wir mounten den Grain-Overlay weiter, damit
+  // die filmische Foto-Optik der Cream-Subseite erhalten bleibt.
+  // ============================================================
+  if (route === '/rooms') {
+    return (
+      <>
+        <div className="grain-overlay" />
+        <RoomsPage />
+      </>
+    );
+  }
+
   return (
     <>
       {isLoading && <Preloader onComplete={handlePreloaderComplete} />}
@@ -114,7 +138,6 @@ function App() {
           <Hero isReady={!isLoading} />
           <Location />
           <Rooms />
-          <Experience />
           <Rituals />
           <Details />
           <Testimonial />

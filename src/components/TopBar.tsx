@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { Home } from 'lucide-react';
 import { AmbientSound } from './AmbientSound';
 import { useRoute } from '../hooks/use-route';
 
@@ -10,33 +9,61 @@ interface TopBarProps {
 /**
  * Sticky top navigation.
  *
- * Behavior (per user request 2026-04-21):
- *   • Full TopBar is visible ONLY when the user is at the very top of
- *     the page (scrollY ≤ 80). This is the Hero view.
- *   • As soon as the user scrolls away from the top, the full bar is
- *     GONE — it does NOT re-appear on scroll-up.
- *   • Instead, a small, unobtrusive Home button appears at the top
- *     when the user is scrolling UP past the hero. Clicking it jumps
- *     back to the very first page (scroll to top, smooth).
- *   • When the user scrolls DOWN, even the Home button hides, so
- *     content is never covered.
- *
- * Rationale:
- *   The full TopBar is a "landing" element — it sets the tone in the
- *   Hero. Once the visitor is exploring deeper sections, we don't want
- *   to reintroduce a heavy nav strip every time they scroll up. A
- *   single tiny Home affordance is enough to return to the entry.
+ * Behavior (User-Request 2026-04-27 — Chameleon-Refactor):
+ *   • Bar bleibt PERMANENT sichtbar beim Scrollen (`position: fixed`).
+ *   • Hintergrund ist KOMPLETT TRANSPARENT — kein Glas, kein Blur,
+ *     kein dunkler Streifen. Die Schrift „liegt" direkt auf dem
+ *     Content darunter.
+ *   • Damit die Schrift auf jedem Untergrund lesbar bleibt, wechselt
+ *     die Textfarbe automatisch:
+ *       - dunkle Section unter der Bar  → helle Schrift (#F2EDE4)
+ *       - helle Section unter der Bar   → dunkle Schrift (#1C1B17)
+ *   • Detection-Mechanik: jede Section trägt `data-nav-theme="dark"`
+ *     oder `data-nav-theme="light"`. Beim Scroll probet die TopBar
+ *     den DOM-Knoten an Position (viewportCenter, 30 px) via
+ *     `document.elementsFromPoint`, läuft die Eltern hoch, liest das
+ *     erste vorhandene `data-nav-theme`-Attribut. Kein zentrales
+ *     Mapping nötig — neue Sections funktionieren automatisch.
  */
-export function TopBar({ variant = 'dark' }: TopBarProps) {
+// Probe-Punkt: vertikal so weit unten, dass er innerhalb der TopBar-
+// Mitte liegt (Bar ist ~50–60 px hoch + Safe-Area). 36 px ist ein
+// stabiler Mittelwert — auch auf Geräten mit Notch noch innerhalb
+// der Bar.
+const PROBE_Y = 36;
+
+type NavTheme = 'dark' | 'light';
+
+function detectThemeUnderProbe(): NavTheme {
+  if (typeof document === 'undefined') return 'dark';
+  const x = window.innerWidth / 2;
+  const y = PROBE_Y;
+  // elementsFromPoint liefert ALLE Elemente an dieser Position
+  // (top → bottom in der Stack-Reihenfolge). Wir suchen das erste
+  // mit data-nav-theme — entweder direkt das Element selbst oder
+  // einer seiner Vorfahren.
+  const stack = document.elementsFromPoint(x, y);
+  for (const el of stack) {
+    const themed = (el as HTMLElement).closest('[data-nav-theme]');
+    if (themed) {
+      const theme = themed.getAttribute('data-nav-theme');
+      if (theme === 'light' || theme === 'dark') return theme;
+    }
+  }
+  return 'dark';
+}
+
+export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
+  // _variant aus der App-Prop wird im Chameleon-Modus nicht mehr
+  // benötigt (das Theme wird live aus dem DOM abgeleitet), bleibt
+  // aber im Interface für Abwärtskompatibilität bestehen.
+  void _variant;
+
   const [isMounted, setIsMounted] = useState(false);
-  const [isAtTop, setIsAtTop] = useState(true);
-  const [showHomeButton, setShowHomeButton] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const [theme, setTheme] = useState<NavTheme>('dark');
   // Routing für die LOCATION-Nav: per pushState auf die Subseite
   // navigieren, statt nur einen Anker auf der Startseite anzuspringen.
   const [, navigate] = useRoute();
 
-  const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
   // Initial fade-in
@@ -45,68 +72,53 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll direction detection with rAF throttling
+  // Scroll/Resize-Tracking — wir leiten bei jedem Scroll-Tick das
+  // Theme aus dem DOM ab. rAF-Throttle hält den Aufwand minimal,
+  // setTheme triggert nur dann ein Re-Render, wenn sich der Wert
+  // tatsächlich ändert (React-Default-Bail-Out auf identischen
+  // State).
   useEffect(() => {
-    const SHOW_AT_TOP_PX = 80;
-    const DIRECTION_DELTA = 6; // ignore micro-jitters
-    const BACKDROP_AFTER_PX = 120;
-
-    const handleScroll = () => {
-      if (ticking.current) return;
-      ticking.current = true;
-
-      requestAnimationFrame(() => {
-        const currentY = window.scrollY;
-        const delta = currentY - lastScrollY.current;
-
-        setHasScrolled(currentY > BACKDROP_AFTER_PX);
-
-        if (currentY <= SHOW_AT_TOP_PX) {
-          // At the very top → full bar shown, Home button hidden
-          setIsAtTop(true);
-          setShowHomeButton(false);
-        } else {
-          setIsAtTop(false);
-          if (delta > DIRECTION_DELTA) {
-            // scrolling DOWN → hide Home button
-            setShowHomeButton(false);
-          } else if (delta < -DIRECTION_DELTA) {
-            // scrolling UP → show the small Home button (not the full bar)
-            setShowHomeButton(true);
-          }
-        }
-
-        lastScrollY.current = currentY;
-        ticking.current = false;
-      });
+    const update = () => {
+      ticking.current = false;
+      setTheme(detectThemeUnderProbe());
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (ticking.current) return;
+      ticking.current = true;
+      requestAnimationFrame(update);
+    };
+
+    // Initial Sync nach Mount (Layout muss stehen).
+    const initTimer = setTimeout(update, 0);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      clearTimeout(initTimer);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
-  const handleHomeClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // Schrift-Farbe + Hover-Variante chamäleonisch.
+  // Auf hellen Sections: dunkle Schrift (#1C1B17), Hover noch dunkler.
+  // Auf dunklen Sections: helle Schrift (#F2EDE4), Hover voll-weiss.
+  const textColor =
+    theme === 'light' ? 'text-[#1C1B17]' : 'text-[#F2EDE4]';
+  const hoverColor =
+    theme === 'light' ? 'hover:text-[#0B0B0C]' : 'hover:text-white';
+  const navItemClass = `font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${hoverColor}`;
 
-  const textColor = variant === 'dark' ? 'text-[#B7B7B7]' : 'text-[#3F3F3F]';
-
-  // Kein schwarzer Balken im gescrollten Zustand — Navigation bleibt
-  // durchgehend transparent, damit sie sich in das Hero/Content-Bild einfügt.
+  // Hintergrund DURCHGEHEND TRANSPARENT — User-Request 2026-04-27.
   const bgClass = 'bg-transparent';
-  // hasScrolled wird aktuell nicht als Trigger genutzt, aber für spätere
-  // Anpassungen (z. B. Text-Kontrast-Verstärkung) weiter getrackt.
-  void hasScrolled;
 
-  // The full TopBar is now only visible at the very top of the page.
-  // Once the user scrolls past the hero, the bar fades up and out and
-  // never returns — a compact Home button (rendered further below)
-  // takes over.
+  // Bar bleibt jetzt PERMANENT sichtbar (User-Request 2026-04-27:
+  // „die oberste leiste soll immer mitgehen beim scrollen"). Nur der
+  // initiale Mount-Fade bleibt — danach kein Auto-Hide mehr.
   const visibilityClasses = !isMounted
     ? 'opacity-0 -translate-y-3'
-    : isAtTop
-      ? 'opacity-100 translate-y-0'
-      : 'opacity-0 -translate-y-full pointer-events-none';
+    : 'opacity-100 translate-y-0';
 
   return (
     <>
@@ -168,9 +180,9 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
           </span>
           <span
             className={`font-stencil text-[11px] uppercase tracking-[0.22em] ${textColor}`}
-            aria-label="Mawella, latitude 06 degrees 04 minutes north"
+            aria-label="Mawella, latitude 06 degrees north, longitude 80 degrees 45 minutes east"
           >
-            MAWELLA 06°04&apos;N
+            MAWELLA 06°00&apos;N&nbsp;·&nbsp;80°45&apos;E
           </span>
         </div>
 
@@ -189,30 +201,21 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
         >
           <button
             type="button"
-            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
-              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
-            }`}
+            className={navItemClass}
             onClick={() => navigate('/location')}
           >
             LOCATION
           </button>
           <button
             type="button"
-            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
-              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
-            }`}
-            onClick={() => {
-              const el = document.getElementById('rooms');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }}
+            className={navItemClass}
+            onClick={() => navigate('/rooms')}
           >
             ROOMS
           </button>
           <button
             type="button"
-            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
-              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
-            }`}
+            className={navItemClass}
             onClick={() => {
               // RITUALS scrollt zur eigenen § IV — The Day, Roughly
               // Sektion (zwischen Experience und Details).
@@ -224,9 +227,7 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
           </button>
           <button
             type="button"
-            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${
-              variant === 'dark' ? 'hover:text-white' : 'hover:text-[#0B0B0C]'
-            }`}
+            className={navItemClass}
             onClick={() => {
               const el = document.getElementById('book');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -239,39 +240,15 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
     </header>
 
     {/*
-      Compact Home button — replaces the full TopBar everywhere
-      except the very top of the page.
-      - Hidden at the top of the page (the full bar is there instead).
-      - Hidden while scrolling DOWN (no visual noise over content).
-      - Appears as soon as the user scrolls UP past the hero.
-      - Click → smooth scroll to the very top (Hero).
-
-      Visually: tiny circular pill, dark glass, center-top, safe-area
-      aware. Deliberately low-contrast so it stays out of the way.
+      Compact Home button — ENTFERNT 2026-04-27 (User-Request:
+      „die oberste leiste soll immer mitgehen beim scrollen").
+      Da die volle TopBar jetzt permanent sichtbar bleibt, ist der
+      separate Home-Button redundant. Funktion „zurück zur Startseite"
+      ist über die Wortmarke „THIS IS NOT A HOTEL™" links in der
+      Bar weiterhin (implizit) erreichbar — sie sitzt am scrollY=0
+      Anker. Falls explizit gewünscht, kann sie auch auf-click
+      verkabelt werden.
     */}
-    <button
-      type="button"
-      onClick={handleHomeClick}
-      aria-label="Zurück zur Startseite"
-      className={`
-        fixed z-[100] left-1/2 -translate-x-1/2
-        h-9 w-9 rounded-full
-        flex items-center justify-center
-        border border-white/20 bg-[#0B0B0C]/55 backdrop-blur-md
-        text-[#D9D9D9] hover:text-white hover:border-white/70
-        transition-all duration-500 ease-out will-change-transform
-        ${
-          isMounted && showHomeButton
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 -translate-y-3 pointer-events-none'
-        }
-      `}
-      style={{
-        top: 'calc(env(safe-area-inset-top) + 14px)',
-      }}
-    >
-      <Home className="w-4 h-4" aria-hidden />
-    </button>
 
     {/*
       Floating Ambient-Sound-Toggle — IMMER sichtbar.
@@ -296,7 +273,7 @@ export function TopBar({ variant = 'dark' }: TopBarProps) {
       }}
     >
       <div className="flex items-center justify-center rounded-full border border-white/20 bg-[#0B0B0C]/55 backdrop-blur-md h-9 w-9 text-[#D9D9D9] hover:text-white hover:border-white/70 transition-colors">
-        <AmbientSound variant={variant} subtle />
+        <AmbientSound variant={theme} subtle />
       </div>
     </div>
     </>

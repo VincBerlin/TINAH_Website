@@ -279,7 +279,12 @@ function Header({ eyebrow, title, text }: { eyebrow: string; title: string; text
       <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#3F3F3F]">
         {eyebrow}
       </span>
-      <h2 className="font-heading text-[clamp(32px,4.5vw,56px)] text-[#0B0B0C] leading-[0.95] tracking-[-0.02em] mt-3">
+      {/* Brand-Schrift Allerta Stencil (Brand Guideline 2026-04-27).
+          Tracking auf 0.06em — Stencil-Glyphen brauchen positiven
+          Letter-Spacing damit die Cuts klar lesbar bleiben. uppercase
+          weil Stencil ausschließlich für Großbuchstaben gezeichnet
+          ist. */}
+      <h2 className="font-stencil uppercase text-[clamp(32px,4.5vw,56px)] text-[#0B0B0C] leading-[1.0] tracking-[0.06em] mt-3">
         {title}
       </h2>
       <p className="text-[#3F3F3F] text-base mt-3 max-w-[400px]">{text}</p>

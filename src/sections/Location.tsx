@@ -45,24 +45,45 @@ export function Location() {
   // was den Klick faktisch unsichtbar machte.
   const [, navigate] = useRoute();
 
-  // Globale Fade-Opazität folgt Scroll-Progress der Section.
-  const contentOpacity = entrance - exit * 0.75;
-
-  // entrance: 0 → 1 beim Einscrollen. Wir invertieren zu „remaining"
-  // und multiplizieren mit einer Distanz für die Slide-in-Animationen.
+  // -----------------------------------------------------------------
+  // Scroll-Animation — Rooms-/Reviews-Geschwindigkeit, KEIN Farbverlauf
+  // -----------------------------------------------------------------
+  // User-Request 2026-04-26: „kein farbverlauf der texte. überschrift
+  // kommt von oben. location button kommt mit dem text darunter von
+  // unten nach oben mit der gleichen dynamik und geschwindigkeit wie
+  // bei der section von rooms und reviews."
+  //
+  // Distances entsprechen exakt dem Rooms-Pattern (Headline: 18vw
+  // entrance, 12vw exit-drift; Right-CTA: 22vw entrance, 20vw exit-
+  // drift). Hier vertikal als vh übernommen, damit sich die Bewegung
+  // gleich anfühlt:
+  //   - Headlines kommen von oben (-18vh → 0 → -12vh exit-drift)
+  //   - Button + Body kommen gemeinsam von unten (+22vh → 0)
+  //
+  // 2026-04-27 (User-Bug-Fix): Exit-Drift am BUTTON und BODY entfernt
+  // („der unten darf beim runterscrollen nicht hinter der nächsten
+  //  section verschwinden"). Der frühere Exit-Term `+ exit * 20`
+  // schob LOCATION-Disc und Body-Absatz beim Scroll-Out um bis zu
+  // 20vh nach unten — innerhalb der `overflow-hidden`-Section wurden
+  // sie dadurch vorzeitig abgeschnitten, was visuell wie „Verschwinden
+  // hinter Rooms" aussah. Beide bleiben jetzt während Exit an ihrer
+  // natürlichen Position; nur die Headlines drift en weiterhin nach
+  // oben (gleicher Richtung wie der Scroll), das ist unkritisch, weil
+  // die Section-Oberkante mitscrollt.
+  //
+  // OPACITY ist absichtlich konstant 1 — User-Request „kein
+  // farbverlauf der texte". Die Texte fade-en nicht ein/aus während
+  // der Scroll-Animation.
   const remaining = 1 - entrance;
-  const headlineShiftY = `${-remaining * 6}vh`; // Headlines: oben → 0
-  const buttonShiftY = `${remaining * 6}vh`;    // Button: unten → 0
-  const bodyShiftY = `${remaining * 4}vh`;      // Body:   unten → 0
-
-  // Sanfte Gruppen-Opazität — startet bei 0 und füllt sich über den
-  // ersten Drittel des entrance-Fortschritts auf.
-  const groupEntranceOpacity = Math.min(1, entrance * 1.4);
+  const headlineShiftY = `${-(remaining * 18) - exit * 12}vh`;
+  const buttonShiftY = `${remaining * 22}vh`;
+  const bodyShiftY = `${remaining * 22}vh`;
 
   return (
     <section
       ref={ref}
       id="location"
+      data-nav-theme="light"
       className="relative w-screen min-h-screen-safe overflow-hidden"
       style={{ zIndex: 20, backgroundColor: '#F2EDE4' }}
       aria-label="An Introduction — This Is Not A Hotel, Mawella Beach, southern Sri Lanka"
@@ -87,41 +108,15 @@ export function Location() {
       */}
       <div
         className="relative z-10 mx-auto flex flex-col items-center text-center max-w-[1100px] px-[6vw] py-[10vh] md:py-[14vh]"
-        style={{ opacity: contentOpacity }}
       >
         {/* ============================================================
-            Section-Marker „§ I — AN INTRODUCTION"
+            Section-Marker „§ I — AN INTRODUCTION" — ENTFERNT 2026-04-27
             ============================================================
-            Bewusst symmetrisch (Linie ↔ Label ↔ Linie), damit er sich
-            in das zentrale Layout einfügt statt links zu hängen wie
-            zuvor. Schrift: Allerta Stencil (font-stencil), 10 px,
-            tracking 0.28em — identisch zu den „01 / Location"-Labels
-            im Hero. */}
-        <div
-          className="flex items-center gap-3 mb-[6vh] md:mb-[8vh]"
-          style={{
-            opacity: groupEntranceOpacity,
-            transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1)',
-            willChange: 'opacity',
-          }}
-        >
-          <span
-            aria-hidden
-            className="inline-block h-px w-6"
-            style={{ backgroundColor: '#1C1B17' }}
-          />
-          <span
-            className="font-stencil text-[10px] uppercase tracking-[0.28em]"
-            style={{ color: '#1C1B17' }}
-          >
-            § I — An Introduction
-          </span>
-          <span
-            aria-hidden
-            className="inline-block h-px w-6"
-            style={{ backgroundColor: '#1C1B17' }}
-          />
-        </div>
+            Auf User-Request komplett entfernt. Der Eyebrow-Pattern
+            wurde als zu redaktionell/akademisch empfunden; die
+            Headline-Stanza („It's a house. / A long table. / A
+            kilometre of empty beach.") trägt die Sektion jetzt allein
+            ohne vorgeschalteten Paragraf-Marker. */}
 
         {/* ============================================================
             Headline-Stack — vertikal gestapelt, zentriert
@@ -132,11 +127,9 @@ export function Location() {
         <div
           className="flex flex-col items-center gap-[2.4vh] md:gap-[3.2vh]"
           style={{
-            opacity: groupEntranceOpacity,
+            opacity: 1,
             transform: `translateY(${headlineShiftY})`,
-            transition:
-              'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-            willChange: 'transform, opacity',
+            willChange: 'transform',
           }}
         >
           <p
@@ -172,46 +165,31 @@ export function Location() {
         </div>
 
         {/* ============================================================
-            CircleCTA „LOCATION" mit Decoration-Dot auf 12 Uhr
+            CircleCTA „LOCATION"
             ============================================================
-            Der Dot ist ein dezent-schwarzer Punkt, der genau auf dem
-            oberen Kreis-Rand sitzt (top: 0, translate -50% / -50%).
-            Vorlage aus dem Design-Screenshot vom 26.04. — wirkt wie
-            ein Compass-Marker, der die Section räumlich orientiert. */}
+            Der schwarze Compass-Decoration-Dot auf 12 Uhr wurde am
+            2026-04-26 auf User-Request entfernt — der CircleCTA steht
+            jetzt clean auf der Cream-Fläche, ohne zusätzlichen
+            Marker-Punkt am oberen Kreisrand. */}
         <div
           className="relative mt-[8vh] md:mt-[10vh] flex justify-center items-center"
           style={{
-            opacity: groupEntranceOpacity,
+            opacity: 1,
             transform: `translateY(${buttonShiftY})`,
-            transition:
-              'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 100ms, transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 100ms',
-            willChange: 'transform, opacity',
+            willChange: 'transform',
           }}
         >
-          {/* Decoration-Dot — Compass-Marker auf 12 Uhr.
-              z-index 5 hebt ihn knapp über den Disc-Border, ohne den
-              CircleCTA-Hover-State zu blockieren (pointer-events:none). */}
-          <span
-            aria-hidden
-            className="absolute"
-            style={{
-              top: 0,
-              left: '50%',
-              width: '7px',
-              height: '7px',
-              borderRadius: '9999px',
-              backgroundColor: '#1C1B17',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 5,
-              pointerEvents: 'none',
-            }}
-          />
           {/* flex-shrink-0 schützt die runde Form gegen horizontale
               Stauchung in engen Flex-Containern. */}
           <div className="flex-shrink-0">
             <CircleCTA
               text="LOCATION"
               variant="glass-on-light"
+              // Größe identisch zum Hero-PAUSE-NOW-Button: bewusst
+              // klein gehalten, damit der Hotelname und die Section-
+              // Hierarchie im Vordergrund bleiben (User-Request
+              // 2026-04-27).
+              size="sm"
               onClick={() => {
                 // Öffnet die dedizierte Detail-Subseite `/location`
                 // (Karte, Anreise-Routen, Editorial-Copy). useRoute
@@ -235,11 +213,9 @@ export function Location() {
             color: '#1C1B17',
             fontSize: 'clamp(12px, 0.95vw, 14px)',
             lineHeight: 1.6,
-            opacity: groupEntranceOpacity,
+            opacity: 1,
             transform: `translateY(${bodyShiftY})`,
-            transition:
-              'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 200ms, transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms',
-            willChange: 'transform, opacity',
+            willChange: 'transform',
           }}
         >
           Past the gate in Mawella, the lane is unpaved. A kilometre of

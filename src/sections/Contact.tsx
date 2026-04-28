@@ -64,7 +64,15 @@ export function Contact() {
   // Scroll-getriebene Entrance-Animation. Formular-Karte kommt von
   // links, WhatsApp-Karte von rechts, Überschrift ebenfalls von links
   // — alle drei landen gleichzeitig bei entrance = 1.
-  const { ref, entrance } = useSectionProgress<HTMLElement>();
+  //
+  // 2026-04-26: Exit-Progress wird jetzt mitgenutzt (User-Request:
+  // „passe die dynamik auf jeder section auf der landing page
+  // gleichmäßig an"). Damit driftet die Section beim Verlassen sanft
+  // weiter in Bewegungsrichtung — exakt wie Rooms.tsx
+  // (`translateX(-exit * 12vw)`) — und die Opazität folgt der
+  // seitenweiten Konvention `entrance - exit * 0.75`.
+  const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
+  const sectionOpacity = entrance - exit * 0.75;
 
   // Es gibt keinen Room-Picker mehr — der Preis bezieht sich auf den
   // ersten Tier aus pauseConfig (Standard-Tagessatz). Tier-Auswahl
@@ -169,6 +177,7 @@ export function Contact() {
       <section
         ref={ref}
         id="book"
+        data-nav-theme="dark"
         className="relative w-screen h-screen-safe overflow-hidden text-white scroll-mt-0"
         style={{ zIndex: 80, backgroundColor: '#B84A1F' }}
         aria-label="It's an experience, not a booking — request your pause"
@@ -183,18 +192,24 @@ export function Contact() {
             So wird die Buchungs-Sektion als finale Brand-Geste
             gelesen und schließt den Farb-Kreis der Page.
 
-            Aufbau in Layern:
+            Aufbau in Layern (User-Request 2026-04-26 — kein Verlauf):
               1) Solide Fläche #B84A1F (auf der section selbst gesetzt,
                  fungiert als Failsafe falls Overlay nicht lädt).
               2) Sehr dezenter radialer Highlight in einem helleren
                  Ton (warmes Orange #D26A3C, ~25 % Opazität),
                  zentriert hinter dem Formular — gibt Tiefe, ohne
                  die Fläche fleckig zu machen.
-              3) Top-Fade von #0B0B0C → transparent (h-40), damit der
-                 Übergang von der dunklen Testimonial-Section weich
-                 ist und das Auge nicht wie an einer Kante stolpert.
-              4) Bottom-Fade von #0B0B0C → transparent (h-32) für
-                 den nahtlosen Übergang in den dunklen Footer. */}
+
+            ENTFERNT 2026-04-26 (User-Request: „auf der bookingseite
+            den verlauf der farbe rausnehmen . kein verlauf der farbe
+            in die andere section"):
+              - Top-Fade #0B0B0C → transparent (h-40)
+              - Bottom-Fade #0B0B0C → transparent (h-32)
+            Beide Fades blendeten die Orange-Fläche oben/unten in das
+            dunkle Schwarz der Nachbarsections (Testimonial oben,
+            Footer unten) hinein. Jetzt hat die Orange-Section harte
+            Kanten — der Farbsprung ist beabsichtigt, das Brand-Orange
+            soll als bewusster Block stehen, nicht als weicher Fade. */}
         <div aria-hidden className="absolute inset-0 pointer-events-none">
           {/* Solide Brand-Orange als Basis-Fläche. */}
           <div
@@ -211,10 +226,6 @@ export function Contact() {
                 'radial-gradient(ellipse at center, rgba(232,138,82,0.32) 0%, rgba(232,138,82,0.12) 45%, rgba(232,138,82,0) 80%)',
             }}
           />
-          {/* Top fade — Übergang von der dunklen Testimonial-Section. */}
-          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0B0B0C] to-transparent" />
-          {/* Bottom fade — sauberer Übergang in den dunklen Footer. */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0B0B0C] to-transparent" />
         </div>
 
         {/* Content — absolutely filling the section and vertically
@@ -247,8 +258,8 @@ export function Contact() {
           <div
             className="max-w-[960px]"
             style={{
-              transform: `translateX(${(1 - entrance) * -14}vw)`,
-              opacity: entrance,
+              transform: `translateX(${(1 - entrance) * -14 - exit * 10}vw)`,
+              opacity: sectionOpacity,
               willChange: 'transform, opacity',
             }}
           >
@@ -281,8 +292,8 @@ export function Contact() {
                 entrance = 1. */}
             <div
               style={{
-                transform: `translateX(${(1 - entrance) * -30}vw)`,
-                opacity: entrance,
+                transform: `translateX(${(1 - entrance) * -30 - exit * 14}vw)`,
+                opacity: sectionOpacity,
                 willChange: 'transform, opacity',
               }}
             >
@@ -430,8 +441,8 @@ export function Contact() {
             <div
               className="flex flex-col"
               style={{
-                transform: `translateX(${(1 - entrance) * 30}vw)`,
-                opacity: entrance,
+                transform: `translateX(${(1 - entrance) * 30 + exit * 14}vw)`,
+                opacity: sectionOpacity,
                 willChange: 'transform, opacity',
               }}
             >

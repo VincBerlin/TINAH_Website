@@ -85,4 +85,48 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://thisisnotahotel.com/location" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://thisisnotahotel.com/location" />
   </url>
+  <!--
+    /rooms — dedizierte Subseite „The Rooms"
+    Eigene URL mit eigenem Document-Title, Meta-Description, Canonical
+    und JSON-LD `ItemList` aus fünf `HotelRoom`-Entitäten. Bedient
+    Long-Tail-Keywords „minimalist hotel room Sri Lanka", „quiet beach
+    room Mawella", „sea-facing room southern Sri Lanka". Priority 0.9
+    — gleiches Trust-Anker-Niveau wie /location, weil „welche Räume?"
+    direkt nach „wo bist du?" der zweite Klick im Sales-Funnel ist.
+    Image-Sitemap-Einträge listen alle fünf Zimmer-Fotos für den
+    Google-Image-Index.
+  -->
+  <url>
+    <loc>https://thisisnotahotel.com/rooms</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://thisisnotahotel.com/rooms" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://thisisnotahotel.com/rooms" />
+    <image:image>
+      <image:loc>https://thisisnotahotel.com/images/room3.JPG</image:loc>
+      <image:title>The Long Window — sea-facing room, This Is Not A Hotel, Mawella</image:title>
+      <image:caption>Minimalist sea-facing hotel room with linen and warm timber, Mawella Beach, Sri Lanka</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://thisisnotahotel.com/images/room4.JPG</image:loc>
+      <image:title>The Sand Door — beach-access room, This Is Not A Hotel, Mawella</image:title>
+      <image:caption>Hotel room with private terrace and direct beach access, southern Sri Lanka</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://thisisnotahotel.com/images/room5.JPG</image:loc>
+      <image:title>The Quiet Side — garden-facing room, This Is Not A Hotel, Mawella</image:title>
+      <image:caption>Garden-facing minimalist hotel room with all-day shade, Mawella Beach</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://thisisnotahotel.com/images/room6.jpg</image:loc>
+      <image:title>The Garden — corner room with pool view, This Is Not A Hotel, Mawella</image:title>
+      <image:caption>Two-window corner hotel room overlooking garden and pool, southern Sri Lanka</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://thisisnotahotel.com/images/room7.JPG</image:loc>
+      <image:title>The Hour — west-facing evening-light room, This Is Not A Hotel, Mawella</image:title>
+      <image:caption>West-facing hotel room bathed in late afternoon light, Mawella Beach, Sri Lanka</image:caption>
+    </image:image>
+  </url>
 </urlset>

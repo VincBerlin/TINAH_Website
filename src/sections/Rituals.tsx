@@ -91,15 +91,44 @@ const OCHRE = '#B84A1F';
 const RULE = 'rgba(28, 27, 23, 0.18)';
 
 export function Rituals() {
-  const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
-  const contentOpacity = entrance - exit * 0.75;
-  const remaining = 1 - entrance;
-  const groupEntranceOpacity = Math.min(1, entrance * 1.4);
+  const { ref } = useSectionProgress<HTMLElement>();
+
+  // -----------------------------------------------------------------
+  // Fahrstuhl-Pattern für die linke Headline (Native CSS Sticky)
+  // -----------------------------------------------------------------
+  // User-Request 2026-04-27 Iteration 3:
+  //   „beim scrollen fackelt der text … erstelle es mehr fließend".
+  //
+  // Vorherige JS-Versionen (setState-basiert UND direct-DOM-write)
+  // liefen alle im Main-Thread und konnten daher nie 1:1 mit dem
+  // Compositor-Scroll synchron sein → spürbares Hängen / Flackern.
+  //
+  // Korrekte Lösung: `position: sticky` auf der linken Spalte. Das
+  // läuft komplett auf dem Compositor-Thread, frame-perfect synchron
+  // mit dem Browser-Scroll, ohne irgendeinen JS-Eingriff.
+  //
+  // Vorbedingung dafür war ein Fix in `index.css`: body hatte
+  // `overflow-x: hidden`, was den body laut CSS-Spec implizit zu
+  // einem Scroll-Container macht — alle Sticky-Elemente fanden
+  // dann body als Scroll-Anker statt html. Geändert auf
+  // `overflow-x: clip` (kein Scroll-Container), seitdem funktioniert
+  // sticky korrekt.
+  //
+  // Funktionsweise:
+  //   • Linke Spalte mit `md:sticky md:top-[14vh]`.
+  //   • Bei Default-Grid-Stretch (kein self-start) füllt die Zelle
+  //     die volle Row-Höhe (= Höhe der rechten Spalte mit allen
+  //     Ritualen). Sticky-Range = ganze Section.
+  //   • Browser kümmert sich um alles: klebt am 14vh-Linie, fährt
+  //     mit dem Scroll mit, stoppt am Section-Ende.
+  //
+  //   Mobile (< md): kein sticky-Modifier → Spalten stacken normal.
 
   return (
     <section
       ref={ref}
       id="rituals"
+      data-nav-theme="light"
       className="relative w-screen min-h-screen-safe overflow-x-clip"
       style={{ zIndex: 45, backgroundColor: '#F2EDE4' }}
       aria-label="Rituals — A day, loosely shaped at This Is Not A Hotel, Mawella"
@@ -110,20 +139,13 @@ export function Rituals() {
 
       <div
         className="relative z-10 mx-auto max-w-[1400px] px-[6vw] py-[12vh] md:py-[14vh]"
-        style={{ opacity: contentOpacity }}
       >
         <div className="grid grid-cols-1 md:grid-cols-12 gap-y-[6vh] md:gap-x-[3vw]">
-          {/* LEFT — sticky intro column. */}
-          <div
-            className="md:col-span-4 md:sticky md:top-[14vh] md:self-start"
-            style={{
-              opacity: groupEntranceOpacity,
-              transform: `translateX(${-remaining * 6}vw)`,
-              transition:
-                'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform, opacity',
-            }}
-          >
+          {/* LEFT — Native CSS Sticky.
+              `md:sticky md:top-[14vh]` auf der Spalte selbst, kein
+              JS, kein Transform. Browser macht alles auf dem
+              Compositor-Thread → frame-perfect synchron mit Scroll. */}
+          <div className="md:col-span-4 md:sticky md:top-[14vh] md:self-start">
             <div className="flex items-center gap-3 mb-[3vh]">
               <span
                 aria-hidden
@@ -169,16 +191,14 @@ export function Rituals() {
             </p>
           </div>
 
-          {/* RIGHT — list of rituals. */}
+          {/* RIGHT — Ritual-Liste, komplett starr.
+              User-Request 2026-04-27: „der rechte text bleibt. kein
+              farbverlauf, keine bewegung. starr." Keine Transform,
+              keine Opacity-Animation, keine Transition — die Liste
+              steht still, während die linke Sticky-Spalte mit dem
+              Scroll mitläuft. */}
           <div
             className="md:col-start-6 md:col-span-7 flex flex-col"
-            style={{
-              opacity: groupEntranceOpacity,
-              transform: `translateX(${remaining * 6}vw)`,
-              transition:
-                'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform, opacity',
-            }}
           >
             {RITUALS.map((r, i) => (
               <article

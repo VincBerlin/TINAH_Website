@@ -121,6 +121,7 @@ export function Hero({ isReady }: HeroProps) {
     <section
       ref={sectionRef}
       id="hero"
+      data-nav-theme="dark"
       className="relative w-screen h-screen-safe overflow-hidden"
       style={{ zIndex: 10 }}
     >
@@ -317,12 +318,10 @@ export function Hero({ isReady }: HeroProps) {
         >
           <CircleCTA
             text="PAUSE NOW"
-            // Größe bleibt "sm" — bewusst nicht weiter verkleinert.
-            // (Revert 2026-04-26: ein vorheriger Pass hatte den Button
-            // auf "xs" geschrumpft, ohne dass das vom User angefordert
-            // war. Wiederhergestellt auf den ursprünglichen Hero-CTA-
-            // Slot, weil der PAUSE-Disc als zentrales Aktions-Anker des
-            // Hero-Splashes gedacht ist.)
+            // 2026-04-27 (User-Korrektur): zurück auf "sm". Der User hat
+            // bestätigt, dass die Standardgröße korrekt war — nur die
+            // anderen Disc-Buttons (Location-Section, Rooms, Subseite)
+            // sollten auf "sm" angeglichen werden, nicht der Hero-CTA.
             size="sm"
             // Delay=0: CircleCTA startet seine interne Scale-Animation
             // sofort beim Mount. Da wir im unsichtbaren Wrapper sitzen,
@@ -383,9 +382,18 @@ export function Hero({ isReady }: HeroProps) {
         }}
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-y-[3vh] gap-x-[4vw] max-w-[1100px] mx-auto">
-          {/* 01 — LOCATION */}
+          {/* 01 — LOCATION
+              Color-Update 2026-04-26 (User-Request): Chapter-Header
+              auf Brand-Terracotta #B84A1F gewechselt — selbe Akzent-
+              Farbe wie „It's a house." (Location-Section), „stillness"
+              (Rooms) und das PAUSE im Hero. Damit liest sich die
+              Hero-Footer-Zeile als zusammenhängender Brand-Anker
+              statt als neutrales Mikrocopy-Cluster. */}
           <div className="text-left">
-            <div className="font-stencil text-[10px] uppercase tracking-[0.28em] text-[#D9D9D9] mb-[1vh]">
+            <div
+              className="font-stencil text-[10px] uppercase tracking-[0.28em] mb-[1vh]"
+              style={{ color: '#B84A1F' }}
+            >
               01 / Location
             </div>
             <p className="text-[#B7B7B7] text-[clamp(11px,0.85vw,13px)] leading-snug max-w-[280px]">
@@ -396,7 +404,10 @@ export function Hero({ isReady }: HeroProps) {
 
           {/* 02 — DISPOSITION (italic Brand-Voice-Statement) */}
           <div className="text-left md:text-center">
-            <div className="font-stencil text-[10px] uppercase tracking-[0.28em] text-[#D9D9D9] mb-[1vh]">
+            <div
+              className="font-stencil text-[10px] uppercase tracking-[0.28em] mb-[1vh]"
+              style={{ color: '#B84A1F' }}
+            >
               02 / Disposition
             </div>
             <p className="italic text-[#B7B7B7] text-[clamp(11px,0.85vw,13px)] leading-snug max-w-[280px] md:mx-auto">
@@ -404,15 +415,12 @@ export function Hero({ isReady }: HeroProps) {
             </p>
           </div>
 
-          {/* 03 — PLAY | PAUSE (Aktivitäten / Brand-Voice-Manifest).
-              Per User-Request 2026-04-23 ersetzt die alte "OPEN"-
-              Spalte (Saison / Reservierungs-Hinweis). Das neue
-              Label "PLAY | PAUSE" greift die Entry-Mikrocopy aus dem
-              Preloader auf und listet die vier Ritual-Aktivitäten als
-              SEO-relevante Keyword-Zeile (Co-work, Yoga, Surf, Run) —
-              verankert als Markenversprechen eines Stays auf Mawella. */}
+          {/* 03 — PLAY | PAUSE (Aktivitäten / Brand-Voice-Manifest). */}
           <div className="text-left md:text-right">
-            <div className="font-stencil text-[10px] uppercase tracking-[0.28em] text-[#D9D9D9] mb-[1vh]">
+            <div
+              className="font-stencil text-[10px] uppercase tracking-[0.28em] mb-[1vh]"
+              style={{ color: '#B84A1F' }}
+            >
               03 / Play&nbsp;|&nbsp;Pause
             </div>
             <p className="text-[#B7B7B7] text-[clamp(11px,0.85vw,13px)] leading-snug max-w-[280px] md:ml-auto">

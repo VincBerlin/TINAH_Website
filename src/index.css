@@ -64,7 +64,20 @@
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    overflow-x: hidden;
+    /* `overflow-x: clip` statt `hidden` (Fix 2026-04-27):
+       `hidden` macht den body laut CSS-Spec implizit zu einem
+       Scroll-Container (overflow-y wird automatisch von visible auf
+       auto). Folge: alle `position: sticky`-Elemente in der Seite
+       suchen ihren Scroll-Kontext am body — der aber nie wirklich
+       scrollt (das macht das html-Element). Sticky funktioniert
+       dann nicht und JS-Fallbacks ruckeln, weil sie im Main-Thread
+       laufen.
+       `overflow-x: clip` hat den gleichen visuellen Effekt
+       (horizontaler Overflow wird abgeschnitten, kein H-Scroll),
+       erstellt aber KEINEN Scroll-Container. Sticky-Elemente
+       ankern dann korrekt am html-Root und laufen auf dem
+       Compositor-Thread → flüssige scroll-gebundene Animationen. */
+    overflow-x: clip;
     /* iOS Safari + Android Chrome: verhindert „Overscroll-Bounce", der
        sonst weißen/schwarzen Rand am Scroll-Ende zeigen würde. */
     overscroll-behavior-y: none;
@@ -405,6 +418,61 @@
 
   .cta-breathe {
     animation: cta-breathe 7s ease-in-out infinite;
+  }
+
+  /* Mawella Sonar — radar-style pulse rings (User-Request 2026-04-27).
+     Drei konzentrische Ringe auf der Subseiten-Karte „expandieren"
+     vom roten Mawella-Punkt nach außen, fade-out in der Endphase.
+     Staggered delays (0s / 1.3s / 2.6s) erzeugen den Eindruck
+     kontinuierlicher Sonar-Wellen. transform-origin auf den
+     SVG-Elementen via transform-box: fill-box nötig, damit die
+     Skalierung um den eigenen Mittelpunkt herum erfolgt — nicht
+     um den globalen SVG-Ursprung. */
+  @keyframes mawella-sonar {
+    0% {
+      transform: scale(0.18);
+      opacity: 0.85;
+    }
+    70% {
+      opacity: 0.18;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  .mawella-sonar {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mawella-sonar 3.9s ease-out infinite;
+  }
+
+  .mawella-sonar.delay-1 {
+    animation-delay: 1.3s;
+  }
+
+  .mawella-sonar.delay-2 {
+    animation-delay: 2.6s;
+  }
+
+  /* Center-Dot „atmen" — leichter Pulse, damit der rote Punkt selbst
+     als aktive Quelle des Sonars wahrgenommen wird. */
+  @keyframes mawella-dot-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 0.92;
+    }
+  }
+
+  .mawella-dot-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mawella-dot-pulse 2.4s ease-in-out infinite;
   }
 }
 

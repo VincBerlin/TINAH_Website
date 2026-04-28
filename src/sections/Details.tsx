@@ -64,7 +64,18 @@ type Mode = 'both' | 'l' | 'r';
 
 export function Details() {
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
+  // Selbe Fade-Konvention wie Rooms.tsx + Testimonial.tsx, damit die
+  // gesamte Landing-Page denselben Scroll-Rhythmus teilt
+  // (User-Request 2026-04-26: „passe die dynamik auf jeder section
+  // auf der landing page gleichmäßig an").
   const contentOpacity = entrance - exit * 0.75;
+  // Entrance-Slide + Exit-Drift für die zwei Hälften.
+  // PLAY (links) kommt von links rein, driftet beim Verlassen weiter
+  // nach links; PAUSE (rechts) spiegelverkehrt. Identisches Pattern
+  // wie Rooms (`translateX(-exit * 12vw)` für die Headline).
+  const remaining = 1 - entrance;
+  const playShiftX = `${-remaining * 14 - exit * 10}vw`;
+  const pauseShiftX = `${remaining * 14 + exit * 10}vw`;
   const [mode, setMode] = useState<Mode>('both');
 
   const cycleMode = () =>
@@ -80,6 +91,7 @@ export function Details() {
     <section
       ref={ref}
       id="details"
+      data-nav-theme="light"
       className="relative w-screen min-h-screen-safe overflow-hidden"
       style={{ zIndex: 50, backgroundColor: '#F1E9D7' }}
       aria-label="Play or Pause — daily rhythm at This Is Not A Hotel, Mawella, southern Sri Lanka"
@@ -117,7 +129,12 @@ export function Details() {
           className="text-right cursor-pointer transition-opacity duration-500"
           style={{
             padding: '0 clamp(40px, 7vw, 120px)',
-            opacity: dimL ? 0.28 : 1,
+            // dim-state und entrance-Opazität multipliziert: bleibt
+            // dim-Logik erhalten und folgt zusätzlich dem Scroll-Fade
+            // der Section.
+            opacity: (dimL ? 0.28 : 1) * Math.max(0, contentOpacity),
+            transform: `translateX(${playShiftX})`,
+            willChange: 'transform, opacity',
           }}
         >
           <div
@@ -215,7 +232,12 @@ export function Details() {
           className="text-left cursor-pointer transition-opacity duration-500"
           style={{
             padding: '0 clamp(40px, 7vw, 120px)',
-            opacity: dimR ? 0.28 : 1,
+            // dim-state und entrance-Opazität multipliziert: bleibt
+            // dim-Logik erhalten und folgt zusätzlich dem Scroll-Fade
+            // der Section.
+            opacity: (dimR ? 0.28 : 1) * Math.max(0, contentOpacity),
+            transform: `translateX(${pauseShiftX})`,
+            willChange: 'transform, opacity',
           }}
         >
           <div

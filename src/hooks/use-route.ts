@@ -20,13 +20,14 @@ import { useCallback, useEffect, useState } from 'react';
  *   `_redirects`- oder `vercel.json`-Config — siehe public/_redirects).
  */
 
-export type Route = '/' | '/pause' | '/location';
+export type Route = '/' | '/pause' | '/location' | '/rooms';
 
 function currentPath(): Route {
   if (typeof window === 'undefined') return '/';
   const path = window.location.pathname;
   if (path === '/pause' || path.startsWith('/pause/')) return '/pause';
   if (path === '/location' || path.startsWith('/location/')) return '/location';
+  if (path === '/rooms' || path.startsWith('/rooms/')) return '/rooms';
   return '/';
 }
 

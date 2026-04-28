@@ -1,5 +1,38 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRoute } from '../../hooks/use-route';
+import { CircleCTA } from '../../components/CircleCTA';
+
+// ---------------------------------------------------------------
+// Chameleon-Header — selbe Mechanik wie in TopBar.tsx (Hauptseite),
+// nur lokal in dieser Subseite, weil die Location-Page einen eigenen,
+// schmaleren Header verwendet (THIS IS NOT A HOTEL™ links · ← Back
+// rechts). Hintergrund ist transparent — die Schrift adaptiert ihre
+// Farbe je nach DOM-Knoten direkt unter der Bar:
+//   - data-nav-theme="dark"  → helle Schrift (#F2EDE4)
+//   - data-nav-theme="light" → dunkle Schrift (#1C1B17)
+// ---------------------------------------------------------------
+const NAV_PROBE_Y = 36;
+type NavTheme = 'dark' | 'light';
+
+function detectNavTheme(): NavTheme {
+  if (typeof document === 'undefined') return 'light';
+  const x = window.innerWidth / 2;
+  const stack = document.elementsFromPoint(x, NAV_PROBE_Y);
+  for (const el of stack) {
+    // Den fixen Header SELBST überspringen — er sitzt zwar an dieser
+    // Y-Position, aber wir wollen wissen, was UNTER ihm liegt.
+    // Ohne das Skip-Pattern würde `closest('[data-nav-theme]')` vom
+    // Header aus nach oben laufen und ggf. einen themed Wrapper
+    // treffen, statt die Section unter dem Header zu erkennen.
+    if ((el as HTMLElement).closest('header[role="banner"]')) continue;
+    const themed = (el as HTMLElement).closest('[data-nav-theme]');
+    if (themed) {
+      const t = themed.getAttribute('data-nav-theme');
+      if (t === 'light' || t === 'dark') return t;
+    }
+  }
+  return 'light';
+}
 
 /**
  * /location — dedizierte Subseite „The Area".
@@ -41,6 +74,39 @@ const COLOR = {
 
 export function LocationPage() {
   const [, navigate] = useRoute();
+
+  // Chameleon-Theme-Detection für den lokalen Header. Identische
+  // Implementierung wie in `src/components/TopBar.tsx` — rAF-throttled
+  // scroll/resize-Listener, der bei jedem Tick das `data-nav-theme`
+  // unter dem Probe-Punkt liest und die Farbe live invertiert.
+  const [navTheme, setNavTheme] = useState<NavTheme>('light');
+  const navTicking = useRef(false);
+
+  useEffect(() => {
+    const update = () => {
+      navTicking.current = false;
+      setNavTheme(detectNavTheme());
+    };
+    const onScroll = () => {
+      if (navTicking.current) return;
+      navTicking.current = true;
+      requestAnimationFrame(update);
+    };
+    const initTimer = setTimeout(update, 0);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      clearTimeout(initTimer);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  // Schrift-Farben aus dem aktuellen Theme — dunkles Ink (#1C1B17)
+  // für helle Untergründe, warmes Cream (#F2EDE4) für dunkle.
+  const navTextColor = navTheme === 'dark' ? '#F2EDE4' : COLOR.ink;
+  const navTextSoftColor =
+    navTheme === 'dark' ? 'rgba(242,237,228,0.78)' : COLOR.inkSoft;
 
   // ---------------------------------------------------------------
   // SEO: Document-Head dynamisch setzen, weil Vite ohne SSR keine
@@ -110,7 +176,7 @@ export function LocationPage() {
       '@id': 'https://thisisnotahotel.com/location#mawella',
       name: 'Mawella Beach',
       description:
-        "A quiet kilometre of beach in southern Sri Lanka, between Hiriketiya and Tangalle. The location of This Is Not A Hotel.",
+        "A quiet kilometre of beach in southern Sri Lanka, between Hiriketiya and Tangalle. The location of This Is Not A Hotel\u2122.",
       url: 'https://thisisnotahotel.com/location',
       address: {
         '@type': 'PostalAddress',
@@ -158,6 +224,15 @@ export function LocationPage() {
 
   return (
     <div
+      // KEIN `data-nav-theme` auf dem Page-Wrapper.
+      // Grund: Der Header ist `position: fixed` und steht im DOM
+      // INNERHALB dieses Wrappers. Wäre der Wrapper themed, würde
+      // `elementsFromPoint` den Header als oberstes Element finden,
+      // `closest('[data-nav-theme]')` würde sofort den Wrapper treffen
+      // und immer „light" zurückgeben — die dunkle Pause-Section würde
+      // nie gefunden. Stattdessen: die Pause-Section trägt ihr eigenes
+      // `data-nav-theme="dark"`, alle hellen Sections fallen über den
+      // Default-Return ('light') in `detectNavTheme()` durch.
       className="relative min-h-screen w-full"
       style={{
         backgroundColor: COLOR.cream,
@@ -166,22 +241,32 @@ export function LocationPage() {
       }}
     >
       {/* ============================================================
-          HEADER — minimal, fixed, cream-gradient backdrop
-          ============================================================ */}
+          HEADER — transparent + chamäleon-Schrift
+          ============================================================
+          User-Request 2026-04-27: Hintergrund (Cream-Gradient + Blur)
+          komplett entfernt. Schrift wechselt live zwischen dunkel
+          (#1C1B17) auf hellen Sections und hell (#F2EDE4) auf dunklen
+          Sections — getriggert über den `navTheme`-State, der via
+          `elementsFromPoint` an Position (centerX, 36px) das
+          `data-nav-theme` der Section unter der Bar liest.
+          Identisches Pattern wie auf der Hauptseite (TopBar.tsx). */}
       <header
-        className="fixed top-0 left-0 right-0 z-[100] grid grid-cols-[1fr_auto] items-center"
+        role="banner"
+        aria-label="Location-Subseite Navigation"
+        className="fixed top-0 left-0 right-0 z-[100] grid grid-cols-[1fr_auto] items-center bg-transparent"
         style={{
           padding: '3vh 4vw 1.6vh',
-          background:
-            'linear-gradient(to bottom, rgba(242,237,228,.92), rgba(242,237,228,0))',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
           paddingTop: 'calc(env(safe-area-inset-top) + 3vh)',
+          transition: 'color .3s ease-out',
         }}
       >
         <div
-          className="font-stencil uppercase"
-          style={{ color: COLOR.ink, fontSize: 11, letterSpacing: '0.22em' }}
+          className="font-stencil uppercase transition-colors duration-300"
+          style={{
+            color: navTextColor,
+            fontSize: 11,
+            letterSpacing: '0.22em',
+          }}
         >
           THIS&nbsp;IS&nbsp;NOT&nbsp;A&nbsp;HOTEL
           <sup
@@ -197,12 +282,12 @@ export function LocationPage() {
             onClick={() => navigate('/')}
             className="font-stencil uppercase transition-colors duration-300 cursor-pointer"
             style={{
-              color: COLOR.inkSoft,
+              color: navTextSoftColor,
               fontSize: 11,
               letterSpacing: '0.22em',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = COLOR.ink)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = COLOR.inkSoft)}
+            onMouseEnter={(e) => (e.currentTarget.style.color = navTextColor)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = navTextSoftColor)}
             aria-label="Back to TINAH home"
           >
             <span aria-hidden style={{ marginRight: '0.6em' }}>
@@ -561,23 +646,42 @@ export function LocationPage() {
                 </text>
               </g>
 
-              {/* ===== MAWELLA HIGHLIGHT ===== */}
+              {/* ===== MAWELLA HIGHLIGHT — SONAR ANIMATION =====
+                  User-Request 2026-04-27: der rote Mawella-Punkt soll
+                  als „Sonar"/„Radar" pulsieren. Drei konzentrische
+                  Ringe expandieren vom Punkt aus nach außen (Keyframes
+                  in index.css: `mawella-sonar`, mit gestaffelten
+                  Delays). Der zentrale Punkt selbst pulsiert leicht
+                  mit (`mawella-dot-pulse`), damit er als aktive
+                  Quelle wahrgenommen wird. */}
               <g transform="translate(840 730)">
                 <circle
                   r={42}
                   fill="none"
                   stroke={COLOR.ochre}
                   strokeWidth={1}
-                  opacity={0.35}
-                  className="mawella-ring-outer"
+                  className="mawella-sonar"
+                />
+                <circle
+                  r={42}
+                  fill="none"
+                  stroke={COLOR.ochre}
+                  strokeWidth={1}
+                  className="mawella-sonar delay-1"
+                />
+                <circle
+                  r={42}
+                  fill="none"
+                  stroke={COLOR.ochre}
+                  strokeWidth={1}
+                  className="mawella-sonar delay-2"
                 />
                 <circle
                   r={22}
                   fill="none"
                   stroke={COLOR.ochre}
                   strokeWidth={1}
-                  opacity={0.6}
-                  className="mawella-ring-mid"
+                  opacity={0.45}
                 />
                 <line
                   x1={0}
@@ -588,7 +692,7 @@ export function LocationPage() {
                   stroke={COLOR.ochre}
                   strokeWidth={1}
                 />
-                <circle r={6} fill={COLOR.ochre} />
+                <circle r={6} fill={COLOR.ochre} className="mawella-dot-pulse" />
                 <text
                   x={0}
                   y={-100}
@@ -600,6 +704,17 @@ export function LocationPage() {
                   style={{ textTransform: 'uppercase' }}
                 >
                   This Is Not A Hotel
+                  {/* Trademark direkt am Wordmark — User-Request
+                      2026-04-27: ™ überall am Logo. baseline-shift +
+                      kleinere Font-Size emuliert superscript-Optik in
+                      SVG. */}
+                  <tspan
+                    fontSize={8}
+                    dy={-4}
+                    style={{ letterSpacing: 0 }}
+                  >
+                    ™
+                  </tspan>
                 </text>
                 <text
                   x={0}
@@ -825,6 +940,10 @@ export function LocationPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '5vw' }}>
+          {/* User-Request 2026-04-27: Travel-Notes (italic „note"-Block
+              unter jeder Route) komplett entfernt. RouteCards zeigen
+              jetzt nur noch Stop-Liste und Highlight, ohne narrative
+              Reise-Beschreibung. */}
           <RouteCard
             number="Route 01"
             title="Colombo, down the south coast."
@@ -839,7 +958,6 @@ export function LocationPage() {
             ]}
             highlight="Mawella"
             tail={['Tangalle']}
-            note="The classic south-coast run. Roughly three to four hours from Colombo Airport, depending on stops. Most people break it in Galle for lunch and arrive in Mawella before sunset."
           />
           <RouteCard
             number="Route 02"
@@ -854,111 +972,134 @@ export function LocationPage() {
             ]}
             highlight="Mawella"
             tail={['Hiriketiya']}
-            note="The inland route. Tea country, cooler air, the long descent out of the hills. Mawella is where the air slows and the road meets the ocean again — the right place to land after a week of altitude."
           />
         </div>
       </section>
 
       {/* ============================================================
           FOOTER PAUSE CTA
-          ============================================================ */}
+          ============================================================
+          User-Request 2026-04-27: Hintergrund-Foto „Window.JPG" füllt
+          die Section komplett aus. Das Bild zeigt den Blick aus einem
+          TINAH-Fenster — passt perfekt zur „Pause"-Erzählung
+          (Innehalten, hinausschauen, ankommen). SEO-relevant über
+          beschreibendes alt-Tag + lazy/async loading.
+
+          Text-Farben sind invertiert (helle Schrift auf dunklem
+          Photo-Overlay), CircleCTA wechselt von `glass-on-light` auf
+          `glass` (heller Border, weiße Schrift), und „Back to TINAH"
+          bekommt warm-weiße Tönung. data-nav-theme="dark" damit die
+          chamäleon-TopBar oben helle Schrift fährt, sobald sie über
+          dieses Foto scrollt. */}
       <section
-        className="text-center"
+        className="relative text-center overflow-hidden"
+        data-nav-theme="dark"
         style={{
           padding: '14vh 6vw 12vh',
+          // Fallback-Hintergrund während das Foto lädt — gleiches
+          // warmes Cream wie zuvor, damit kein „Flash of Cream"
+          // entsteht.
           backgroundColor: COLOR.cream2,
         }}
-        aria-label="Pause now — book your stay"
+        aria-label="Pause now — book your stay at This Is Not A Hotel, Mawella, Sri Lanka"
       >
+        {/* Foto-Hintergrund — füllt die Section komplett. */}
+        <img
+          src="/images/Window.JPG"
+          alt="Blick aus einem Fenster im This Is Not A Hotel — Mawella Beach, Sri Lanka, ruhiger Pause-Moment am Meer"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: 'center' }}
+        />
+        {/* Dunkles Overlay für Text-Lesbarkeit ohne das Foto zu
+            erschlagen — leichte Vignette nach oben und unten,
+            mittig airy, damit der Look weiterhin „Cream-Section
+            mit Foto-Akzent" bleibt und nicht zu kinematisch wird. */}
         <div
-          className="uppercase"
+          aria-hidden
+          className="absolute inset-0"
           style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
-            letterSpacing: '0.28em',
-            color: COLOR.inkSoft,
-            marginBottom: '4vh',
+            background:
+              'linear-gradient(to bottom, rgba(11,11,12,0.55) 0%, rgba(11,11,12,0.35) 45%, rgba(11,11,12,0.6) 100%)',
           }}
-        >
-          § II.c — The Pause
-        </div>
-        <h2
-          className="font-stencil mx-auto"
-          style={{
-            fontSize: 'clamp(28px, 4vw, 56px)',
-            lineHeight: 1.1,
-            letterSpacing: '0.02em',
-            color: COLOR.ink,
-            maxWidth: '14ch',
-            margin: 0,
-          }}
-        >
-          The stop in Mawella is,{' '}
-          <span style={{ color: COLOR.ochre }}>on balance,</span> non-negotiable.
-        </h2>
-        <div
-          className="flex items-center justify-center flex-wrap"
-          style={{ marginTop: '6vh', gap: 24 }}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              navigate('/');
-              // After navigation, smooth-scroll to #book on the home page.
-              // setTimeout damit der Render-Tick zuerst stattfindet.
-              setTimeout(() => {
-                const book = document.getElementById('book');
-                if (book) book.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }, 50);
-            }}
-            className="font-stencil uppercase grid place-items-center cursor-pointer transition-all"
+        />
+
+        {/* Eigentlicher Section-Inhalt — relativ positioniert über
+            dem Overlay. */}
+        <div className="relative z-10">
+          <div
+            className="uppercase"
             style={{
-              width: 'clamp(150px, 16vw, 210px)',
-              height: 'clamp(150px, 16vw, 210px)',
-              borderRadius: '50%',
-              border: '1px solid rgba(28,27,23,.4)',
-              background: 'rgba(255,255,255,.4)',
-              color: COLOR.ink,
-              fontSize: 12,
-              letterSpacing: '0.24em',
-              transition: 'transform .2s, background .2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.04)';
-              e.currentTarget.style.background = 'rgba(255,255,255,.7)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.background = 'rgba(255,255,255,.4)';
-            }}
-            aria-label="Pause Now — request your stay"
-          >
-            Pause Now
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="font-stencil uppercase cursor-pointer"
-            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 11,
-              letterSpacing: '0.22em',
-              color: COLOR.inkSoft,
-              borderBottom: `1px solid ${COLOR.rule}`,
-              paddingBottom: 4,
-              transition: 'color .3s, border-color .3s',
-              background: 'transparent',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = COLOR.ink;
-              e.currentTarget.style.borderColor = COLOR.ink;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = COLOR.inkSoft;
-              e.currentTarget.style.borderColor = COLOR.rule;
+              letterSpacing: '0.28em',
+              color: 'rgba(242,237,228,0.78)',
+              marginBottom: '4vh',
             }}
           >
-            Back to TINAH
-          </button>
+            § II.c — The Pause
+          </div>
+          <h2
+            className="font-stencil mx-auto"
+            style={{
+              fontSize: 'clamp(28px, 4vw, 56px)',
+              lineHeight: 1.1,
+              letterSpacing: '0.02em',
+              color: '#F2EDE4',
+              maxWidth: '14ch',
+              margin: 0,
+            }}
+          >
+            The stop in Mawella is,{' '}
+            <span style={{ color: COLOR.ochre }}>on balance,</span> non-negotiable.
+          </h2>
+          <div
+            className="flex items-center justify-center flex-wrap"
+            style={{ marginTop: '6vh', gap: 24 }}
+          >
+            {/* CircleCTA jetzt in `glass`-Variante — heller Border,
+                weiße Schrift, passt zum dunklen Photo-Overlay. */}
+            <CircleCTA
+              text="PAUSE NOW"
+              variant="glass"
+              size="sm"
+              onClick={() => {
+                navigate('/');
+                // setTimeout damit der Render-Tick zuerst stattfindet,
+                // bevor wir das Smooth-Scroll-Target im neuen Layout
+                // suchen.
+                setTimeout(() => {
+                  const book = document.getElementById('book');
+                  if (book) book.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="font-stencil uppercase cursor-pointer"
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                color: 'rgba(242,237,228,0.78)',
+                borderBottom: '1px solid rgba(242,237,228,0.35)',
+                paddingBottom: 4,
+                transition: 'color .3s, border-color .3s',
+                background: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#FFFFFF';
+                e.currentTarget.style.borderColor = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'rgba(242,237,228,0.78)';
+                e.currentTarget.style.borderColor = 'rgba(242,237,228,0.35)';
+              }}
+            >
+              Back to TINAH
+            </button>
+          </div>
         </div>
       </section>
 
@@ -1003,8 +1144,11 @@ export function LocationPage() {
 }
 
 // ---------------------------------------------------------------
-// Route card — typografische Karte mit Nummer, Titel, Stops, Note.
+// Route card — typografische Karte mit Nummer, Titel und Stops.
 // Highlight zeigt unsere Position in der Route (Mawella) in Ochre.
+// User-Request 2026-04-27: travel-`note` (italic Beschreibung unter
+// der Stop-Liste) komplett entfernt — Karte endet jetzt mit der
+// Stop-Liste, kein erzählender Reisetext mehr.
 // ---------------------------------------------------------------
 interface RouteCardProps {
   number: string;
@@ -1012,10 +1156,9 @@ interface RouteCardProps {
   stops: string[];
   highlight: string;
   tail?: string[];
-  note: string;
 }
 
-function RouteCard({ number, title, stops, highlight, tail = [], note }: RouteCardProps) {
+function RouteCard({ number, title, stops, highlight, tail = [] }: RouteCardProps) {
   return (
     <article
       style={{
@@ -1067,19 +1210,6 @@ function RouteCard({ number, title, stops, highlight, tail = [], note }: RouteCa
           <div key={stop}>{stop}</div>
         ))}
       </div>
-      <p
-        style={{
-          marginTop: '3em',
-          fontFamily: "'EB Garamond', Georgia, serif",
-          fontStyle: 'italic',
-          fontSize: 'clamp(14px, 1.05vw, 17px)',
-          lineHeight: 1.55,
-          color: COLOR.inkSoft,
-          maxWidth: '38ch',
-        }}
-      >
-        {note}
-      </p>
     </article>
   );
 }

@@ -54,6 +54,7 @@ export function Testimonial() {
     <section
       ref={ref}
       id="testimonial"
+      data-nav-theme="dark"
       className="relative w-screen h-screen-safe overflow-hidden bg-[#0B0B0C] text-white"
       style={{ zIndex: 70 }}
       aria-label="Gäste-Stimmen"
