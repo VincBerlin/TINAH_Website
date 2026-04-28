@@ -236,3 +236,32 @@ Place the following images in `public/images/`:
 - Icon fields in config use string names (e.g. "Wine", "MapPin") that are resolved via icon lookup maps in each component
 - The contact form and newsletter use Formspree endpoints - replace with your own form IDs
 - Images should be optimized for web (JPG for photos, PNG for transparent images)
+
+## Railway Deployment
+
+This project is prepared for Railway as a static Vite app with preview serving:
+
+- Build command: `npm ci && npm run build`
+- Start command: `npm run start`
+- Runtime port: `PORT` (handled via `vite preview --port ${PORT:-4173}`)
+- Config file: `railway.json`
+
+### Steps
+
+1. Create a new Railway project and connect this repository.
+2. Ensure the service uses the root directory of this repo.
+3. Deploy; Railway will run the build and then start the preview server.
+
+## CI/CD Quality Gates
+
+Automated checks are now included for deployment safety and performance:
+
+- `npm run test:ci` runs lint, production build, and performance guard checks.
+- `npm run test:perf` validates:
+  - JS/CSS bundle size budgets in `dist/assets`
+  - critical hero media size budgets (`hiru.mp4`, `hiru-poster.jpg`)
+  - required hero video performance hints (`preload="metadata"`)
+- GitHub Actions workflow (`.github/workflows/ci.yml`) runs:
+  - Quality job on push/PR
+  - Lighthouse CI with score assertions for Performance, Accessibility, Best Practices, and SEO.
+

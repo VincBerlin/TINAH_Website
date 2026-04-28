@@ -78,6 +78,7 @@ export function AmbientSound({
   // würde der User vom Default-Level 'full' versehentlich auf 'soft'
   // springen, ohne je Ton gehört zu haben.
   const hasStartedRef = useRef(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
 
   // Fade-Helfer: interpoliert die Lautstärke linear zwischen Start und Ziel.
@@ -133,6 +134,7 @@ export function AmbientSound({
     if (p && typeof p.then === 'function') {
       p.then(() => {
         hasStartedRef.current = true;
+        setHasStarted(true);
       }).catch(() => {
         // Autoplay-Block oder anderer Fehler — wir versuchen es bei der
         // nächsten Geste erneut. hasStartedRef bleibt false.
@@ -140,6 +142,7 @@ export function AmbientSound({
       });
     } else {
       hasStartedRef.current = true;
+      setHasStarted(true);
     }
     return true;
   };
@@ -251,12 +254,12 @@ export function AmbientSound({
       : 'hover:text-[#0B0B0C] hover:border-[#0B0B0C]';
   const activeDotColor = variant === 'dark' ? 'bg-white' : 'bg-[#0B0B0C]';
 
-  const isActive = level !== 'off' && hasStartedRef.current;
+  const isActive = level !== 'off' && hasStarted;
 
   // „Noch nie gestartet" heißt: der User hat nie bewusst geklickt und
   // der Browser hat auch nicht automatisch entmutet. In dem Fall pulst
   // der Button dezent, um ihn zu finden — ohne aufdringlich zu sein.
-  const needsNudge = !hasStartedRef.current && !hasInteracted;
+  const needsNudge = !hasStarted && !hasInteracted;
 
   return (
     <>

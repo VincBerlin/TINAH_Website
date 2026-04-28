@@ -15,7 +15,10 @@ export function Hero({ isReady }: HeroProps) {
   // Fehler, Netzwerk, User hat „Reduce Motion" aktiv), fallen wir sauber
   // auf das Poster-Bild zurück — das sieht exakt wie vorher aus, nur
   // ohne Bewegung. Kein schwarzer Hero, keine Fehlermeldung.
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 
   // Auto-play entrance animation.
   //
@@ -62,7 +65,6 @@ export function Hero({ isReady }: HeroProps) {
 
     if (prefersReducedMotion.matches) {
       video.pause();
-      setVideoFailed(true);
       return;
     }
 
