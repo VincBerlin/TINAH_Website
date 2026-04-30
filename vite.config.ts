@@ -26,4 +26,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Railway-Preview-Server lehnt sonst Requests mit fremdem Host-Header
+  // ab (Vite-Default: nur localhost erlaubt). Die Production-URL und
+  // alle .up.railway.app-Branch-/PR-Preview-URLs werden whitelistet.
+  preview: {
+    allowedHosts: [
+      "tinahwebsite-production.up.railway.app",
+      ".up.railway.app",
+    ],
+  },
 });
