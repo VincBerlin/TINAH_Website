@@ -288,7 +288,30 @@ export function Details() {
           >
             Pause
           </div>
-          <div className="mt-[5vh] flex flex-col" style={{ gap: 14 }}>
+          {/*
+            Layout-Symmetrie 2026-04-29 (User-Request: „verschiebe die
+            unterpunkte ebenfalls nach links spiegelnd von play
+            unterpunkten").
+
+            Vorher: `flex flex-col` ohne items-Alignment → Items
+            stretchten auf cross-axis full-width, mit `row-reverse`
+            innen wurden ihre Children dadurch rechts-bündig. Die
+            time-Labels „sunrise / always / all day / always"
+            endeten alle an einer rechten Achse — symmetrisch zur
+            falschen Seite, also doppelt rechts-bündig wie PLAY.
+
+            Jetzt: `items-start` macht die Items LEFT-aligned (kein
+            cross-axis stretch mehr). Mit weiterhin `row-reverse`
+            innen ist die Inner-Reihenfolge label → time visuell, die
+            label-Wörter („YOGA / MEDITATION / AT THE BEACH / NOTHING
+            AT ALL") richten sich an einer linken Achse aus, time-
+            Labels sitzen rechts daneben. Damit ist die PAUSE-Spalte
+            zur PLAY-Spalte (`items-end`) sauber gespiegelt.
+          */}
+          <div
+            className="mt-[5vh] flex flex-col items-start"
+            style={{ gap: 14 }}
+          >
             {PAUSE.map((a) => (
               <div
                 key={a.label}
