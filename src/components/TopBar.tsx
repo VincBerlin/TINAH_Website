@@ -33,16 +33,29 @@ const PROBE_Y = 36;
 
 type NavTheme = 'dark' | 'light';
 
-function detectThemeUnderProbe(): NavTheme {
+/**
+ * Probet das Theme unter einem konkreten X-Punkt der TopBar.
+ *
+ * Refactor 2026-04-29 (User-Bug-Report): vorher gab es nur EINEN
+ * Probe in der Viewport-Mitte. Wenn der Hintergrund unter der Bar
+ * horizontal gemischt war (links Cream-Section, rechts Dark-Section
+ * z. B. an einem Section-Übergang), bekam die ganze Bar EINE Schrift-
+ * Farbe — und in einer der beiden Hälften wurde die Schrift
+ * unlesbar.
+ *
+ * Jetzt probet jedes TopBar-Element seine LOKALE X-Position
+ * (Element-Mitte aus getBoundingClientRect) und kriegt dort sein
+ * eigenes Theme. Ergebnis: Wordmark, Coordinates, Nav-Buttons und
+ * Ambient-Sound-Toggle haben unabhängige Schrift-Farben, je nachdem
+ * was direkt unter ihnen liegt.
+ */
+function detectThemeAtX(x: number): NavTheme {
   if (typeof document === 'undefined') return 'dark';
-  const x = window.innerWidth / 2;
-  const y = PROBE_Y;
-  // elementsFromPoint liefert ALLE Elemente an dieser Position
-  // (top → bottom in der Stack-Reihenfolge). Wir suchen das erste
-  // mit data-nav-theme — entweder direkt das Element selbst oder
-  // einer seiner Vorfahren.
-  const stack = document.elementsFromPoint(x, y);
+  const stack = document.elementsFromPoint(x, PROBE_Y);
   for (const el of stack) {
+    // Header selbst überspringen — der TopBar liegt zwar an dieser
+    // Y-Position, aber wir wollen wissen, was UNTER ihm liegt.
+    if ((el as HTMLElement).closest('header[role="banner"]')) continue;
     const themed = (el as HTMLElement).closest('[data-nav-theme]');
     if (themed) {
       const theme = themed.getAttribute('data-nav-theme');
@@ -52,6 +65,23 @@ function detectThemeUnderProbe(): NavTheme {
   return 'dark';
 }
 
+/** Mitte (X) eines Elements aus seiner Bounding-Box. */
+function midX(el: Element | null): number {
+  if (!el || typeof window === 'undefined') {
+    return typeof window !== 'undefined' ? window.innerWidth / 2 : 0;
+  }
+  const r = el.getBoundingClientRect();
+  return r.left + r.width / 2;
+}
+
+/** Tailwind-Klassen für eine gegebene Theme-Variante. */
+function colorsFor(theme: NavTheme) {
+  return {
+    text: theme === 'light' ? 'text-[#1C1B17]' : 'text-[#F2EDE4]',
+    hover: theme === 'light' ? 'hover:text-[#0B0B0C]' : 'hover:text-white',
+  };
+}
+
 export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
   // _variant aus der App-Prop wird im Chameleon-Modus nicht mehr
   // benötigt (das Theme wird live aus dem DOM abgeleitet), bleibt
@@ -59,12 +89,33 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
   void _variant;
 
   const [isMounted, setIsMounted] = useState(false);
-  const [theme, setTheme] = useState<NavTheme>('dark');
+
+  // Pro-Element Themes (Refactor 2026-04-29).
+  //   wordmark : Theme unter „THIS IS NOT A HOTEL" + Instagram-Icon
+  //              (linke Spalte)
+  //   coords   : Theme unter dem Mawella-Koordinaten-Label
+  //   nav      : Theme unter der rechten Nav-Spalte und dem
+  //              Floating-AmbientSound-Toggle
+  // So bleibt jede Schrift lesbar, auch wenn die Bar gerade über
+  // einem horizontalen cream/dark-Übergang sitzt.
+  const [themes, setThemes] = useState<{
+    wordmark: NavTheme;
+    coords: NavTheme;
+    nav: NavTheme;
+  }>({ wordmark: 'dark', coords: 'dark', nav: 'dark' });
+
   // Routing für die LOCATION-Nav: per pushState auf die Subseite
   // navigieren, statt nur einen Anker auf der Startseite anzuspringen.
   const [, navigate] = useRoute();
 
   const ticking = useRef(false);
+
+  // Refs an die drei Haupt-Element-Cluster der TopBar — wir lesen
+  // ihre tatsächliche Bounding-Box-Mitte zur Laufzeit aus, damit
+  // das Probing exakt unter dem jeweiligen Element sitzt.
+  const wordmarkRef = useRef<HTMLDivElement>(null);
+  const coordsRef = useRef<HTMLSpanElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   // Initial fade-in
   useEffect(() => {
@@ -72,15 +123,28 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll/Resize-Tracking — wir leiten bei jedem Scroll-Tick das
-  // Theme aus dem DOM ab. rAF-Throttle hält den Aufwand minimal,
-  // setTheme triggert nur dann ein Re-Render, wenn sich der Wert
-  // tatsächlich ändert (React-Default-Bail-Out auf identischen
-  // State).
+  // Scroll/Resize-Tracking — drei Probes pro Frame (links/mitte/rechts)
+  // statt einem in der Viewport-Mitte. rAF-Throttle hält den Aufwand
+  // minimal; setThemes bail-out auf identischen Object-Inhalt
+  // (shallow-equal über die drei Theme-Werte) wäre möglich, aber React
+  // skipt das Re-Render bereits wenn alle drei Werte gleich bleiben.
   useEffect(() => {
     const update = () => {
       ticking.current = false;
-      setTheme(detectThemeUnderProbe());
+      const next = {
+        wordmark: detectThemeAtX(midX(wordmarkRef.current)),
+        coords: detectThemeAtX(midX(coordsRef.current)),
+        nav: detectThemeAtX(midX(navRef.current)),
+      };
+      // Manuelles Bail-Out: nur State-Update wenn sich tatsächlich
+      // etwas geändert hat. Spart Re-Renders bei statischem Scroll.
+      setThemes((prev) =>
+        prev.wordmark === next.wordmark &&
+        prev.coords === next.coords &&
+        prev.nav === next.nav
+          ? prev
+          : next,
+      );
     };
 
     const onScroll = () => {
@@ -101,14 +165,11 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
     };
   }, []);
 
-  // Schrift-Farbe + Hover-Variante chamäleonisch.
-  // Auf hellen Sections: dunkle Schrift (#1C1B17), Hover noch dunkler.
-  // Auf dunklen Sections: helle Schrift (#F2EDE4), Hover voll-weiss.
-  const textColor =
-    theme === 'light' ? 'text-[#1C1B17]' : 'text-[#F2EDE4]';
-  const hoverColor =
-    theme === 'light' ? 'hover:text-[#0B0B0C]' : 'hover:text-white';
-  const navItemClass = `font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${textColor} ${hoverColor}`;
+  // Pro Element die passenden Tailwind-Color-Klassen ableiten.
+  const wm = colorsFor(themes.wordmark);
+  const co = colorsFor(themes.coords);
+  const nv = colorsFor(themes.nav);
+  const navItemClass = `font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${nv.text} ${nv.hover}`;
 
   // Hintergrund DURCHGEHEND TRANSPARENT — User-Request 2026-04-27.
   const bgClass = 'bg-transparent';
@@ -172,42 +233,50 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
       <div className="px-[4vw] pt-[3vh] pb-4 grid grid-cols-3 items-center">
         {/* Linke Spalte — Instagram + Hotel-Name + Koordinaten.
             Instagram-Icon sitzt links neben dem Wordmark
-            (User-Request 2026-04-28). currentColor übernimmt das
-            Chameleon-Farbschema automatisch. */}
+            (User-Request 2026-04-28). Refactor 2026-04-29: Instagram +
+            Wordmark sind in einem `wordmarkRef`-Wrapper gruppiert,
+            das Coordinates-Label hat seinen eigenen `coordsRef`.
+            Beide kriegen unabhängig ihr lokales Theme. */}
         <div className="justify-self-start flex items-center gap-[1.6vw]">
-          <a
-            href="https://www.instagram.com/thisisnotahotelsl/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram · This Is Not A Hotel"
-            className={`${textColor} ${hoverColor} transition-colors duration-300`}
-            style={{ lineHeight: 0 }}
+          <div
+            ref={wordmarkRef}
+            className="flex items-center gap-[1.6vw]"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={16}
-              height={16}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.6}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
+            <a
+              href="https://www.instagram.com/thisisnotahotelsl/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram · This Is Not A Hotel"
+              className={`${wm.text} ${wm.hover} transition-colors duration-300`}
+              style={{ lineHeight: 0 }}
             >
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-            </svg>
-          </a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={16}
+                height={16}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+            </a>
+            <span
+              className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${wm.text}`}
+              aria-label="This Is Not A Hotel"
+            >
+              THIS&nbsp;IS&nbsp;NOT&nbsp;A&nbsp;HOTEL<sup className="text-[0.75em] align-top ml-[0.15em] tracking-normal">™</sup>
+            </span>
+          </div>
           <span
-            className={`font-stencil text-[11px] uppercase tracking-[0.22em] ${textColor}`}
-            aria-label="This Is Not A Hotel"
-          >
-            THIS&nbsp;IS&nbsp;NOT&nbsp;A&nbsp;HOTEL<sup className="text-[0.75em] align-top ml-[0.15em] tracking-normal">™</sup>
-          </span>
-          <span
-            className={`font-stencil text-[11px] uppercase tracking-[0.22em] ${textColor}`}
+            ref={coordsRef}
+            className={`font-stencil text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${co.text}`}
             aria-label="Mawella, latitude 06 degrees north, longitude 80 degrees 45 minutes east"
           >
             MAWELLA 06°00&apos;N&nbsp;·&nbsp;80°45&apos;E
@@ -224,6 +293,7 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
             Verortung im Sales-Funnel der erste Trust-Anker ist
             („wo bist du eigentlich?"). */}
         <nav
+          ref={navRef}
           aria-label="Primär"
           className="justify-self-end flex items-center gap-[2.4vw]"
         >
@@ -308,7 +378,7 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
           Target-Mindestmaß (Apple HIG fordert ≥ 36 px), aber
           vollständig transparent. */}
       <div className="flex items-center justify-center h-9 w-9 text-[#D9D9D9] hover:text-white transition-colors">
-        <AmbientSound variant={theme} subtle />
+        <AmbientSound variant={themes.nav} subtle />
       </div>
     </div>
     </>

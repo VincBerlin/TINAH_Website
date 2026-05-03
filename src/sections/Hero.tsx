@@ -259,12 +259,19 @@ export function Hero({ isReady }: HeroProps) {
             führt und die Tagline die zweite Leseschicht bildet.
 
             SEO-Text: direkte, keyword-dichte Zeile, die Google sofort
-            lesen kann („Pause Your Stay at Our Hotel on Mawella Beach
+            lesen kann („Pause Your Stay at Our House on Mawella Beach
             Between Tangalle and Hiriketiya Sri Lanka"). Packt alle
-            drei Ortsnamen, das Land und das Keyword „Hotel" in einen
-            einzigen natürlichen Satz ohne Bindestriche — die
+            drei Ortsnamen, das Land und das Brand-Wort „House" in
+            einen einzigen natürlichen Satz ohne Bindestriche — die
             hyphenfreie Schreibweise hält Googles Tokenizer auf den
-            vollen Begriffen (Mawella Beach, Sri Lanka). */}
+            vollen Begriffen (Mawella Beach, Sri Lanka).
+
+            Wording-Update 2026-04-29 (User-Request): „Hotel" → „House"
+            in der Tagline, konsistent mit der Brand-Voice
+            („Less a hotel, more an argument against them",
+             „A five-room house on Mawella Beach"). Der H1-Wordmark
+            „THIS IS NOT A HOTEL™" bleibt unverändert — das ist der
+            geschützte Brand-Name. */}
         {/*
           2026-04-23 (User-Request): Tagline-Schrift an den Stil der
           übrigen kleinen Fließtexte angeglichen — gleiche Größen-
@@ -294,7 +301,7 @@ export function Hero({ isReady }: HeroProps) {
             letterSpacing: 'normal',
           }}
         >
-          Pause Your Stay at Our Hotel on Mawella Beach Between Tangalle
+          Pause Your Stay at Our House on Mawella Beach Between Tangalle
           and Hiriketiya Sri Lanka.
         </p>
       </h1>
