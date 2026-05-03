@@ -76,10 +76,30 @@ export function Rooms() {
 
       {/* Left content — slides in MUCH earlier */}
       <div className="absolute left-[7vw] top-1/2 -translate-y-1/2 z-20">
+        {/* Eyebrow „§ II — The Rooms" — einheitliches Pattern über
+            alle Site-Sections (User-Request 2026-04-28). */}
+        <div
+          className="font-stencil uppercase inline-flex items-center mb-[3vh]"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.28em',
+            color: 'rgba(242,237,228,0.78)',
+            gap: 14,
+            transform: `translateX(${(1 - entrance) * -18}vw) translateX(${-exit * 12}vw)`,
+            opacity: Math.max(0.2, entrance - exit * 0.35),
+          }}
+        >
+          <span
+            aria-hidden
+            className="inline-block h-px w-8"
+            style={{ backgroundColor: 'rgba(242,237,228,0.78)' }}
+          />
+          § II — The Rooms
+        </div>
         <div
           style={{
             transform: `translateX(${(1 - entrance) * -18}vw) translateX(${-exit * 12}vw)`,
-            opacity: entrance - exit * 0.75,
+            opacity: Math.max(0.2, entrance - exit * 0.35),
           }}
         >
           {/*
@@ -107,11 +127,11 @@ export function Rooms() {
           className="mt-8"
           style={{
             transform: `translateY(${(1 - entrance) * 5}vh) translateY(${exit * 6}vh)`,
-            opacity: entrance - exit * 0.75,
+            opacity: Math.max(0.2, entrance - exit * 0.35),
           }}
         >
           <p className="text-[#B7B7B7] text-base max-w-[400px]">
-            Minimal, warm, and quiet—so you can actually rest.
+            Minimal, warm, quiet. Built for the kind of rest you came for.
           </p>
         </div>
       </div>
@@ -121,7 +141,7 @@ export function Rooms() {
         className="absolute right-[8vw] top-[56vh] -translate-y-1/2 z-20"
         style={{
           transform: `translateY(-50%) translateX(${(1 - entrance) * 22}vw) translateX(${exit * 20}vw) scale(${0.78 + entrance * 0.22 - exit * 0.15})`,
-          opacity: entrance - exit * 0.8,
+          opacity: Math.max(0.2, entrance - exit * 0.4),
         }}
       >
         <CircleCTA

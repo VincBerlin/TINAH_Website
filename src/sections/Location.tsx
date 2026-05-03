@@ -110,13 +110,28 @@ export function Location() {
         className="relative z-10 mx-auto flex flex-col items-center text-center max-w-[1100px] px-[6vw] py-[10vh] md:py-[14vh]"
       >
         {/* ============================================================
-            Section-Marker „§ I — AN INTRODUCTION" — ENTFERNT 2026-04-27
+            Section-Marker „§ I — The House"
             ============================================================
-            Auf User-Request komplett entfernt. Der Eyebrow-Pattern
-            wurde als zu redaktionell/akademisch empfunden; die
-            Headline-Stanza („It's a house. / A long table. / A
-            kilometre of empty beach.") trägt die Sektion jetzt allein
-            ohne vorgeschalteten Paragraf-Marker. */}
+            Wieder eingeführt 2026-04-28 (User-Request): einheitliches
+            Eyebrow-Pattern über alle Site-Sections (§ I — § VI). Mikro-
+            Label, IBM-Plex-Mono-Optik, ruhig links bei den anderen
+            Eyebrows angesiedelt. */}
+        <div
+          className="font-stencil uppercase inline-flex items-center mb-[5vh] md:mb-[6vh]"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.28em',
+            color: '#5A5448',
+            gap: 14,
+          }}
+        >
+          <span
+            aria-hidden
+            className="inline-block h-px w-8"
+            style={{ backgroundColor: '#1C1B17' }}
+          />
+          § I — The House
+        </div>
 
         {/* ============================================================
             Headline-Stack — vertikal gestapelt, zentriert

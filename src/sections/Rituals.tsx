@@ -1,7 +1,13 @@
 import { useSectionProgress } from '../hooks/use-section-progress';
 
 /**
- * Rituals section — § IV "The Day, Roughly".
+ * Rituals section — § III "The Day, Roughly".
+ *
+ * Section-Renumbering 2026-04-28 (User-Request): Sections der ganzen
+ * Site auf das einheitliche Schema umgestellt:
+ *   § I  — The House (Location), § II — The Rooms (Rooms),
+ *   § III — The Day, Roughly (Rituals), § IV — Play / Pause (Details),
+ *   § V  — Words from Guests (Testimonial), § VI — The Booking (Contact).
  *
  * Sits between Experience (House Principles) and Details (Play /
  * Pause). Both neighbours are cream sections, so this extends the
@@ -156,7 +162,7 @@ export function Rituals() {
                 className="font-stencil text-[10px] uppercase tracking-[0.28em]"
                 style={{ color: INK }}
               >
-                § IV — The Day, Roughly
+                § III — The Day, Roughly
               </span>
             </div>
 
@@ -187,7 +193,7 @@ export function Rituals() {
               style={{ color: INK_SOFT }}
             >
               Nothing is scheduled. Everything just tends to happen. Join in,
-              or don&apos;t — the house runs on its own time.
+              or don&apos;t. The house runs on its own time.
             </p>
           </div>
 

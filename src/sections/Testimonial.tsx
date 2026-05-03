@@ -97,9 +97,28 @@ export function Testimonial() {
           // position — matches the "top" arrival of the middle card so
           // the whole top stack lands together.
           transform: `translateX(-50%) translateY(${(1 - entrance) * -18}vh) translateY(${exit * 6}vh)`,
-          opacity: entrance - exit * 0.75,
+          opacity: Math.max(0.2, entrance - exit * 0.35),
         }}
       >
+        {/* Eyebrow „§ V — Words from Guests" über dem Google-Reviews-
+            Subtitle. Einheitliches Section-Pattern (User-Request
+            2026-04-28). */}
+        <div
+          className="font-stencil uppercase inline-flex items-center justify-center mb-3"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.28em',
+            color: '#D9D9D9',
+            gap: 14,
+          }}
+        >
+          <span
+            aria-hidden
+            className="inline-block h-px w-8"
+            style={{ backgroundColor: 'rgba(217,217,217,0.6)' }}
+          />
+          § V — Words from Guests
+        </div>
         <span className="block font-mono text-[11px] uppercase tracking-[0.28em] text-[#D9D9D9]">
           Google · Reviews
         </span>
@@ -121,7 +140,7 @@ export function Testimonial() {
         style={{
           top: '58vh',
           transform: `translate(-50%, -50%) translateY(${-exit * 8}vh)`,
-          opacity: 1 - exit * 0.8,
+          opacity: Math.max(0.25, 1 - exit * 0.4),
         }}
       >
         <ul
@@ -222,7 +241,7 @@ function ReviewCard({
       {/* Author — pinned to the bottom of the card so names line up
           horizontally across all three cards regardless of quote length. */}
       <p className="mt-auto pt-4 font-stencil uppercase text-[11px] tracking-[0.22em] text-[#D9D9D9]">
-        — {review.author}
+        {review.author}
       </p>
     </li>
   );

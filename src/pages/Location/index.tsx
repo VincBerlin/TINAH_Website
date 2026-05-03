@@ -253,13 +253,40 @@ export function LocationPage() {
       <header
         role="banner"
         aria-label="Location-Subseite Navigation"
-        className="fixed top-0 left-0 right-0 z-[100] grid grid-cols-[1fr_auto] items-center bg-transparent"
+        className="fixed top-0 left-0 right-0 z-[100] grid grid-cols-[auto_1fr_auto] items-center bg-transparent"
         style={{
           padding: '3vh 4vw 1.6vh',
           paddingTop: 'calc(env(safe-area-inset-top) + 3vh)',
           transition: 'color .3s ease-out',
+          gap: '2vw',
         }}
       >
+        {/* Instagram-Icon links (User-Request 2026-04-28). */}
+        <a
+          href="https://www.instagram.com/thisisnotahotel/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram · This Is Not A Hotel"
+          className="transition-colors duration-300"
+          style={{ color: navTextColor, lineHeight: 0 }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+          </svg>
+        </a>
         <div
           className="font-stencil uppercase transition-colors duration-300"
           style={{
@@ -276,26 +303,26 @@ export function LocationPage() {
             ™
           </sup>
         </div>
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="font-stencil uppercase transition-colors duration-300 cursor-pointer"
-            style={{
-              color: navTextSoftColor,
-              fontSize: 11,
-              letterSpacing: '0.22em',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = navTextColor)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = navTextSoftColor)}
-            aria-label="Back to TINAH home"
-          >
-            <span aria-hidden style={{ marginRight: '0.6em' }}>
-              ←
-            </span>
-            Back
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="font-stencil uppercase transition-colors duration-300 cursor-pointer justify-self-end"
+          style={{
+            color: navTextSoftColor,
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            background: 'transparent',
+            border: 'none',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = navTextColor)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = navTextSoftColor)}
+          aria-label="Back to TINAH home"
+        >
+          <span aria-hidden style={{ marginRight: '0.6em' }}>
+            ←
+          </span>
+          Back
+        </button>
       </header>
 
       {/* ============================================================
@@ -326,7 +353,7 @@ export function LocationPage() {
               backgroundColor: COLOR.ink,
             }}
           />
-          § II — The Area
+          § I — The House
           <span
             aria-hidden
             style={{
@@ -367,7 +394,7 @@ export function LocationPage() {
           }}
         >
           Mawella is the part of Sri Lanka&apos;s south coast nobody seems to
-          write about — and that is the point. A kilometre of soft sand, a
+          write about, and that is the point. A kilometre of soft sand, a
           green inland full of wildlife, far enough from Hiriketiya and
           Mirissa to feel like you have actually arrived somewhere.
         </p>
@@ -850,7 +877,7 @@ export function LocationPage() {
               backgroundColor: COLOR.ink,
             }}
           />
-          § II.a — Place &amp; Pace
+          § I.a — Place &amp; Pace
         </div>
 
         <h2
@@ -880,7 +907,7 @@ export function LocationPage() {
         >
           <p style={{ margin: 0 }}>
             The Mawella beach runs for more than a kilometre. Soft, slow,
-            mostly empty — a few fishermen at one end pulling in their nets
+            mostly empty. A few fishermen at one end pulling in their nets
             at first light, peacocks crossing the gardens at the other.
             The road thins down to a sand track before it reaches the
             gate, which is part of why no one comes here by accident.
@@ -890,7 +917,7 @@ export function LocationPage() {
             the lane in the morning, peacocks step out of the brush at
             dusk, and the air carries the sound of temple bells from two
             villages over. Ten minutes from Hiriketiya and ten from
-            Tangalle — far enough from anywhere to actually feel quiet.
+            Tangalle. Far enough from anywhere to actually feel quiet.
           </p>
           <p style={{ margin: '1.4em 0 0' }}>
             It is the kind of place built for the second week of a trip.
@@ -901,8 +928,8 @@ export function LocationPage() {
             , the tea fields above{' '}
             <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Ella</em>
             , the markets in{' '}
-            <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Galle</em>{' '}
-            — what most people need next is not another itinerary. They
+            <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Galle</em>
+            , what most people need next is not another itinerary. They
             need a long table, a slow breakfast, a kilometre of sand to
             walk and nothing in particular to do.
           </p>
@@ -936,7 +963,7 @@ export function LocationPage() {
               backgroundColor: COLOR.ink,
             }}
           />
-          § II.b — How to Arrive
+          § I.b — How to Arrive
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '5vw' }}>
@@ -1038,7 +1065,7 @@ export function LocationPage() {
               marginBottom: '4vh',
             }}
           >
-            § II.c — The Pause
+            § I.c — The Pause
           </div>
           <h2
             className="font-stencil mx-auto"
@@ -1128,6 +1155,31 @@ export function LocationPage() {
           </sup>{' '}
           · Mawella
         </div>
+        <a
+          href="https://www.instagram.com/thisisnotahotel/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram · This Is Not A Hotel"
+          className="text-[#D9D9D9] hover:text-white transition-colors"
+          style={{ lineHeight: 0 }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={18}
+            height={18}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+          </svg>
+        </a>
         <div style={{ fontSize: 12 }}>
           © 2026 This Is Not A Hotel
           <sup

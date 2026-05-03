@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useSectionProgress } from '../hooks/use-section-progress';
 
 /**
- * Details section — § V "Play / Pause".
+ * Details section — § IV "Play / Pause".
+ * Section-Renumbering 2026-04-28: § V → § IV (siehe Rituals.tsx).
  *
  * Replaces the previous two-pill version with a typographic
  * splitscreen (1:1 from the preview "TINAH Full Site Preview.html"
@@ -68,7 +69,12 @@ export function Details() {
   // gesamte Landing-Page denselben Scroll-Rhythmus teilt
   // (User-Request 2026-04-26: „passe die dynamik auf jeder section
   // auf der landing page gleichmäßig an").
-  const contentOpacity = entrance - exit * 0.75;
+  // Exit-Fade abgemildert (User-Request 2026-04-28: „kein Text darf
+  // verschwinden beim Scrollen"). Vorher: 0.75 — Text war beim
+  // Verlassen praktisch komplett weg, bevor die nächste Section da
+  // war. Jetzt: 0.35 mit Floor 0.2 → Text bleibt lesbar bis zur
+  // Section-Grenze.
+  const contentOpacity = Math.max(0.2, entrance - exit * 0.35);
   // Entrance-Slide + Exit-Drift für die zwei Hälften.
   // PLAY (links) kommt von links rein, driftet beim Verlassen weiter
   // nach links; PAUSE (rechts) spiegelverkehrt. Identisches Pattern
@@ -113,7 +119,7 @@ export function Details() {
           color: INK_SOFT,
         }}
       >
-        § V — Play / Pause
+        § IV — Play / Pause
       </div>
 
       <div

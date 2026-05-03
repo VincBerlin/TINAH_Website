@@ -72,7 +72,10 @@ export function Contact() {
   // (`translateX(-exit * 12vw)`) — und die Opazität folgt der
   // seitenweiten Konvention `entrance - exit * 0.75`.
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
-  const sectionOpacity = entrance - exit * 0.75;
+  // Exit-Fade abgemildert (User-Request 2026-04-28: „kein Text darf
+  // verschwinden beim Scrollen"). Floor bei 0.25, damit das Booking-
+  // Formular auch beim weiterscrollen lesbar bleibt.
+  const sectionOpacity = Math.max(0.25, entrance - exit * 0.35);
 
   // Es gibt keinen Room-Picker mehr — der Preis bezieht sich auf den
   // ersten Tier aus pauseConfig (Standard-Tagessatz). Tier-Auswahl
@@ -263,6 +266,24 @@ export function Contact() {
               willChange: 'transform, opacity',
             }}
           >
+            {/* Eyebrow „§ VI — The Booking" — finales Glied im
+                einheitlichen Section-Pattern (User-Request 2026-04-28). */}
+            <div
+              className="font-stencil uppercase inline-flex items-center mb-2"
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.28em',
+                color: 'rgba(255,255,255,0.85)',
+                gap: 14,
+              }}
+            >
+              <span
+                aria-hidden
+                className="inline-block h-px w-8"
+                style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}
+              />
+              § VI — The Booking
+            </div>
             <span className="block font-mono text-[11px] uppercase tracking-[0.22em] text-white/85">
               Request
             </span>
@@ -499,7 +520,10 @@ export function Contact() {
         </div>
       </section>
 
-      {/* Footer — dark strip below the Book section. */}
+      {/* Footer — dark strip below the Book section.
+          Instagram-Icon zentral zwischen Wordmark und Legal-Nav
+          (User-Request 2026-04-28: Instagram in der Site-Unterleiste
+          ganz unten). */}
       <footer
         id="contact"
         className="relative z-10 bg-[#0B0B0C] py-8 px-[6vw]"
@@ -515,9 +539,36 @@ export function Contact() {
               ™
             </sup>
           </span>
-          <span className="text-[#D9D9D9] text-xs">
-            © 2026 All rights reserved.
-          </span>
+          <div className="flex items-center gap-5">
+            <a
+              href="https://www.instagram.com/thisisnotahotel/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram · This Is Not A Hotel"
+              className="text-[#D9D9D9] hover:text-white transition-colors"
+              style={{ lineHeight: 0 }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={18}
+                height={18}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+            </a>
+            <span className="text-[#D9D9D9] text-xs">
+              © 2026 All rights reserved.
+            </span>
+          </div>
           <nav aria-label="Legal" className="flex gap-6">
             <a
               href="/privacy"
@@ -580,6 +631,13 @@ function Field({
         required={required}
         autoComplete={autoComplete}
         value={value}
+        // lang="en" auf date-Inputs zwingt Firefox / iOS Safari auf das
+        // englische Datum-Format (YYYY-MM-DD). Chrome respektiert die
+        // OS-Locale unabhängig davon — das ist Browser-Verhalten, nicht
+        // App-Bug. Der Submit-Wert ist immer ISO-8601, egal welche
+        // Locale die UI darstellt.
+        lang={type === 'date' ? 'en' : undefined}
+        placeholder={type === 'date' ? 'YYYY-MM-DD' : undefined}
         onChange={(e) => onChange(e.target.value)}
         className="
           w-full min-h-[44px] rounded-xl border border-white/15 bg-white/[0.04]
