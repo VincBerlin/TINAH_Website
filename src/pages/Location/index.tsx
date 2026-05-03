@@ -433,11 +433,25 @@ export function LocationPage() {
             </desc>
 
             <defs>
-              <radialGradient id="locFade" cx="70%" cy="92%" r="78%">
+              {/*
+                Fade-Mask 2026-04-29 (User-Request): Colombo soll oben
+                links sichtbar sein. Vorheriger Gradient war mit
+                cx=70%, cy=92%, r=78% so eng auf Mawella/Tangalle
+                zentriert, dass Colombo (120, 276) bereits jenseits
+                des 78%-Radius lag und komplett ausgefadet wurde.
+
+                Jetzt: Center mehr Mitte (cx=50%, cy=65%), Radius
+                deutlich erweitert (r=100%), und der äußerste Stop
+                fadet nur auf 0.55 statt auf 0 — damit bleiben
+                Colombo, die topographischen Konturlinien und der
+                Inland-Punkt Ella alle sichtbar, behalten aber den
+                atmosphärischen Vignette-Charakter, der die ganze
+                Karte zu einem ruhigen Dokument macht.
+              */}
+              <radialGradient id="locFade" cx="50%" cy="65%" r="100%">
                 <stop offset="0%" stopColor="#fff" stopOpacity="1" />
-                <stop offset="55%" stopColor="#fff" stopOpacity=".95" />
-                <stop offset="85%" stopColor="#fff" stopOpacity=".25" />
-                <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+                <stop offset="65%" stopColor="#fff" stopOpacity=".95" />
+                <stop offset="100%" stopColor="#fff" stopOpacity=".55" />
               </radialGradient>
               <mask id="locFadeMask">
                 <rect
@@ -1091,8 +1105,11 @@ export function LocationPage() {
             className="flex items-center justify-center flex-wrap"
             style={{ marginTop: '6vh', gap: 24 }}
           >
-            {/* CircleCTA jetzt in `glass`-Variante — heller Border,
-                weiße Schrift, passt zum dunklen Photo-Overlay. */}
+            {/* „Back to TINAH" Sekundär-Link entfernt 2026-04-29
+                (User-Request). Die PAUSE-NOW-Disc ist jetzt der
+                einzige CTA dieser Section — klarer, weniger Choice
+                Paralysis. Der Header oben hat ohnehin einen
+                „← Back"-Link für Rückkehr zur Startseite. */}
             <CircleCTA
               text="PAUSE NOW"
               variant="glass"
@@ -1108,30 +1125,6 @@ export function LocationPage() {
                 }, 50);
               }}
             />
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="font-stencil uppercase cursor-pointer"
-              style={{
-                fontSize: 11,
-                letterSpacing: '0.22em',
-                color: 'rgba(242,237,228,0.78)',
-                borderBottom: '1px solid rgba(242,237,228,0.35)',
-                paddingBottom: 4,
-                transition: 'color .3s, border-color .3s',
-                background: 'transparent',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#FFFFFF';
-                e.currentTarget.style.borderColor = '#FFFFFF';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'rgba(242,237,228,0.78)';
-                e.currentTarget.style.borderColor = 'rgba(242,237,228,0.35)';
-              }}
-            >
-              Back to TINAH
-            </button>
           </div>
         </div>
       </section>

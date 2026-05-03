@@ -500,6 +500,10 @@ export function RoomsPage() {
             className="flex items-center justify-center flex-wrap"
             style={{ marginTop: '6vh', gap: 24 }}
           >
+            {/* „Back to TINAH" Sekundär-Link entfernt 2026-04-29
+                (User-Request). Die RESERVE-Disc steht jetzt allein
+                als Section-CTA. Rückkehr zur Startseite läuft weiter
+                über den „← Back"-Link im Header oben. */}
             <CircleCTA
               text="RESERVE"
               variant="glass"
@@ -513,30 +517,6 @@ export function RoomsPage() {
                 }, 50);
               }}
             />
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="font-stencil uppercase cursor-pointer"
-              style={{
-                fontSize: 11,
-                letterSpacing: '0.22em',
-                color: 'rgba(242,237,228,0.78)',
-                borderBottom: '1px solid rgba(242,237,228,0.35)',
-                paddingBottom: 4,
-                transition: 'color .3s, border-color .3s',
-                background: 'transparent',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#FFFFFF';
-                e.currentTarget.style.borderColor = '#FFFFFF';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'rgba(242,237,228,0.78)';
-                e.currentTarget.style.borderColor = 'rgba(242,237,228,0.35)';
-              }}
-            >
-              Back to TINAH
-            </button>
           </div>
         </div>
       </section>
