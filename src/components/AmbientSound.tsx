@@ -252,14 +252,11 @@ export function AmbientSound({
     variant === 'dark'
       ? 'hover:text-white hover:border-white'
       : 'hover:text-[#0B0B0C] hover:border-[#0B0B0C]';
-  const activeDotColor = variant === 'dark' ? 'bg-white' : 'bg-[#0B0B0C]';
+  // activeDotColor + needsNudge entfernt 2026-04-29 — beide blinkenden
+  // Indikatoren sind raus (User-Request), die Variablen werden nicht
+  // mehr referenziert.
 
   const isActive = level !== 'off' && hasStarted;
-
-  // „Noch nie gestartet" heißt: der User hat nie bewusst geklickt und
-  // der Browser hat auch nicht automatisch entmutet. In dem Fall pulst
-  // der Button dezent, um ihn zu finden — ohne aufdringlich zu sein.
-  const needsNudge = !hasStarted && !hasInteracted;
 
   return (
     <>
@@ -313,28 +310,16 @@ export function AmbientSound({
             }`}
             aria-hidden
           />
-          {isActive && (
-            <span
-              aria-hidden
-              className="absolute -top-1 -right-1 flex h-1.5 w-1.5"
-            >
-              <span
-                className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping ${activeDotColor}`}
-              />
-              <span
-                className={`relative inline-flex rounded-full h-1.5 w-1.5 ${activeDotColor}`}
-              />
-            </span>
-          )}
-          {/* Dezenter Halo, solange der User den Ton noch nicht aktiviert
-              hat — lenkt den Blick ohne laut zu werden. */}
-          {needsNudge && (
-            <span
-              aria-hidden
-              className={`pointer-events-none absolute inset-0 -m-1 rounded-full opacity-50 animate-ping ${activeDotColor}`}
-              style={{ animationDuration: '2.4s' }}
-            />
-          )}
+          {/*
+            Aktiv-Dot + Nudge-Halo entfernt 2026-04-29 (User-Request:
+            „bei dem lautsprecher ist ein punkt zusehen der blinkt.
+             lösche diesen punkt er verwirrt"). Vorher pulsierte ein
+            kleiner Ochre-Punkt oben rechts am Icon, sobald Sound an
+            war, plus ein größerer Halo solange der User den Ton noch
+            nicht aktiviert hatte. Beide blinkenden Indikatoren raus —
+            das Icon selbst trägt den State (Lautsprecher mit/ohne X)
+            und das genügt.
+          */}
         </button>
       ) : (
         <button
@@ -366,20 +351,9 @@ export function AmbientSound({
           <span className="font-stencil text-[11px] uppercase tracking-[0.22em]">
             {LABEL[level]}
           </span>
-
-          {isActive && (
-            <span
-              aria-hidden
-              className="absolute -top-0.5 -right-0.5 flex h-2 w-2"
-            >
-              <span
-                className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping ${activeDotColor}`}
-              />
-              <span
-                className={`relative inline-flex rounded-full h-2 w-2 ${activeDotColor}`}
-              />
-            </span>
-          )}
+          {/* Pulsierender Aktiv-Dot entfernt 2026-04-29 (siehe
+              subtle-Branch). State wird durch das Icon + das Label
+              kommuniziert, kein zusätzlicher Indikator nötig. */}
         </button>
       )}
     </>

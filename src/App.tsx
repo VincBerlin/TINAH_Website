@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useCallback, useEffect } from 'react';
 import { TopBar } from './components/TopBar';
+import { PersistentAmbientSound } from './components/PersistentAmbientSound';
 import { Hero } from './sections/Hero';
 import { Location } from './sections/Location';
 import { Rooms } from './sections/Rooms';
@@ -75,76 +76,85 @@ function App() {
   }, []);
 
   // ============================================================
-  // Subseite /location — eigener Render-Pfad
+  // Routing-Architektur 2026-04-29 (User-Request: Musik soll bei
+  // Routenwechseln NICHT abreißen).
   // ------------------------------------------------------------
-  // Wenn der User direkt auf /location landet (oder per Link/Navigate
-  // dorthin geht), zeigen wir NUR die LocationPage. Kein Preloader,
-  // kein TopBar, keine Hero-Sections. Die LocationPage hat ihren
-  // eigenen Cream-Header mit „← Back"-Link, der wieder auf `/`
-  // navigiert. Der Sound-Toggle bleibt erreichbar, indem die TopBar
-  // hier bewusst NICHT gemountet wird — auf der Subseite soll die
-  // Lese-Atmosphäre nicht durch ein Audio-UI gebrochen werden.
+  // Vorher: drei separate `return`-Statements, einer pro Route.
+  // Beim Wechsel von `/` nach `/location` unmountete React den
+  // kompletten Tree (inkl. TopBar mit `<audio>`-Element) — die
+  // Wiedergabe brach ab.
+  //
+  // Jetzt: ein einziges JSX, alle Routen als conditional-Children.
+  // <PersistentAmbientSound /> sitzt VOR den Conditionals und
+  // bleibt damit über alle Route-Wechsel hinweg gemountet. Das
+  // <audio>-Element bleibt aktiv, das Meeresrauschen läuft
+  // kontinuierlich durch.
+  //
+  // Subseiten /location und /rooms haben keine globale TopBar
+  // (eigene Header-Bar mit „← Back"-Link), aber den Sound-Toggle
+  // sehen User trotzdem dank PersistentAmbientSound oben rechts.
   // ============================================================
-  if (route === '/location') {
-    return (
-      <>
-        <div className="grain-overlay" />
-        <Suspense fallback={null}><LocationPage /></Suspense>
-      </>
-    );
-  }
-
-  // ============================================================
-  // Subseite /rooms — eigener Render-Pfad
-  // ------------------------------------------------------------
-  // Identische Routing-Strategie wie /location: kein Preloader,
-  // keine globale TopBar, eigene Header-Bar mit „← Back"-Link in
-  // der RoomsPage. Wir mounten den Grain-Overlay weiter, damit
-  // die filmische Foto-Optik der Cream-Subseite erhalten bleibt.
-  // ============================================================
-  if (route === '/rooms') {
-    return (
-      <>
-        <div className="grain-overlay" />
-        <Suspense fallback={null}><RoomsPage /></Suspense>
-      </>
-    );
-  }
+  const isLocation = route === '/location';
+  const isRooms = route === '/rooms';
+  const isHomeLike = !isLocation && !isRooms;
 
   return (
     <>
-      {isLoading && <Preloader onComplete={handlePreloaderComplete} />}
+      {/* Preloader nur auf der Startseite — Subseiten landen direkt
+          im Cream-Layout und brauchen keinen Intro. */}
+      {isLoading && isHomeLike && (
+        <Preloader onComplete={handlePreloaderComplete} />
+      )}
 
-      {/* Grain overlay */}
+      {/* Grain overlay — auf allen Routen aktiv für konsistente Optik. */}
       <div className="grain-overlay" />
 
-      {/*
-        TopBar wird bereits WÄHREND des Preloaders gemountet.
-        Visuell bleibt sie bis zum Preloader-Ende verdeckt (Preloader hat
-        z-[9999], TopBar z-[100]), aber:
-        - das <audio>-Element im AmbientSound-Child mountet sofort,
-        - der Browser kann die Datei während der 2,6 s Preloader-Zeit laden,
-        - Meeresrauschen ist bereits zu hören, wenn der Preloader wegblendet.
-        Ohne dieses Vor-Mounten würde der Sound erst 2,6 s nach Seitenstart
-        anfangen zu laden.
-      */}
-      <TopBar variant={topBarVariant} />
+      {/* Persistenter AmbientSound-Toggle — überlebt alle
+          Route-Wechsel. Das `<audio>`-Element wird einmal gemountet
+          und bleibt über die gesamte Session aktiv. */}
+      <PersistentAmbientSound />
 
-      <div
-        className={`min-h-screen bg-[#0B0B0C] ${
-          isLoading ? 'overflow-hidden max-h-screen' : ''
-        }`}
-      >
-        <main>
-          <Hero isReady={!isLoading} />
-          <Location />
-          <Rooms />
-          <Rituals />
-          <Details />
-          <Testimonial />
-          <Contact />
-        </main>
-      </div>
+      {/* Subseite /location */}
+      {isLocation && (
+        <Suspense fallback={null}>
+          <LocationPage />
+        </Suspense>
+      )}
+
+      {/* Subseite /rooms */}
+      {isRooms && (
+        <Suspense fallback={null}>
+          <RoomsPage />
+        </Suspense>
+      )}
+
+      {/* Startseite (und Default-Fallback inkl. /pause) */}
+      {isHomeLike && (
+        <>
+          {/*
+            TopBar wird bereits WÄHREND des Preloaders gemountet.
+            Visuell bleibt sie bis zum Preloader-Ende verdeckt
+            (Preloader hat z-[9999], TopBar z-[100]).
+          */}
+          <TopBar variant={topBarVariant} />
+
+          <div
+            className={`min-h-screen bg-[#0B0B0C] ${
+              isLoading ? 'overflow-hidden max-h-screen' : ''
+            }`}
+          >
+            <main>
+              <Hero isReady={!isLoading} />
+              <Location />
+              <Rooms />
+              <Rituals />
+              <Details />
+              <Testimonial />
+              <Contact />
+            </main>
+          </div>
+        </>
+      )}
     </>
   );
 }

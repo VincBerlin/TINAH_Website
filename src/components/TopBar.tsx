@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { AmbientSound } from './AmbientSound';
+// AmbientSound-Import entfernt 2026-04-29 — der Toggle lebt jetzt in
+// `<PersistentAmbientSound />` auf App-Root, nicht mehr hier.
 import { useRoute } from '../hooks/use-route';
 
 interface TopBarProps {
@@ -379,49 +380,16 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
     </header>
 
     {/*
-      Compact Home button — ENTFERNT 2026-04-27 (User-Request:
-      „die oberste leiste soll immer mitgehen beim scrollen").
-      Da die volle TopBar jetzt permanent sichtbar bleibt, ist der
-      separate Home-Button redundant. Funktion „zurück zur Startseite"
-      ist über die Wortmarke „THIS IS NOT A HOTEL™" links in der
-      Bar weiterhin (implizit) erreichbar — sie sitzt am scrollY=0
-      Anker. Falls explizit gewünscht, kann sie auch auf-click
-      verkabelt werden.
-    */}
+      Floating Ambient-Sound-Toggle — RAUS aus der TopBar 2026-04-29
+      (User-Request: „die musik darf nicht unterbrochen werden sobald
+      man die seite wechselt"). Vorher saß der Toggle hier, was dazu
+      führte dass das `<audio>`-Element bei jedem Routenwechsel
+      unmountet wurde — die Musik brach ab.
 
-    {/*
-      Floating Ambient-Sound-Toggle — IMMER sichtbar.
-      Anders als die TopBar oder der Home-Button: dieser Button
-      bleibt beim Scrollen permanent oben rechts verankert, damit der
-      User jederzeit zwischen Laut / Leise / Aus umschalten kann.
-
-      Positionierung:
-      - fixed top-right, Safe-Area-aware (Notch, Landscape).
-      - Dezent dunkles Glas mit Border, damit das Icon auf jedem
-        Hintergrund (Meerbild, Palmenbild, Testimonial, Footer)
-        einen eigenen optischen Halt hat.
-      - z-[100] gleich wie TopBar, damit er niemals überdeckt wird.
+      Jetzt lebt der Toggle in `<PersistentAmbientSound />`, gemountet
+      auf App-Root. Damit überlebt das `<audio>`-Element alle Routen-
+      wechsel und das Meeresrauschen läuft kontinuierlich.
     */}
-    <div
-      className={`fixed z-[100] right-4 transition-opacity duration-500 ease-out ${
-        isMounted ? 'opacity-100' : 'opacity-0'
-      }`}
-      style={{
-        top: 'calc(env(safe-area-inset-top) + 10px)',
-        paddingRight: 'env(safe-area-inset-right)',
-      }}
-    >
-      {/* Wrapper-Kreis (Glas-Disc + Border + Backdrop-Blur) ENTFERNT
-          2026-04-29 (User-Request): nur das Lautsprecher-Icon stehen
-          lassen, kein runder Hintergrund mehr.
-          flex items-center justify-center bleibt, damit das Icon-SVG
-          mittig in seiner Klick-Fläche sitzt. h-9 w-9 als Touch-
-          Target-Mindestmaß (Apple HIG fordert ≥ 36 px), aber
-          vollständig transparent. */}
-      <div className="flex items-center justify-center h-9 w-9 text-[#D9D9D9] hover:text-white transition-colors">
-        <AmbientSound variant={themes.nav} subtle />
-      </div>
-    </div>
     </>
   );
 }

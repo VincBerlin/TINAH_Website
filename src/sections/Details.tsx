@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useSectionProgress } from '../hooks/use-section-progress';
 
 /**
@@ -67,37 +66,17 @@ const PAUSE: Activity[] = [
   { time: 'always', label: 'Nothing at all' },
 ];
 
-type Mode = 'both' | 'l' | 'r';
+// Refactor 2026-04-29 (User-Request: „bei play/pause seite keine
+// anklickbaren module oder animationen"). Der Mode-State, die
+// toggle-Logik (cycleMode/toggleSide), die dim-Animation und der
+// pulsierende Center-Button sind komplett raus. Die Section ist jetzt
+// rein typografisch — zwei Stencil-Säulen, Hairline dazwischen, fertig.
 
 export function Details() {
   const { ref, entrance, exit } = useSectionProgress<HTMLElement>();
   // Selbe Fade-Konvention wie Rooms.tsx + Testimonial.tsx, damit die
-  // gesamte Landing-Page denselben Scroll-Rhythmus teilt
-  // (User-Request 2026-04-26: „passe die dynamik auf jeder section
-  // auf der landing page gleichmäßig an").
-  // Exit-Fade abgemildert (User-Request 2026-04-28: „kein Text darf
-  // verschwinden beim Scrollen"). Vorher: 0.75 — Text war beim
-  // Verlassen praktisch komplett weg, bevor die nächste Section da
-  // war. Jetzt: 0.35 mit Floor 0.2 → Text bleibt lesbar bis zur
-  // Section-Grenze.
+  // gesamte Landing-Page denselben Scroll-Rhythmus teilt.
   const contentOpacity = Math.max(0.2, entrance - exit * 0.35);
-  // Entrance-Slide + Exit-Drift für die zwei Hälften.
-  // PLAY (links) kommt von links rein, driftet beim Verlassen weiter
-  // nach links; PAUSE (rechts) spiegelverkehrt. Identisches Pattern
-  // wie Rooms (`translateX(-exit * 12vw)` für die Headline).
-  const remaining = 1 - entrance;
-  const playShiftX = `${-remaining * 14 - exit * 10}vw`;
-  const pauseShiftX = `${remaining * 14 + exit * 10}vw`;
-  const [mode, setMode] = useState<Mode>('both');
-
-  const cycleMode = () =>
-    setMode((m) => (m === 'both' ? 'l' : m === 'l' ? 'r' : 'both'));
-
-  const toggleSide = (side: 'l' | 'r') =>
-    setMode((m) => (m === side ? 'both' : side));
-
-  const dimL = mode === 'r';
-  const dimR = mode === 'l';
 
   return (
     <section
@@ -135,18 +114,12 @@ export function Details() {
           opacity: contentOpacity,
         }}
       >
-        {/* LEFT — PLAY */}
+        {/* LEFT — PLAY (rein typografisch, keine Interaktion) */}
         <div
-          onClick={() => toggleSide('l')}
-          className="text-right cursor-pointer transition-opacity duration-500"
+          className="text-right"
           style={{
             padding: '0 clamp(40px, 7vw, 120px)',
-            // dim-state und entrance-Opazität multipliziert: bleibt
-            // dim-Logik erhalten und folgt zusätzlich dem Scroll-Fade
-            // der Section.
-            opacity: (dimL ? 0.28 : 1) * Math.max(0, contentOpacity),
-            transform: `translateX(${playShiftX})`,
-            willChange: 'transform, opacity',
+            opacity: Math.max(0, contentOpacity),
           }}
         >
           <div
@@ -186,7 +159,7 @@ export function Details() {
             {PLAY.map((a) => (
               <div
                 key={a.label}
-                className="inline-flex items-baseline transition-transform duration-300 hover:-translate-x-1.5"
+                className="inline-flex items-baseline"
                 style={{ gap: 18 }}
               >
                 <span
@@ -216,7 +189,10 @@ export function Details() {
           </div>
         </div>
 
-        {/* CENTER — hairline + breathing dot */}
+        {/* CENTER — Hairline + statischer Punkt (keine Interaktion,
+            keine Animation, User-Request 2026-04-29). Der Punkt sitzt
+            mittig auf der Hairline als rein dekorativer Fokus, hat
+            kein cursor-pointer und kein onClick mehr. */}
         <div
           className="self-center justify-self-center relative"
           style={{
@@ -226,36 +202,26 @@ export function Details() {
             opacity: 0.18,
           }}
         >
-          <button
-            type="button"
-            onClick={cycleMode}
-            aria-label="Toggle Play / Pause focus"
-            className="absolute left-1/2 top-1/2 cursor-pointer"
+          <span
+            aria-hidden
+            className="absolute left-1/2 top-1/2"
             style={{
               transform: 'translate(-50%, -50%)',
-              width: 14,
-              height: 14,
+              width: 10,
+              height: 10,
               borderRadius: '50%',
               background: INK,
-              border: 'none',
-              padding: 0,
-              animation: 'tinah-breathe 3.6s ease-in-out infinite',
+              opacity: 0.55,
             }}
           />
         </div>
 
-        {/* RIGHT — PAUSE */}
+        {/* RIGHT — PAUSE (rein typografisch, keine Interaktion) */}
         <div
-          onClick={() => toggleSide('r')}
-          className="text-left cursor-pointer transition-opacity duration-500"
+          className="text-left"
           style={{
             padding: '0 clamp(40px, 7vw, 120px)',
-            // dim-state und entrance-Opazität multipliziert: bleibt
-            // dim-Logik erhalten und folgt zusätzlich dem Scroll-Fade
-            // der Section.
-            opacity: (dimR ? 0.28 : 1) * Math.max(0, contentOpacity),
-            transform: `translateX(${pauseShiftX})`,
-            willChange: 'transform, opacity',
+            opacity: Math.max(0, contentOpacity),
           }}
         >
           <div
@@ -315,7 +281,7 @@ export function Details() {
             {PAUSE.map((a) => (
               <div
                 key={a.label}
-                className="inline-flex items-baseline transition-transform duration-300 hover:translate-x-1.5"
+                className="inline-flex items-baseline"
                 style={{ gap: 18, flexDirection: 'row-reverse' }}
               >
                 <span
@@ -345,27 +311,16 @@ export function Details() {
         </div>
       </div>
 
-      <div
-        className="absolute bottom-[6vh] left-1/2 -translate-x-1/2 font-mono"
-        style={{
-          fontSize: 10,
-          letterSpacing: '0.24em',
-          textTransform: 'uppercase',
-          color: INK_SOFT,
-          opacity: 0.6,
-        }}
-      >
-        Tap the dot · choose your side
-      </div>
+      {/* „Tap the dot · choose your side" Hinweis entfernt
+          2026-04-29 (User-Request: keine anklickbaren Module mehr).
+          Ohne klickbaren Center-Dot ist der Hinweis bedeutungslos. */}
 
       {/* Bottom soft fade back into the dark sections that follow. */}
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0B0B0C]/35 to-transparent pointer-events-none" />
 
       <style>{`
-        @keyframes tinah-breathe {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-          50%      { transform: translate(-50%, -50%) scale(1.6); opacity: 0.55; }
-        }
+        /* tinah-breathe Keyframes entfernt 2026-04-29 — der zentrale
+           Punkt ist jetzt statisch (User-Request: keine Animationen). */
         @media (max-width: 760px) {
           #details > div.grid {
             grid-template-columns: 1fr !important;
