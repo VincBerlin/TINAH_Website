@@ -69,7 +69,7 @@ const COLOR = {
   rule: 'rgba(28,27,23,.18)',
 } as const;
 
-const INSTAGRAM_URL = 'https://www.instagram.com/thisisnotahotel/';
+const INSTAGRAM_URL = 'https://www.instagram.com/thisisnotahotelsl/';
 
 interface GalleryImage {
   src: string;

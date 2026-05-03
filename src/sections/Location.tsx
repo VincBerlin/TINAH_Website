@@ -113,9 +113,16 @@ export function Location() {
             Section-Marker „§ I — The House"
             ============================================================
             Wieder eingeführt 2026-04-28 (User-Request): einheitliches
-            Eyebrow-Pattern über alle Site-Sections (§ I — § VI). Mikro-
-            Label, IBM-Plex-Mono-Optik, ruhig links bei den anderen
-            Eyebrows angesiedelt. */}
+            Eyebrow-Pattern über alle Site-Sections (§ I — § VI).
+
+            Bug-Fix 2026-04-29: Der Eyebrow darf NICHT statisch
+            stehen bleiben, während die Headlines beim Scrollen mit
+            `headlineShiftY` driften — sonst kreuzen sich Eyebrow
+            und Headline visuell („a house." schießt durch das Eyebrow
+            durch). Eyebrow bekommt jetzt dieselbe Transform wie der
+            Headline-Stack, läuft also angeheftet mit den Headlines
+            mit. So bleibt der Abstand Eyebrow → Headline während
+            der gesamten Scroll-Choreografie konstant. */}
         <div
           className="font-stencil uppercase inline-flex items-center mb-[5vh] md:mb-[6vh]"
           style={{
@@ -123,6 +130,8 @@ export function Location() {
             letterSpacing: '0.28em',
             color: '#5A5448',
             gap: 14,
+            transform: `translateY(${headlineShiftY})`,
+            willChange: 'transform',
           }}
         >
           <span

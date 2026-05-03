@@ -35,59 +35,58 @@ import { useSectionProgress } from '../hooks/use-section-progress';
 interface Ritual {
   n: string;
   title: string;
-  body: string;
+  /** Optional — manche Rituals haben keinen Body-Text (03 Co-Work,
+   *  04 Swim, Nap & Repeat). Dann wird der Body-Paragraph gar nicht
+   *  gerendert, statt einen leeren `<p>` anzulegen. */
+  body?: string;
   time: string;
 }
 
+// Inhalts-Update 2026-04-29 (User-Request): kompletter Tagesablauf
+// vom House neu eingespielt — sieben Stationen, einige ohne Body-
+// Notiz. Texte 1:1 aus den Owner-Screenshots übernommen.
 const RITUALS: Ritual[] = [
   {
     n: '01',
-    title: 'Sunrise on the sand.',
-    body:
-      'The dogs wake you before the sun does. Good coffee appears without being asked for.',
+    title: 'Surf',
+    body: 'Take the first wave of the day.',
     time: '06:12',
   },
   {
     n: '02',
-    title: 'Breakfast, long.',
+    title: 'Breakfast',
     body:
-      'Curd and kithul honey, egg hoppers, papaya, pol roti, whatever the garden gave up that morning.',
+      'A shot of herbal porridge, egg/plain Hoppers, fruit salad and curd .',
     time: '08:30',
   },
   {
     n: '03',
-    title: 'Swim, nap, repeat.',
-    body:
-      'The sea is calm until two. After that the current takes over. Read the flag on the post.',
+    title: 'Co-Work',
     time: '11:00',
   },
   {
     n: '04',
-    title: 'Curry, at the long table.',
-    body:
-      'Five curries and a rice. Served late, eaten slower. Seconds expected, thirds tolerated.',
+    title: 'Swim, Nap & Repeat',
     time: '13:30',
   },
   {
     n: '05',
-    title: 'A walk to the headland.',
-    body:
-      'Forty minutes out, forty minutes back. There is a temple. There is a goat. That is all.',
+    title: 'Yoga',
+    body: 'Sixtee minutes out, Sixtee minutes back.',
     time: '17:00',
   },
   {
     n: '06',
-    title: 'Arrack sour on the verandah.',
+    title: 'Sunset on the Beach',
     body:
-      "Made badly, on purpose. The recipe is on a chalkboard in the kitchen if you'd like to help.",
-    time: '19:00',
+      'Choose one of the most beautiful beaches in Sri Lanka, Mawella beach or Hiru beach.',
+    time: '18:15',
   },
   {
     n: '07',
-    title: 'Dinner, candles, arguments.',
-    body:
-      "Seafood if the boats came in. Jackfruit if they didn't. Always both, if you ask Sunil nicely.",
-    time: '20:45',
+    title: 'Dinner on the Long Table',
+    body: 'A special Five vegetable curry with rice',
+    time: '20:30',
   },
 ];
 
@@ -240,18 +239,23 @@ export function Rituals() {
                   >
                     {r.title}
                   </h3>
-                  <p
-                    className="font-serif-body italic m-0"
-                    style={{
-                      marginTop: 6,
-                      fontSize: 'clamp(13px, 1vw, 16px)',
-                      lineHeight: 1.5,
-                      color: INK_SOFT,
-                      maxWidth: '44ch',
-                    }}
-                  >
-                    {r.body}
-                  </p>
+                  {/* Body nur rendern, wenn vorhanden. Co-Work (03)
+                      und Swim/Nap/Repeat (04) brauchen keinen
+                      erklärenden Untertext — der Title trägt allein. */}
+                  {r.body && (
+                    <p
+                      className="font-serif-body italic m-0"
+                      style={{
+                        marginTop: 6,
+                        fontSize: 'clamp(13px, 1vw, 16px)',
+                        lineHeight: 1.5,
+                        color: INK_SOFT,
+                        maxWidth: '44ch',
+                      }}
+                    >
+                      {r.body}
+                    </p>
+                  )}
                 </div>
                 <span
                   className="font-mono text-[11px] uppercase justify-self-end"

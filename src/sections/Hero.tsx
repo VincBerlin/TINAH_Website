@@ -273,9 +273,26 @@ export function Hero({ isReady }: HeroProps) {
           Typo-Hierarchie sauber: H1 groß, alle Body-Zeilen klein und
           einheitlich.
         */}
+        {/*
+          Schrift-Override 2026-04-29 (User-Request): Tagline soll
+          NICHT in Allerta Stencil rendern, sondern in der Body-Schrift
+          (Inter), passend zu den drei kleinen Mikro-Texten im Hero-
+          Footer (01 Location · 02 Disposition · 03 Play | Pause).
+
+          Hintergrund: das Eltern-`<h1>` triggert die globale CSS-Regel
+          aus index.css → `h1, h2, … { font-family: 'Allerta Stencil' }`.
+          Diese Regel vererbt sich auf den `<p>` darin. Explizit
+          `fontFamily: 'Inter, sans-serif'` plus `letterSpacing: 'normal'`
+          überschreibt die Vererbung punktuell — die Tagline bleibt
+          semantisch Teil des H1, optisch aber Body-Style.
+        */}
         <p
           className="mt-[1.2vh] text-[#B7B7B7] text-[clamp(11px,0.85vw,13px)] leading-snug max-w-[640px] mx-auto"
-          style={{ fontWeight: 400 }}
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 400,
+            letterSpacing: 'normal',
+          }}
         >
           Pause Your Stay at Our Hotel on Mawella Beach Between Tangalle
           and Hiriketiya Sri Lanka.

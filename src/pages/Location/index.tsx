@@ -263,7 +263,7 @@ export function LocationPage() {
       >
         {/* Instagram-Icon links (User-Request 2026-04-28). */}
         <a
-          href="https://www.instagram.com/thisisnotahotel/"
+          href="https://www.instagram.com/thisisnotahotelsl/"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram · This Is Not A Hotel"
@@ -353,7 +353,7 @@ export function LocationPage() {
               backgroundColor: COLOR.ink,
             }}
           />
-          § I — The House
+          § I — Where
           <span
             aria-hidden
             style={{
@@ -394,7 +394,7 @@ export function LocationPage() {
           }}
         >
           Mawella is the part of Sri Lanka&apos;s south coast nobody seems to
-          write about, and that is the point. A kilometre of soft sand, a
+          write about , and that is the point. A kilometre of soft sand, a
           green inland full of wildlife, far enough from Hiriketiya and
           Mirissa to feel like you have actually arrived somewhere.
         </p>
@@ -887,12 +887,17 @@ export function LocationPage() {
             lineHeight: 1.1,
             letterSpacing: '0.02em',
             color: COLOR.ink,
-            maxWidth: '14ch',
+            // maxWidth auf 18ch erweitert (vorher 14ch), damit die
+            // neue Headline „Not a side trip, the reason for the trip."
+            // sauber in drei Zeilen umbricht statt bei „the" zu eng
+            // umzuschlagen.
+            maxWidth: '18ch',
             margin: 0,
           }}
         >
-          The kind of place built for the{' '}
-          <span style={{ color: COLOR.ochre }}>second week</span> of a trip.
+          Not a side trip,{' '}
+          <span style={{ color: COLOR.ochre }}>the reason</span> for the
+          trip.
         </h2>
 
         <div
@@ -907,7 +912,7 @@ export function LocationPage() {
         >
           <p style={{ margin: 0 }}>
             The Mawella beach runs for more than a kilometre. Soft, slow,
-            mostly empty. A few fishermen at one end pulling in their nets
+            mostly empty, a few fishermen at one end pulling in their nets
             at first light, peacocks crossing the gardens at the other.
             The road thins down to a sand track before it reaches the
             gate, which is part of why no one comes here by accident.
@@ -915,23 +920,24 @@ export function LocationPage() {
           <p style={{ margin: '1.4em 0 0' }}>
             The inland behind the dunes is dense and green. Monkeys cross
             the lane in the morning, peacocks step out of the brush at
-            dusk, and the air carries the sound of temple bells from two
-            villages over. Ten minutes from Hiriketiya and ten from
-            Tangalle. Far enough from anywhere to actually feel quiet.
+            dusk, and the air carries the sound of temple bells. Ten
+            minutes from Hiriketiya and ten from Tangalle, far enough
+            from anywhere to actually feel quiet.
           </p>
           <p style={{ margin: '1.4em 0 0' }}>
-            It is the kind of place built for the second week of a trip.
-            After the surf and parties in{' '}
             <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>
               Hiriketiya
-            </em>
-            , the tea fields above{' '}
-            <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Ella</em>
-            , the markets in{' '}
-            <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Galle</em>
-            , what most people need next is not another itinerary. They
-            need a long table, a slow breakfast, a kilometre of sand to
-            walk and nothing in particular to do.
+            </em>{' '}
+            has the surf and the parties. The hills above{' '}
+            <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Ella</em>{' '}
+            have the tea fields.{' '}
+            <em style={{ fontStyle: 'italic', color: COLOR.inkSoft }}>Galle</em>{' '}
+            has the markets. TINAH in Mawella has what most travellers come
+            to Sri Lanka looking for in the first place, a kilometre of
+            empty sand, a long table, slow mornings, and a quiet that
+            simply does not exist anywhere else on the coast. This is not
+            the detour. This is the stay you book first, and plan the rest
+            of the country around.
           </p>
         </div>
       </section>
@@ -1156,7 +1162,7 @@ export function LocationPage() {
           · Mawella
         </div>
         <a
-          href="https://www.instagram.com/thisisnotahotel/"
+          href="https://www.instagram.com/thisisnotahotelsl/"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram · This Is Not A Hotel"

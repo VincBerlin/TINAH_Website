@@ -47,17 +47,23 @@ interface Activity {
   label: string;
 }
 
+// Inhalts-Update 2026-04-29 (User-Request, Screenshot-Vorlage):
+// PLAY-Seite läuft jetzt ebenfalls auf weichen Zeit-Labels statt
+// auf harten Uhrzeiten — symmetrisch zur PAUSE-Seite. „Sunrise SURF"
+// statt „06:30 SURF" liest sich als rhythmische Anweisung, nicht als
+// Stundenplan. PAUSE-Seite mit kleinen Anpassungen: Meditation auf
+// „always", Strand-Zeile auf „at the beach".
 const PLAY: Activity[] = [
-  { time: '06:30', label: 'Surf' },
-  { time: '08:00', label: 'Run' },
-  { time: '11:00', label: 'Swim' },
-  { time: '14:00', label: 'Co-Work' },
+  { time: 'sunrise', label: 'Surf' },
+  { time: 'always', label: 'Run' },
+  { time: 'all day', label: 'Swim' },
+  { time: 'always', label: 'Co-Work' },
 ];
 
 const PAUSE: Activity[] = [
   { time: 'sunrise', label: 'Yoga' },
-  { time: 'anytime', label: 'Meditation' },
-  { time: 'all day', label: 'On the sand' },
+  { time: 'always', label: 'Meditation' },
+  { time: 'all day', label: 'At the beach' },
   { time: 'always', label: 'Nothing at all' },
 ];
 
@@ -158,7 +164,13 @@ export function Details() {
           <div
             className="font-stencil"
             style={{
-              fontSize: 'clamp(64px, 10vw, 160px)',
+              // Schrift-Verkleinerung 2026-04-29 (User-Request: „etwas
+              // verkleine play und pause schrift"). Vorher
+              // clamp(64px, 10vw, 160px) — das wirkte auf Desktop fast
+              // wie ein Plakat-Titel. Jetzt ~80% davon, immer noch
+              // dominant aber lässt der „Move · 01" / „Rest · 02"
+              // Eyebrow-Zeile mehr Atmen-Raum drüber.
+              fontSize: 'clamp(52px, 8vw, 128px)',
               lineHeight: 0.9,
               letterSpacing: '0.02em',
               color: INK,
@@ -261,7 +273,13 @@ export function Details() {
           <div
             className="font-stencil"
             style={{
-              fontSize: 'clamp(64px, 10vw, 160px)',
+              // Schrift-Verkleinerung 2026-04-29 (User-Request: „etwas
+              // verkleine play und pause schrift"). Vorher
+              // clamp(64px, 10vw, 160px) — das wirkte auf Desktop fast
+              // wie ein Plakat-Titel. Jetzt ~80% davon, immer noch
+              // dominant aber lässt der „Move · 01" / „Rest · 02"
+              // Eyebrow-Zeile mehr Atmen-Raum drüber.
+              fontSize: 'clamp(52px, 8vw, 128px)',
               lineHeight: 0.9,
               letterSpacing: '0.02em',
               color: INK,

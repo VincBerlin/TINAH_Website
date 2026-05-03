@@ -176,7 +176,7 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
             Chameleon-Farbschema automatisch. */}
         <div className="justify-self-start flex items-center gap-[1.6vw]">
           <a
-            href="https://www.instagram.com/thisisnotahotel/"
+            href="https://www.instagram.com/thisisnotahotelsl/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram · This Is Not A Hotel"
@@ -300,7 +300,14 @@ export function TopBar({ variant: _variant = 'dark' }: TopBarProps) {
         paddingRight: 'env(safe-area-inset-right)',
       }}
     >
-      <div className="flex items-center justify-center rounded-full border border-white/20 bg-[#0B0B0C]/55 backdrop-blur-md h-9 w-9 text-[#D9D9D9] hover:text-white hover:border-white/70 transition-colors">
+      {/* Wrapper-Kreis (Glas-Disc + Border + Backdrop-Blur) ENTFERNT
+          2026-04-29 (User-Request): nur das Lautsprecher-Icon stehen
+          lassen, kein runder Hintergrund mehr.
+          flex items-center justify-center bleibt, damit das Icon-SVG
+          mittig in seiner Klick-Fläche sitzt. h-9 w-9 als Touch-
+          Target-Mindestmaß (Apple HIG fordert ≥ 36 px), aber
+          vollständig transparent. */}
+      <div className="flex items-center justify-center h-9 w-9 text-[#D9D9D9] hover:text-white transition-colors">
         <AmbientSound variant={theme} subtle />
       </div>
     </div>

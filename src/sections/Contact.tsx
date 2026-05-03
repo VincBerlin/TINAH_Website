@@ -541,7 +541,7 @@ export function Contact() {
           </span>
           <div className="flex items-center gap-5">
             <a
-              href="https://www.instagram.com/thisisnotahotel/"
+              href="https://www.instagram.com/thisisnotahotelsl/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram · This Is Not A Hotel"
