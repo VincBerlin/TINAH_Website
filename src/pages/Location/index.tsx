@@ -537,15 +537,35 @@ export function LocationPage() {
                   stroke={COLOR.ink}
                   strokeWidth={1.2}
                 />
+                {/*
+                  Label-Position 2026-04-29 (User-Bug-Fix): vorher
+                  x=-12, y=-12, textAnchor=end → Label saß oben-LINKS
+                  vom Marker, exakt im Bereich, durch den die Coast-
+                  Bezier von (80, 200) nach (140, 380) verläuft. Die
+                  schwarze Linie schnitt damit horizontal durch das
+                  Wort COLOMBO und machte es unleserlich.
+
+                  Jetzt: Label oben-RECHTS vom Marker (x=10, y=-10,
+                  textAnchor=start). Dort gibt's keine Coast-Linie und
+                  keine Routen — saubere Lesbarkeit. Zusätzlich ein
+                  Cream-Halo via `paint-order: stroke` für Insurance
+                  bei Topo-Linien-Überschneidung.
+                */}
                 <text
-                  x={-12}
-                  y={-12}
-                  textAnchor="end"
+                  x={10}
+                  y={-10}
+                  textAnchor="start"
                   fontFamily="'IBM Plex Mono', monospace"
                   fontSize={11}
                   letterSpacing={1.76}
                   fill={COLOR.inkSoft}
-                  style={{ textTransform: 'uppercase' }}
+                  style={{
+                    textTransform: 'uppercase',
+                    paintOrder: 'stroke',
+                    stroke: COLOR.cream,
+                    strokeWidth: 4,
+                    strokeLinejoin: 'round',
+                  }}
                 >
                   Colombo
                 </text>
