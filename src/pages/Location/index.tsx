@@ -462,6 +462,56 @@ export function LocationPage() {
                   fill="url(#locFade)"
                 />
               </mask>
+
+              {/*
+                Linien-Auslauf bei Colombo 2026-04-29 (User-Request:
+                „lass beide enden genau so auslaufen"). Drei lineare
+                Gradients, jeweils entlang der ANFANGS-Richtung der
+                drei Pfade ausgerichtet. `userSpaceOnUse` bindet die
+                Stop-Punkte direkt an SVG-Koordinaten (statt an die
+                Pfad-Bounding-Box) — so läuft der Fade exakt vom
+                Colombo-Marker (120, 276) aus, unabhängig davon wie
+                weit der Pfad geht.
+
+                Effekt: am Marker startet die Linie unsichtbar (opacity 0),
+                bei ca. 80 Pixel Pfadlänge ist sie voll deckend. Coast
+                wird Ink (#1C1B17) full-opaque, Routes bleiben auf 0.5
+                gecapt — selbe Endgewichtung wie vorher.
+              */}
+              <linearGradient
+                id="coastFadeFromColombo"
+                gradientUnits="userSpaceOnUse"
+                x1="80"
+                y1="200"
+                x2="200"
+                y2="450"
+              >
+                <stop offset="0%" stopColor={COLOR.ink} stopOpacity="0" />
+                <stop offset="35%" stopColor={COLOR.ink} stopOpacity="1" />
+                <stop offset="100%" stopColor={COLOR.ink} stopOpacity="1" />
+              </linearGradient>
+              <linearGradient
+                id="route1FadeFromColombo"
+                gradientUnits="userSpaceOnUse"
+                x1="120"
+                y1="276"
+                x2="220"
+                y2="430"
+              >
+                <stop offset="0%" stopColor={COLOR.ochre} stopOpacity="0" />
+                <stop offset="100%" stopColor={COLOR.ochre} stopOpacity="0.5" />
+              </linearGradient>
+              <linearGradient
+                id="route2FadeFromColombo"
+                gradientUnits="userSpaceOnUse"
+                x1="120"
+                y1="276"
+                x2="340"
+                y2="225"
+              >
+                <stop offset="0%" stopColor={COLOR.ochre} stopOpacity="0" />
+                <stop offset="100%" stopColor={COLOR.ochre} stopOpacity="0.5" />
+              </linearGradient>
             </defs>
 
             <g mask="url(#locFadeMask)">
@@ -490,11 +540,13 @@ export function LocationPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {/* Coast */}
+              {/* Coast — stroke jetzt als Gradient, fadet vom Anfang
+                  bei (80, 200) sanft auf full-opacity Ink hoch
+                  (User-Request 2026-04-29). */}
               <path
                 d="M 80 200 C 100 260, 115 330, 140 380 C 160 420, 185 470, 220 540 C 245 600, 290 660, 360 695 C 410 715, 470 728, 528 742 C 580 748, 640 748, 700 745 C 760 742, 815 738, 870 720 C 930 705, 985 705, 1040 700 C 1080 695, 1115 685, 1145 660 C 1170 630, 1180 600, 1175 560"
                 fill="none"
-                stroke={COLOR.ink}
+                stroke="url(#coastFadeFromColombo)"
                 strokeWidth={1.2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -510,23 +562,28 @@ export function LocationPage() {
                 strokeDasharray="2 4"
               />
 
-              {/* Route 1 */}
+              {/* Route 1 — Süd-Coast via Galle/Hiriketiya. stroke jetzt
+                  als Gradient, der vom Colombo-Marker (120, 276) sanft
+                  auf 0.5-opacity Ochre hochläuft. opacity-Attribut
+                  entfernt, da die Endgewichtung schon im Gradient-
+                  Stop steckt. */}
               <path
                 d="M 120 276 C 200 380, 280 540, 416 713 C 470 728, 528 742, 608 742 C 700 745, 780 745, 840 730"
                 fill="none"
-                stroke={COLOR.ochre}
+                stroke="url(#route1FadeFromColombo)"
                 strokeWidth={1}
                 strokeDasharray="3 5"
-                opacity={0.5}
               />
-              {/* Route 2 */}
+              {/* Route 2 — Hügel-Route via Sigiriya/Ella. Selbe
+                  Auslauf-Logik, aber Gradient-Achse Richtung
+                  oben-rechts (340, 225), passend zur Anfangsrichtung
+                  des Pfads. */}
               <path
                 d="M 120 276 C 400 180, 800 200, 1080 305 C 1020 480, 950 600, 840 730"
                 fill="none"
-                stroke={COLOR.ochre}
+                stroke="url(#route2FadeFromColombo)"
                 strokeWidth={1}
                 strokeDasharray="3 5"
-                opacity={0.5}
               />
 
               {/* ===== STOPS ===== */}

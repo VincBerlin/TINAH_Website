@@ -266,8 +266,11 @@ export function Contact() {
               willChange: 'transform, opacity',
             }}
           >
-            {/* Eyebrow „§ VI — The Booking" — finales Glied im
-                einheitlichen Section-Pattern (User-Request 2026-04-28). */}
+            {/* Eyebrow „§ VI — Request" (User-Request 2026-04-29):
+                vorher zwei Zeilen — Stencil „§ VI — The Booking"
+                oben + Mono „REQUEST" darunter. Jetzt ein einziger
+                Eyebrow mit „§ VI — Request" als Wortlaut. „The
+                Booking" entfällt, „Request" wandert in den Eyebrow. */}
             <div
               className="font-stencil uppercase inline-flex items-center mb-2"
               style={{
@@ -282,11 +285,8 @@ export function Contact() {
                 className="inline-block h-px w-8"
                 style={{ backgroundColor: 'rgba(255,255,255,0.6)' }}
               />
-              § VI — The Booking
+              § VI — Request
             </div>
-            <span className="block font-mono text-[11px] uppercase tracking-[0.22em] text-white/85">
-              Request
-            </span>
             {/* H2 als zwei gestapelte Zeilen.
                 aria-label gibt dem Screenreader die zusammenhängende
                 Aussage als einen Satz, damit die Pause durch das
