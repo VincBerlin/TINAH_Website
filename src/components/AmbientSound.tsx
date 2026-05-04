@@ -42,12 +42,16 @@ const TARGET_VOLUME: Record<SoundLevel, number> = {
   full: 0.45,
 };
 
-// Drei-Stufen-Cycle: Laut → Leise → Aus → Laut.
-// Von 'off' springt der nächste Klick direkt wieder auf 'full' — wer
-// stumm ist und den Button erneut drückt, will offensichtlich Ton.
+// Binary-Toggle 2026-04-29 (User-Request: „ein klick auf den
+// lautsprecher muss ihn stumm schalten"). Vorher war es ein Drei-
+// Stufen-Cycle (Laut → Leise → Aus → Laut), das war für ein
+// Hintergrund-Audio aber unnötig komplex. Jetzt: ein Klick = an,
+// nochmal klicken = aus, fertig. 'soft' wird im Cycle nicht mehr
+// erreicht, der Type-Eintrag bleibt aber bestehen (Backward-
+// Compatibility falls jemand das Feld extern setzt).
 const NEXT_LEVEL: Record<SoundLevel, SoundLevel> = {
   off: 'full',
-  full: 'soft',
+  full: 'off',
   soft: 'off',
 };
 

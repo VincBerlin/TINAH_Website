@@ -85,15 +85,14 @@ export function PersistentAmbientSound() {
     };
   }, []);
 
-  // Border + Schrift-Farbe theme-aware (User-Request 2026-04-29: „baue
-  // einen kreis wieder darum aber ohne gefüllt zu sein"). Auf dunklen
-  // Sections heller Border und helles Icon, auf hellen Sections
-  // dunkler Border und dunkles Icon. KEIN Background-Fill und KEIN
-  // Backdrop-Blur — nur die Border-Linie als Kreis-Outline.
-  const borderClass =
+  // Schrift-/Icon-Farbe theme-aware. Kreis wieder ENTFERNT 2026-04-29
+  // (User-Request, zweiter Pass: „nimm doch den kreis um den
+  // lautsprecher weg"). Nur das Lautsprecher-Icon steht jetzt frei
+  // oben rechts.
+  const iconColor =
     theme === 'dark'
-      ? 'border-white/35 hover:border-white/80 text-[#D9D9D9] hover:text-white'
-      : 'border-[#1C1B17]/35 hover:border-[#1C1B17] text-[#1C1B17] hover:text-[#0B0B0C]';
+      ? 'text-[#D9D9D9] hover:text-white'
+      : 'text-[#1C1B17] hover:text-[#0B0B0C]';
 
   return (
     <div
@@ -107,16 +106,8 @@ export function PersistentAmbientSound() {
         paddingRight: 'env(safe-area-inset-right)',
       }}
     >
-      {/*
-        Kreis-Outline um den Toggle. `rounded-full border` zeichnet
-        die Linie, KEIN `bg-...` und KEIN `backdrop-blur` — der
-        Hintergrund bleibt vollständig transparent, nur der Ring ist
-        sichtbar (User-Request).
-        h-9 w-9 = 36 px Touch-Target, plus border 1px. cursor-pointer
-        wird vom inneren <button> automatisch gesetzt.
-      */}
       <div
-        className={`flex items-center justify-center h-9 w-9 rounded-full border transition-colors duration-300 ${borderClass}`}
+        className={`flex items-center justify-center h-9 w-9 transition-colors duration-300 ${iconColor}`}
       >
         <AmbientSound variant={theme} subtle />
       </div>
