@@ -285,19 +285,29 @@ export function AmbientSound({
   return (
     <>
       {/*
-        Audio-Element — autoPlay + muted + loop.
-        Browser erlauben `autoplay` nur, wenn `muted=true`. Darum startet
-        der Track stumm im Hintergrund und puffert sofort die komplette
-        MP3. Sobald der User scrollt, klickt oder die Tastatur benutzt,
-        wird über `tryStart()` umgeschaltet auf hörbar — in dem Moment
-        ist der Sound sofort da, ohne Ladezeit.
+        Audio-Element — autoPlay + dynamisches muted + loop.
+
+        Bug-Fix 2026-04-29 (User-Report: „lautsprecher icon …
+        nutzlos"): vorher war `muted` als statisches JSX-Attribut
+        gesetzt. Dadurch hat React bei jedem Re-Render — und jeder
+        State-Update wie `setLevel`, `setHasStarted` löst einen
+        Re-Render aus — die prop wieder auf das audio-Element
+        geschrieben und damit unser programmatisches `audio.muted =
+        false` aus tryStart() sofort wieder überschrieben. Resultat:
+        der Track wurde nach dem Click eine Millisekunde unmuted und
+        dann durch das Re-Render sofort wieder muted → User hörte
+        nichts.
+
+        Lösung: `muted` als kontrollierter Wert. Initial true (für
+        Browser-Autoplay-Policy), nach erstem User-Klick false,
+        bei level==='off' wieder true.
       */}
       <audio
         ref={audioRef}
         src={src}
         loop
         autoPlay
-        muted
+        muted={!hasStarted || level === 'off'}
         preload="auto"
         aria-hidden
       />
