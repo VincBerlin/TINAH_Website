@@ -124,6 +124,15 @@ export function AmbientSound({
     audio.muted = false;
     audio.volume = TARGET_VOLUME[level];
 
+    // Optimistisches Setzen 2026-04-29: hasStartedRef + hasStarted SOFORT
+    // setzen, BEVOR das play()-Promise resolved. Sonst hatte ein zweiter
+    // Klick (vor Promise-Resolution) die hasStartedRef noch auf false
+    // gesehen und ist statt zu cyclen erneut durch tryStart gelaufen —
+    // Volume-Change ging verloren. Bei einem play()-Reject setzen wir
+    // den State im catch zurück.
+    hasStartedRef.current = true;
+    setHasStarted(true);
+
     // WICHTIG: Safari (macOS & iOS) entmutet ein bereits-spielendes
     // muted-Element NICHT, wenn wir nur `muted = false` setzen — wir
     // müssen in derselben Event-Loop wie die User-Geste erneut `play()`
@@ -132,29 +141,33 @@ export function AmbientSound({
     // anderen Browser und kostet nichts.
     const p = audio.play();
     if (p && typeof p.then === 'function') {
-      p.then(() => {
-        hasStartedRef.current = true;
-        setHasStarted(true);
-      }).catch(() => {
-        // Autoplay-Block oder anderer Fehler — wir versuchen es bei der
-        // nächsten Geste erneut. hasStartedRef bleibt false.
+      p.catch(() => {
+        // Autoplay-Block oder anderer Fehler — Reset, damit die nächste
+        // Geste es erneut versuchen kann.
         audio.muted = true;
+        hasStartedRef.current = false;
+        setHasStarted(false);
       });
-    } else {
-      hasStartedRef.current = true;
-      setHasStarted(true);
     }
     return true;
   };
 
-  // Reagiert auf Level-Änderungen NACHDEM das Audio mindestens einmal
-  // erfolgreich gestartet ist. Davor wäre jede Manipulation von
-  // muted/volume entweder nutzlos (User hört nichts) oder würde vom
-  // Browser abgewiesen.
+  // Reagiert auf Level-Änderungen.
+  //
+  // Bug-Fix 2026-04-29 (User-Report: „der lautsprecher funktioniert
+  // nicht für die laut und leise funktion"). Vorher: Bail-Out wenn
+  // `hasStartedRef.current === false`. Aber hasStartedRef wird erst
+  // im .then() des audio.play()-Promises gesetzt — das ist async und
+  // kann beim Cycle-Click noch nicht resolved sein, obwohl das Audio
+  // längst spielt. Resultat: Volume-Change wurde verschluckt.
+  //
+  // Jetzt: das Audio-Element selbst als Source of Truth. Wenn das
+  // <audio> existiert, fadenden wir das Volume — egal ob der State-
+  // Sync mit React schon abgeschlossen ist. `audio.muted = false`
+  // ist idempotent, doppelter Aufruf schadet nicht.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (!hasStartedRef.current) return;
 
     const target = TARGET_VOLUME[level];
 
@@ -228,20 +241,27 @@ export function AmbientSound({
 
   // Button-Klick.
   //
-  // Wichtig: Der allererste Klick darf NICHT das Level cyclen —
-  // sonst springt der Default 'full' beim ersten Klick auf 'soft'
-  // und der User hört nur halb so laut, obwohl er Ton anmachen wollte.
+  // Logik (Refactor 2026-04-29 nach User-Bug-Report):
+  //   - Audio läuft schon hörbar → Level cyclen (Laut/Leise/Aus)
+  //   - Audio noch stumm  → tryStart() um es zu starten
   //
-  // Erster Klick: Ton anmachen (falls noch nicht gestartet).
-  // Jeder weitere Klick: Zwischen Laut / Leise / Aus durchschalten.
+  // Source of Truth ist das audio-Element selbst (`!muted && !paused`)
+  // und nicht die async-gesetzte `hasStartedRef`. Das vermeidet die
+  // Race-Condition, bei der der User schon hört aber `hasStartedRef`
+  // noch false ist (Promise pending) — vorher cyclete der zweite
+  // Klick fälschlich nicht das Level.
   const handleClick = () => {
     setHasInteracted(true);
 
-    if (!hasStartedRef.current) {
-      tryStart();
+    const audio = audioRef.current;
+    const audioIsAudible = !!audio && !audio.muted && !audio.paused;
+
+    if (audioIsAudible || hasStartedRef.current) {
+      setLevel((prev) => NEXT_LEVEL[prev]);
       return;
     }
-    setLevel((prev) => NEXT_LEVEL[prev]);
+
+    tryStart();
   };
 
   const Icon = level === 'off' ? VolumeX : level === 'soft' ? Volume1 : Volume2;

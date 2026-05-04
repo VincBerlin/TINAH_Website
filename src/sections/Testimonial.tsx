@@ -100,9 +100,9 @@ export function Testimonial() {
           opacity: Math.max(0.2, entrance - exit * 0.35),
         }}
       >
-        {/* Eyebrow „§ V — Words from Guests" über dem Google-Reviews-
-            Subtitle. Einheitliches Section-Pattern (User-Request
-            2026-04-28). */}
+        {/* Eyebrow „§ V — Words from Guests". „GOOGLE · REVIEWS"
+            Subtitle entfernt 2026-04-29 (User-Request) — der Eyebrow
+            trägt allein. */}
         <div
           className="font-stencil uppercase inline-flex items-center justify-center mb-3"
           style={{
@@ -119,9 +119,6 @@ export function Testimonial() {
           />
           § V — Words from Guests
         </div>
-        <span className="block font-mono text-[11px] uppercase tracking-[0.28em] text-[#D9D9D9]">
-          Google · Reviews
-        </span>
         {/* Heading — bewusst kleiner als in den anderen Sections.
             Reason: das Hintergrundfoto zeigt einen Gast am Strand,
             und die Headline sass vorher so gross da, dass sie die
