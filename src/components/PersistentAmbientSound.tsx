@@ -98,7 +98,13 @@ export function PersistentAmbientSound() {
     <div
       ref={wrapperRef}
       data-persistent-sound
-      className={`fixed z-[100] right-4 transition-opacity duration-500 ease-out ${
+      // z-[110] (statt vorher z-[100]) damit der Toggle ÜBER der TopBar
+      // und über den Subseiten-Headern liegt — die haben alle z-[100]
+      // und würden bei gleichem Index die Klicks abfangen, weil sie im
+      // DOM später gerendert werden.
+      // Bug-Fix 2026-04-29 (User-Report: „das lautsprecher icon lässt
+      // sich nicht bedienen, ich kann es nicht anklicken").
+      className={`fixed z-[110] right-4 transition-opacity duration-500 ease-out ${
         isMounted ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
